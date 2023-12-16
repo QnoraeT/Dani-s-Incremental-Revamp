@@ -1,0 +1,67 @@
+body {
+    background-color: #000;
+}
+
+.flex-container {
+    display: flex;
+}
+
+.flexJustifyCenter {
+    justify-content: center;
+}
+
+.flexJCSB {
+    justify-content: space-between;
+}
+
+.whiteText {
+    color: #fff;
+}
+
+.blackText {
+    color: #000;
+}
+
+.yellowText {
+    color: #ff0;
+}
+
+.grayShadow {
+    text-shadow: 2px 2px grey;
+}
+
+.fontVerdana {
+    font-family: "Verdana";
+}
+
+.fontTrebuchetMS {
+    font-family: "Helvetica, sans-serif";
+}
+
+.alignLeft {
+    text-align: left;
+}
+
+.alignCenter {
+    text-align: center;
+}
+
+.alignRight {
+    text-align: right;
+}
+
+.mediumText {
+    font-size: 24px;
+}
+
+.mediumBigText {
+    font-size: 24px;
+}
+
+.bigText {
+    font-size: 40px;
+}
+
+.text {
+    display: inline;
+}

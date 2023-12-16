@@ -1,0 +1,27 @@
+FORMULA IDEAS:
+
+NORMAL:   10 ^ ((x + 1)(x ^ 2 + 2x + 6000) / 6000)
+  > Simplified to 10 ^ (1 + x + x ^ 2 / 2000 + x ^ 3 / 6000)
+INVERSE:  log10(cubeInv(x, 1 / 6000, 1 / 2000, 1, 1))
+
+/**
+ * This solves the product
+ * Product of n=0 to x of a+bn
+ * inverse is with respect to x
+ * @param {Decimal} x 
+ * @param {Decimal} a 
+ * @param {Decimal} b 
+ */
+function linearIncreaseMulti(x, inv, a, b) {
+    x = new Decimal(x);
+    a = new Decimal(a);
+    b = new Decimal(b);
+
+    return inv 
+            ? throw  ew
+            : b.pow(x.add(1)).mul(a.div(b).add(x).factorial()).div(a.div(b).sub(1).factorial())
+}
+
+
+
+

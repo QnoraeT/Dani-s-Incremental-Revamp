@@ -1,0 +1,3 @@
+const COL_CHALLENGES = {
+
+}

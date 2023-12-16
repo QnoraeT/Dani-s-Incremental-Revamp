@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<head>
+	<title>Danidanijr's Incremental</title>
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="styles.css" rel="stylesheet" type="text/css">
+
+    <script src="src/utils/vue.js"></script>
+	<script src="src/utils/break_eternity.js"></script>
+    <script src="src/utils/calc.js"></script>
+    <script src="src/utils/format.js"></script>
+    <script src="src/main.js"></script>
+    <script src="src/utils/vueSetup.js"></script>
+
+    <script src="src/scalingSoftcap.js"></script>
+    <script src="src/kuaraniai.js"></script>
+    <script src="src/starting.js"></script>
+</head>
+<body onload="loadGame()">
+	<div id="app" class="fontVerdana">
+        <div class="flex-container">
+            <div style="flex-grow: 1; flex-basis: 0; text-align: left" class="bigText whiteText grayShadow">{{format(player.points, 3)}}</div>
+            <div style="flex-grow: 1; flex-basis: 0; text-align: center" class="mediumBigText yellowText" style="text-shadow: 2px 2px #880;">FPS: {{FPS}}</div>
+            <div style="flex-grow: 1; flex-basis: 0; text-align: right" class="bigText whiteText grayShadow">{{format(player.pps, 3)}}/s</div>
+        </div>
+        <div id="tabs">
+            <div class="flex-container" style="justify-content: center;">
+                <div v-for="(item, index) in TABS_LIST">
+                    <button v-bind:style="{ color: item.textColor(), marginRight: `3px`, marginLeft: `3px`, backgroundColor: item.backgroundColor(), border: `3px solid ${tab[0] === item.staticName() ? item.highlightColor() : item.outlineColor()}` }" v-if="item.if()" class="mediumText fontTrebuchetMS" v-on:click="switchTab(item.staticName(), 0)">{{item.name()}}</button>
+                </div>
+            </div>
+        </div>
+        <div id="generators" v-if="tab[0] === 'gen'">
+            <div id="genUP1" v-if="player.nerf.up1Active">
+
+            </div>
+            <div id="genUP2" v-if="player.nerf.up2Active && player.generators.pr2.best.gte(1)">
+
+            </div>
+        </div>
+        <div id="options" v-if="tab[0] === 'opt'">
+
+        </div>
+        <div id="stats" v-if="tab[0] === 'stat'">
+            <div class="flex-container" style="justify-content: space-between;">
+
+            </div>
+        </div>
+        <div id="achievement" v-if="tab[0] === 'ach'">
+            <!-- <div class="flex-container" style="flex-wrap: wrap;">
+                <div v-for="(item, index) in ACHIEVEMENT_DATA">
+                    <button v-bind:style="{ color: item.textColor(), marginRight: `3px`, marginLeft: `3px`, backgroundColor: item.backgroundColor(), border: `3px solid ${tab[0] === item.staticName() ? item.highlightColor() : item.outlineColor()}` }" v-if="item.if()" class="mediumText fontTrebuchetMS" v-on:click="switchTab(item.staticName(), 0)">{{item.name()}}</button>
+                </div>
+            </div> -->
+        </div>
+	</div>
+</body>
+
