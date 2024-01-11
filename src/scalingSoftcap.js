@@ -1,5 +1,5 @@
 function updateScaling(type) {
-    if (tmp.scaling === undefined) { tmp.scaling = {} };
+    if (tmp.scaling === undefined) { tmp.scaling = {}; };
     switch (type) {
         case "upg1":
             if (tmp.scaling.upg1 === undefined) { tmp.scaling.upg1 = [] };
@@ -24,14 +24,14 @@ function updateScaling(type) {
 }
 
 function updateSoftcap(type) {
-    if (tmp.softcap === undefined) { tmp.softcap = {} };
+    if (tmp.softcap === undefined) { tmp.softcap = {}; };
     switch (type) {
         case "upg2":
             if (tmp.softcap.upg2 === undefined) { tmp.softcap.upg2 = [] };
             tmp.softcap.upg2[0] = { start: D(10), strength: D(1) };
             if (player.generators.pr2.amount.gte(5)) {
-                tmp.softcap.upg2[0].start = tmp.softcap.upg2[0].start.mul(3)
-                tmp.softcap.upg2[0].strength = tmp.softcap.upg2[0].strength.div(1.5)
+                tmp.softcap.upg2[0].start = tmp.softcap.upg2[0].start.mul(3);
+                tmp.softcap.upg2[0].strength = tmp.softcap.upg2[0].strength.div(1.5);
             }
             break;
         default:

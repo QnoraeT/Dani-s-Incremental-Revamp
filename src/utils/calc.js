@@ -16,8 +16,8 @@ const DEFAULT_SCALE = [
     { name: "meta",          pow: D(6),   type: 2, color() { return `#00C7F3` } },
     { name: "exotic",        pow: D(15),  type: 0, color() { return `#FF8000` } },
     { name: "instant",       pow: D(75),  type: 0, color() { return `#D0D0D0` } },
-    { name: "wtf",           pow: D(100), type: 1, color() { return `#0060FF` } },
-    { name: "ultimate",      pow: D(60),  type: 2, color() { return `#0060FF` } }
+    { name: "wtf",           pow: D(100), type: 1, color() { return colorChange("#ffffff", Math.sin(otherGameStuffIg.sessionTime) ** 2, 1) } },
+    { name: "ultimate",      pow: D(60),  type: 2, color() { return gRC(otherGameStuffIg.sessionTime, 1, 1) } }
 ]
 
 function doAllScaling(x, scalList, inv, customScaling = []) {
@@ -33,12 +33,12 @@ function doAllScaling(x, scalList, inv, customScaling = []) {
     x = D(x);
     for (let i = 0; i < scalList.length; i++) {
         index = inv ? i : scalList.length - i - 1;
-        stat = doSpecial ? (customScaling[index] ?? DEFAULT_SCALE[index]) : DEFAULT_SCALE[index]
+        stat = doSpecial ? (customScaling[index] ?? DEFAULT_SCALE[index]) : DEFAULT_SCALE[index];
         sta = scalList[index].start;
         pow = scalList[index].strength;
         x = scale(x, stat.type, inv, sta, pow, stat.pow);
     }
-    return x
+    return x;
 }
 
 /**
@@ -51,16 +51,16 @@ function doAllScaling(x, scalList, inv, customScaling = []) {
  * @returns {Decimal}
  */
 function scale(num, type, inverse = false, start, str, powScale) {
-    if (num.lte(start)) {
-        return num;
-    }
+    if (num.lte(start)) { return num; }
     str = Decimal.pow(powScale, str);
     switch (type) {
+        // Polynomial
         case 0:
         case "P":
             return inverse
                     ? num.sub(start).mul(str).div(start).add(1).root(str).mul(start)
                     : num.div(start).pow(str).sub(1).mul(start).div(str).add(start)
+        // Exponential
         case 1:
         case 1.1:
         case "E1":
@@ -72,6 +72,14 @@ function scale(num, type, inverse = false, start, str, powScale) {
             return inverse
                     ? num.mul(str).mul(str.ln()).div(start).lambertw().mul(start).div(str.ln())
                     : Decimal.pow(str, num.div(start).sub(1)).mul(num)
+        // i gotta say, i have to give props to alemaninc for coming up with this cuz i never figured out a way to make a log cap smooth without an extreme speed difference lol
+        case 1.3:
+        case "E3":
+            str = str.sub(1);
+            return inverse
+                    ? num.div(start).pow(str).sub(1).div(str).exp().mul(start)
+                    : num.div(start).ln().mul(str).add(1).root(str).mul(start)
+        // Semi-exponential
         case 2:
         case 2.1:
         case "SE1":
@@ -88,9 +96,7 @@ function scale(num, type, inverse = false, start, str, powScale) {
     }
 }
 
-function D(x) {
-    return new Decimal(x);
-}
+function D(x) { return new Decimal(x); }
 
 function pad(num, length) {
     while (num.length < length) {
@@ -247,11 +253,6 @@ function intRand(min, max) {
  * @returns {Decimal}
  */
 function inverseQuad(x, a, b, c) { // inverse of ax^2+bx+c, only
-    x = new Decimal(x);
-    a = new Decimal(a);
-    b = new Decimal(b);
-    c = new Decimal(c);
-    
     return b.pow(2).add(x.mul(a).mul(4)).sub(a.mul(c).mul(4)).sqrt().sub(b).div(a.mul(2));
 }
 
@@ -273,6 +274,7 @@ function inverseCube(x, a, b, c, d, tol = 1e-10) { // inverse of ax^3+bx^2+cx+d,
     res = x.root(3);
     r;
 
+    // newton's method 
     for (var i = 0; i < 100; ++i) {
         r = res.sub(res.pow(3).mul(a).add(res.pow(2).mul(b)).add(res.mul(c)).add(d).sub(x).div(res.pow(2).mul(a).mul(3).add(res.mul(b).mul(2)).add(c)));
         if (res.sub(r).abs().lt(tol)) {
@@ -297,11 +299,3 @@ function inverseFact(x) {
     return x.div(dsqr2pi).ln().div(Math.E).lambertw().add(1).exp().sub(0.5);
 }
 
-
-
-
-// y = b^(x+1) * File(a/b + x) / File(a/b)
-// y = invF(x * File(a/b) / b^(x+1)) - a/b
-
-
-// File(a+b)/File(a)

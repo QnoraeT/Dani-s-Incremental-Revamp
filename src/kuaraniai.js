@@ -2,33 +2,33 @@ const KUA_UPGRADES = {
     KShards: [
         {
             desc() {
-                return "Unlock UP2's autobuyer and Kuaraniai Gain is multiplied by 3x"
+                return "Unlock UP2's autobuyer and Kuaraniai Gain is multiplied by 3x";
             },
             cost() {
-                return D(10)
+                return D(10);
             },
             show() {
-                return true
+                return true;
             }
         }
     ],
     KPower: [
         {
             desc() {
-                return ""
+                return "";
             },
             cost() {
-                return D(1000)
+                return D(1000);
             },
             show() {
-                return true
+                return true;
             }
         }
     ]
 }
 
 function updateAllKua() {
-    updateKua("kua")
+    updateKua("kua");
 }
 
 function updateKua(type) {

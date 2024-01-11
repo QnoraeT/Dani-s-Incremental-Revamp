@@ -22,6 +22,3 @@ function linearIncreaseMulti(x, inv, a, b) {
             : b.pow(x.add(1)).mul(a.div(b).add(x).factorial()).div(a.div(b).sub(1).factorial())
 }
 
-
-
-

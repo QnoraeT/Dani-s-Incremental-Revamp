@@ -65,3 +65,73 @@ body {
 .text {
     display: inline;
 }
+
+.mediumButton {
+    width: 200px;
+	height: 150px;
+}
+
+.thinMediumButton {
+    width: 200px;
+	height: 50px;
+}
+
+.largeButton {
+    width: 300px;
+	height: 200px;
+}
+
+.autoButton {
+    transition-duration: 0.2s;
+    background-color: #1c2024; 
+}
+
+.generatorButton {
+    transition-duration: 0.2s;
+    background-color: #1c2024; 
+}
+
+.generatorButton:hover {
+    background-color: #384048; 
+}
+
+.genAutoButton {
+    transition-duration: 0.2s;
+    border: 5px solid #384048; 
+}
+
+.genAutoButton:hover {
+    border: 5px solid #515c68; 
+}
+
+.nope {
+    border: 5px solid #400
+}
+
+.nope:hover {
+    border: 5px solid #600
+}
+
+.ok {
+    border: 5px solid #040
+}
+
+.ok:hover {
+    border: 5px solid #0f0
+}
+
+.nopeFill {
+    background-color: #400
+}
+
+.nopeFill:hover {
+    background-color: #800
+}
+
+.okFill {
+    background-color: #040
+}
+
+.okFill:hover {
+    background-color: #080
+}

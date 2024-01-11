@@ -55,12 +55,12 @@ function format(number, dec = 0, expdec = 3) {
     }
 }
 
-function formatPerc(number, dec = 0, expdec = 3) {
+function formatPerc(number, dec = 3, expdec = 3) {
     let n = new Decimal(number);
     if (n.gte(1000)) {
-        return format(n, dec, expdec) + "x"
+        return format(n, dec, expdec) + "x";
     } else {
-        return format(Decimal.sub(1, Decimal.div(1, n)), dec, expdec) + "%"
+        return format(Decimal.sub(100, Decimal.div(100, n)), dec, expdec) + "%";
     }
 }
 
@@ -71,23 +71,23 @@ function formatTime(number, dec = 0, expdec = 3, limit = 2) {
     if (!Decimal.isFinite(n.mag)) return "Forever";
     if (Decimal.isNaN(n.mag)) return "I don't know?";
     let lim = 0;
-    let str = ""
+    let str = "";
     for (let i = timeList.length - 1; i >= 0; i--) {
         if (lim >= limit) {
             break;
         }
         if (n.gte(timeList[i].amt)) {
-            str = str + " " + format(n.div(timeList[i].amt), 0, expdec) + " " + timeList[i].name
-            n = n.sub(n.div(timeList[i].amt).floor().mul(timeList[i].amt))
-            lim++
+            str = str + " " + format(n.div(timeList[i].amt), 0, expdec) + " " + timeList[i].name;
+            n = n.sub(n.div(timeList[i].amt).floor().mul(timeList[i].amt));
+            lim++;
             if (timeList[i].stop) {
                 break;
             }
         } else {
             if (i === 0) {
-                return format(n, dec, expdec) + " s"
+                return format(n, dec, expdec) + " s";
             }
         }
     }
-    return str
+    return str.slice(1);
 }

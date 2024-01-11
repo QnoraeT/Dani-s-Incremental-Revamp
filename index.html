@@ -17,26 +17,112 @@
     <script src="src/starting.js"></script>
 </head>
 <body onload="loadGame()">
+    <!-- I HATE HTML IT SUCKS -->
 	<div id="app" class="fontVerdana">
         <div class="flex-container">
             <div style="flex-grow: 1; flex-basis: 0; text-align: left" class="bigText whiteText grayShadow">{{format(player.points, 3)}}</div>
-            <div style="flex-grow: 1; flex-basis: 0; text-align: center" class="mediumBigText yellowText" style="text-shadow: 2px 2px #880;">FPS: {{FPS}}</div>
+            <div style="flex-grow: 1; flex-basis: 0; text-align: center" class="mediumBigText yellowText" style="text-shadow: 2px 2px #880;">FPS: {{otherGameStuffIg.FPS}}</div>
             <div style="flex-grow: 1; flex-basis: 0; text-align: right" class="bigText whiteText grayShadow">{{format(player.pps, 3)}}/s</div>
         </div>
         <div id="tabs">
             <div class="flex-container" style="justify-content: center;">
                 <div v-for="(item, index) in TABS_LIST">
-                    <button v-bind:style="{ color: item.textColor(), marginRight: `3px`, marginLeft: `3px`, backgroundColor: item.backgroundColor(), border: `3px solid ${tab[0] === item.staticName() ? item.highlightColor() : item.outlineColor()}` }" v-if="item.if()" class="mediumText fontTrebuchetMS" v-on:click="switchTab(item.staticName(), 0)">{{item.name()}}</button>
+                    <button v-bind:style="{ 
+                        color: item.textColor(), 
+                        marginRight: `3px`, 
+                        marginLeft: `3px`, 
+                        backgroundColor: item.backgroundColor(), 
+                        border: `3px solid ${tab[0] === item.staticName() ? item.highlightColor() : item.outlineColor()}` 
+                    }" v-if="item.if()" class="mediumText fontTrebuchetMS" v-on:click="switchTab(item.staticName(), 0)">{{item.name()}}</button>
                 </div>
             </div>
         </div>
         <div id="generators" v-if="tab[0] === 'gen'">
-            <div id="genUP1" v-if="player.nerf.up1Active">
-
-            </div>
-            <div id="genUP2" v-if="player.nerf.up2Active && player.generators.pr2.best.gte(1)">
-
-            </div>
+            <table style="margin-top: 12px; margin-left: auto; margin-right: auto;">
+                <tr>
+                    <td>
+                        <button style="text-align: center" 
+                        v-bind:class="{ nope: player.points.lt(player.generators.upg1.cost), ok: player.points.gte(player.generators.upg1.cost) }"
+                        class="whiteText mediumButton fontVerdana generatorButton" id="genUP1" v-if="player.nerf.up1Active" v-on:click="buyGenUPG(1)">
+                            <h3>Upgrade 1: {{format(player.generators.upg1.bought)}}{{player.generators.upg2.freeExtra.gt(0)?` (+${format(player.generators.upg2.freeExtra)})`:""}}</h3>
+                            Increase point gain by {{format(player.generators.upg1.calculatedEB, 2)}}x
+                            <br>Total: {{format(player.generators.upg1.effect, 2)}}x to point gain
+                            <br><span v-bind:style="{ color: tmp.up1ScalingColor }">Cost: {{format(player.generators.upg1.cost)}} points
+                        </button>
+                        <button style="text-align: center" 
+                        v-bind:class="{ nopeFill: !player.auto.upg1, okFill: player.auto.upg1 }"
+                        class="whiteText thinMediumButton fontVerdana genAutoButton" id="genUP1" v-if="player.nerf.up1Active" v-on:click="player.auto.upg1 = !player.auto.upg1">
+                            <b>Upgrade 1 Autobuyer: {{player.auto.upg1?"On":"Off"}}</b>
+                        </button>
+                    </td>
+                    <td>
+                        <button style="text-align: center" 
+                        v-bind:class="{ nope: player.points.lt(player.generators.upg2.cost), ok: player.points.gte(player.generators.upg2.cost) }"
+                        class="whiteText mediumButton fontVerdana generatorButton" id="genUP2" v-if="player.nerf.up2Active && player.generators.pr2.best.gte(1)" v-on:click="buyGenUPG(2)">
+                            <h3>Upgrade 2: {{format(player.generators.upg2.bought)}}{{player.generators.upg2.freeExtra.gt(0)?` (+${format(player.generators.upg2.freeExtra)})`:""}}</h3>
+                            Decreases Upgrade 1's cost by {{format(player.generators.upg2.calculatedEB, 2)}}x
+                            <br>Total: /{{format(player.generators.upg2.effect, 2)}} to Upgrade 1's cost
+                            <br><span v-bind:style="{ color: tmp.up2ScalingColor }">Cost: {{format(player.generators.upg2.cost)}} points
+                        </button>
+                    </td>
+                    <td>
+                        <!-- <button class="mediumButton" id="genUP3">
+                        </button> -->
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <!-- <button class="mediumButton" id="genUP4">
+                        </button> -->
+                    </td>
+                    <td>
+                        <!-- <button class="mediumButton" id="genUP5">
+                        </button> -->
+                    </td>
+                    <td>
+                        <!-- <button class="mediumButton" id="genUP6">
+                        </button> -->
+                    </td>
+                </tr>
+            </table>
+            <table style="margin-top: 12px; margin-left: auto; margin-right: auto;">
+                <tr>
+                    <td>
+                        <button style="text-align: center" 
+                        v-bind:class="{ nope: !tmp.praiCanDo, ok: tmp.praiCanDo }"
+                        class="whiteText largeButton fontVerdana generatorButton" id="prai" v-if="player.nerf.praiActive" v-on:click="reset('prai')">
+                        <h3>PRai: {{format(player.generators.prai.amount)}}</h3>
+                            {{`Reset your progress to gain ${player.generators.pr2.best.gte(1) ? format(tmp.praiPending) + " " : ""}PRai.`}}
+                            <br>{{
+                                tmp.praiCanDo
+                                    ? tmp.praiPending.lt(1e6) && player.generators.pr2.best.gte(1)
+                                        ? `Next in ${format(tmp.praiNext)} points.`
+                                        : ""
+                                    : `You can PRai reset in ${formatTime(tmp.praiNext)}`
+                            }}
+                            <br>You have {{format(player.generators.prai.amount)}} PRai, which boosts your points by {{format(player.generators.prai.effect, 2)}}x.
+                            <br>{{tmp.praiCanDo ? `Resetting now, PRai will boost your points by ${format(tmp.praiNextEffect, 2)}x` : ""}}
+                        </button>
+                    </td>
+                    <td>
+                        <button style="text-align: center" 
+                        v-bind:class="{ nope: !tmp.pr2CanDo, ok: tmp.pr2CanDo }"
+                        class="whiteText largeButton fontVerdana generatorButton" id="pr2" v-if="player.nerf.pr2Active && player.generators.prai.best.gte(3)" v-on:click="reset('pr2')">
+                            <h3>PR2: {{format(player.generators.pr2.amount)}}</h3>
+                            Reset all of your previous progress to for a PR2 reset.
+                            <br>{{
+                                tmp.pr2CanDo
+                                    ? false
+                                        ? `You can PR2 reset ${format(player.generators.pr2.target.sub(player.generators.pr2.amount).floor())} times!`
+                                        : `You can PR2 reset! (${format(player.generators.prai.amount)} / ${format(player.generators.pr2.cost)} PRai)`
+                                    : `You need ${format(player.generators.prai.amount)} / ${format(player.generators.pr2.cost)} PRai to PR2 reset.`
+                            }}
+                            <br>You have {{format(player.generators.pr2.amount)}} PR2, which boosts your PRai and points by {{format(player.generators.pr2.effect, 2)}}x.
+                            <br>At {{format(tmp.pr2Text.at)}} PR2 reset{{tmp.pr2Text.at.eq(1)?"":"s"}}, {{tmp.pr2Text.txt}}
+                        </button>
+                    </td>
+                </tr>
+            </table>
         </div>
         <div id="options" v-if="tab[0] === 'opt'">
 

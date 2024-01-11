@@ -2030,7 +2030,11 @@
               copy = Decimal.pow(base, copy);
               result -= 1;
             } else if (copy.lte(Decimal.dOne)) {
-              if (linear) return Decimal.fromNumber(result + copy.toNumber() - 1);else return Decimal.fromNumber(result + Decimal.slog_critical(base.toNumber(), copy.toNumber()));
+              if (linear) {
+                return Decimal.fromNumber(result + copy.toNumber() - 1);
+              } else {
+                return Decimal.fromNumber(result + Decimal.slog_critical(base.toNumber(), copy.toNumber()));
+              }
             } else {
               result += 1;
               copy = Decimal.log(copy, base);

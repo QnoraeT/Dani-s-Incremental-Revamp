@@ -1,19 +1,24 @@
 var app;
 
 function loadVue() {
-    console.log(FPS)
 	app = new Vue({
 	    el: "#app",
 	    data: {
             Decimal,
             game,
             player,
-			format,
             tmp,
+			format,
+            formatTime,
+            switchTab,
             TABS_LIST,
             tab,
-            switchTab,
-            FPS
+            otherGameStuffIg,
+            DEFAULT_SCALE,
+            gRC,
+            colorChange,
+            buyGenUPG,
+            reset,
         }
 	})
 }
