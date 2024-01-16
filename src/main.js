@@ -86,7 +86,7 @@ function switchTab(t, id) {
 function resetPlayer() {
     player = {
         chapter: 0,
-        achievements: {},
+        achievements: [],
         points: dZero,
         pps: dOne,
         totalPoints: dZero,
@@ -284,7 +284,7 @@ function reset(what) {
 }
 
 function calcPointsPerSecond() {
-    let i = D(1);
+    let i = dOne;
     i = i.mul(player.generators.upg1.effect);
     i = i.mul(player.generators.prai.effect);
     i = i.mul(player.generators.pr2.effect);

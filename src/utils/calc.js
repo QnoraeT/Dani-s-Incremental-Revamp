@@ -3,6 +3,7 @@
 const dZero = Decimal.dZero;
 const dOne = Decimal.dOne;
 const dTwo = Decimal.dTwo;
+const dFour = Decimal.fromComponents_noNormalize(1, 0, 4);
 const dTen = Decimal.dTen;
 const dsqr2pi = new Decimal(Math.sqrt(2 * Math.PI))
 const ln10 = dTen.ln();
@@ -257,7 +258,7 @@ function inverseQuad(x, a, b, c) { // inverse of ax^2+bx+c, only
 }
 
 /**
- * uses newton's method to find the inverse (the one wolfram alpha gave me behaved poorly due to floating poiint errors above 1e10+)
+ * uses newton's method to find the inverse (the one wolfram alpha gave me behaved poorly due to floating point errors above 1e10+)
  * @param {Decimal} x the value before the cubic polynomial
  * @param {Decimal} a ax^3 
  * @param {Decimal} b + bx^2
@@ -265,7 +266,7 @@ function inverseQuad(x, a, b, c) { // inverse of ax^2+bx+c, only
  * @param {Decimal} d + d
  * @returns {Decimal}
  */
-function inverseCube(x, a, b, c, d, tol = 1e-10) { // inverse of ax^3+bx^2+cx+d, only for positive values!!
+function inverseCube(x, a, b, c, d, tol = 1e-10) { // inverse of ax^3+bx^2+cx+d
     x = new Decimal(x);
     a = new Decimal(a);
     b = new Decimal(b);
@@ -298,4 +299,3 @@ function inverseFact(x) {
     if (x.layer > 1 && x.mag >= 10000) return x.log10().div(i.log10().log10());
     return x.div(dsqr2pi).ln().div(Math.E).lambertw().add(1).exp().sub(0.5);
 }
-

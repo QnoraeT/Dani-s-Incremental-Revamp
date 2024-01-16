@@ -5,17 +5,17 @@
 const PR2_EFF = [
     {
         shown() { return true; },
-        when() { return dZero },
+        when() { return dOne },
         text() { return `you gain a new upgrade and make PRai resets unforced.` }
     },
     {
         shown() { return true; },
-        when() { return dOne },
+        when() { return dTwo },
         text() { return `unlock the Upgrade 1 Autobuyer.` }
     },
     {
         shown() { return true; },
-        when() { return D(4) },
+        when() { return D(5) },
         text() { return `weaken the Upgrade 2 softcap by ${formatPerc(3, 3)} and delay it from ${format(10)} -> ${format(30)}`}
     }
 ]
@@ -79,12 +79,15 @@ function updateStart(type) {
             i = player.generators.upg1.bought;
             i = i.add(player.generators.upg1.freeExtra);
             player.generators.upg1.effective = i;
-            player.generators.upg1.effect = Decimal.pow(player.generators.upg1.effectBase, player.generators.upg1.effective);
+
+            i = Decimal.pow(player.generators.upg1.effectBase, player.generators.upg1.effective)
+            player.generators.upg1.effect = i;
+
+            i = Decimal.pow(player.generators.upg1.effectBase, player.generators.upg1.effective.add(1))
+            player.generators.upg1.calculatedEB = i.div(player.generators.upg1.effect);
 
             tmp.upg1CanBuy = player.points.gte(player.generators.upg1.cost);
             player.generators.upg1.best = player.generators.upg1.best.max(player.generators.upg1.bought);
-
-            player.generators.upg1.calculatedEB = player.generators.upg1.effect.root(player.generators.upg1.effective);
 
             tmp.up1ScalingColor = `#FFFFFF`
             for (let i = tmp.scaling.upg1.length - 1; i >= 0; i--) {
@@ -126,10 +129,17 @@ function updateStart(type) {
             i = i.add(player.generators.upg2.freeExtra);
             player.generators.upg2.effective = i;
 
-            player.generators.upg2.effect = Decimal.pow(player.generators.upg2.effectBase, player.generators.upg2.effective);
+            i = Decimal.pow(player.generators.upg2.effectBase, player.generators.upg2.effective);
             sta = tmp.softcap.upg2[0].start;
             pow = tmp.softcap.upg2[0].strength;
-            player.generators.upg2.effect = scale(player.generators.upg2.effect, 0, false, sta, pow, D(0.5));
+            i = scale(i, 0, false, sta, pow, D(0.5));
+            player.generators.upg2.effect = i;
+
+            i = Decimal.pow(player.generators.upg2.effectBase, player.generators.upg2.effective.add(1));
+            sta = tmp.softcap.upg2[0].start;
+            pow = tmp.softcap.upg2[0].strength;
+            i = scale(i, 0, false, sta, pow, D(0.5));
+            player.generators.upg2.calculatedEB = i.div(player.generators.upg2.effect);
 
             tmp.upg2CanBuy = player.points.gte(player.generators.upg2.cost);
 
@@ -146,7 +156,7 @@ function updateStart(type) {
             break;
         case "prai":
             tmp.praiReq = D(1e6);
-            tmp.praiExp = D(0.25);
+            tmp.praiExp = D(0.5);
 
             if (player.generators.pr2.amount.gte(1) && player.totalPointsInPRai.gte(tmp.praiReq)) {
                 i = player.totalPointsInPRai;
@@ -182,17 +192,17 @@ function updateStart(type) {
 
             i = player.generators.pr2.amount;
             i = i.add(player.generators.pr2.freeExtra)
-            i = i.max(0).add(1).pow(1.25);
+            i = i.max(0).add(1).pow(scale(i.pow(2).mul(0.1).add(1), 1.3, false, dFour, dOne, dTwo));
             player.generators.pr2.effect = i;
 
             tmp.pr2CostDiv = D(1);
 
             scal = player.generators.pr2.amount;
             scal = doAllScaling(scal, tmp.scaling.pr2, false);
-            player.generators.pr2.cost = scal.add(1).mul(scal.add(2)).mul(5).div(tmp.pr2CostDiv);
+            player.generators.pr2.cost = Decimal.pow(100, scal.pow(1.1).add(1)).div(tmp.pr2CostDiv);
 
             if (player.generators.prai.amount.gte(10)) {
-                scal = player.generators.prai.amount.mul(tmp.pr2CostDiv).mul(0.8).add(1).sqrt().sub(3).div(2);
+                scal = player.generators.prai.amount.mul(tmp.pr2CostDiv).log10().div(2).sub(1).root(1.1);
                 scal = doAllScaling(scal, tmp.scaling.pr2, true);
                 player.generators.pr2.target = scal;
             } else {
@@ -202,10 +212,13 @@ function updateStart(type) {
             tmp.pr2CanDo = player.generators.prai.amount.gte(player.generators.pr2.cost);
 
             tmp.pr2Text = "";
-            for (let i = PR2_EFF.length - 1; i >= 0; i--) {
-                if (player.generators.pr2.amount.gte(PR2_EFF[i].when()) && PR2_EFF[i].shown()) {
-                    tmp.pr2Text = {at: PR2_EFF[i].when().add(1), txt: PR2_EFF[i].text()};
-                    break;
+            if (player.generators.pr2.amount.lte(PR2_EFF[PR2_EFF.length - 1].when())) {
+                for (i in PR2_EFF) {
+                    // console.log(`${format(player.generators.pr2.amount)} / ${PR2_EFF[i].when()}`)
+                    if (player.generators.pr2.amount.lt(PR2_EFF[i].when()) && PR2_EFF[i].shown()) {
+                        tmp.pr2Text = {info: PR2_EFF[i].when(), txt: PR2_EFF[i].text()};
+                        break;
+                    }
                 }
             }
             break;

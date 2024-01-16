@@ -19,6 +19,8 @@ function loadVue() {
             colorChange,
             buyGenUPG,
             reset,
+            ACHIEVEMENT_DATA,
+            ACH_DEF_COLORS,
         }
 	})
 }
