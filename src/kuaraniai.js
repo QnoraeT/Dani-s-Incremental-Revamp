@@ -5,7 +5,7 @@ const KUA_UPGRADES = {
                 return "Unlock UP2's autobuyer and Kuaraniai Gain is multiplied by 3x";
             },
             cost() {
-                return D(10);
+                return dTen;
             },
             show() {
                 return true;

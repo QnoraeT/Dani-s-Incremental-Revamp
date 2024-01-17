@@ -87,15 +87,15 @@ function resetPlayer() {
     player = {
         chapter: 0,
         achievements: [],
-        points: dZero,
-        pps: dOne,
-        totalPoints: dZero,
-        totalPointsInPRai: dZero,
+        points: c.d0,
+        pps: c.d1,
+        totalPoints: c.d0,
+        totalPointsInPRai: c.d0,
         inChallenge: [], 
         totalTime: 0, // timespeed doesn't affect this
-        gameTime: dZero, // timespeed will affect this (totalGameTime)
-        timeSpeed: dOne,
-        setTimeSpeed: dOne, // change this if you think the game is going too fast or slow, i won't judge you =P
+        gameTime: c.d0, // timespeed will affect this (totalGameTime)
+        timeSpeed: c.d1,
+        setTimeSpeed: c.d1, // change this if you think the game is going too fast or slow, i won't judge you =P
         version: 0,
         nerf: {
             up1Active: true,
@@ -110,61 +110,61 @@ function resetPlayer() {
         },
         generators: {
             upg1: {
-                cost: D(5),
-                target: dZero,
-                effectBase: D(1.5),
-                calculatedEB: D(1.5),
-                costBase: D(1.55),
-                bought: dZero,
-                freeExtra: dZero,
-                effective: dZero,
-                effect: dOne,
-                best: dZero
+                cost: c.d5,
+                target: c.d0,
+                effectBase: c.d1_5,
+                calculatedEB: c.d1_5,
+                costBase: c.d1_55,
+                bought: c.d0,
+                freeExtra: c.d0,
+                effective: c.d0,
+                effect: c.d1,
+                best: c.d0
             },
             upg2: {
-                cost: D(1000),
-                target: dZero,
-                effectBase: D(1.2),
-                calculatedEB: D(1.2),
-                costBase: D(1.25),
-                bought: dZero,
-                freeExtra: dZero,
-                effective: dZero,
-                effect: dOne,
-                best: dZero
+                cost: c.e3,
+                target: c.d0,
+                effectBase: c.d1_2,
+                calculatedEB: c.d1_2,
+                costBase: c.d1_25,
+                bought: c.d0,
+                freeExtra: c.d0,
+                effective: c.d0,
+                effect: c.d1,
+                best: c.d0
             },
             prai: {
-                amount: dZero,
-                effect: dOne,
-                best: dZero,
-                total: dZero,
-                totalInPR2: dZero,
-                bestInPR2: dZero
+                amount: c.d0,
+                effect: c.d1,
+                best: c.d0,
+                total: c.d0,
+                totalInPR2: c.d0,
+                bestInPR2: c.d0
             },
             pr2: {
-                amount: dZero,
-                freeExtra: dZero,
-                target: dZero,
-                effect: dOne,
-                best: dZero
+                amount: c.d0,
+                freeExtra: c.d0,
+                target: c.d0,
+                effect: c.d1,
+                best: c.d0
             },
         },
         kua: {
-            amount: dZero,
-            effect: dOne,
+            amount: c.d0,
+            effect: c.d1,
             kshards: {
-                amount: dZero,
+                amount: c.d0,
                 upgrades: 0
             },
             kpower: {
-                amount: dZero,
+                amount: c.d0,
                 upgrades: 0
             }
         },
         col: {
             completed: {},
-            power: dZero,
-            time: dZero,
+            power: c.d0,
+            time: c.d0,
         },
         settings: {
             notation: "Mixed Scientific",
@@ -242,6 +242,7 @@ function reset(what) {
     switch(what) {
         case "prai":
             if (tmp.praiCanDo) {
+                setAchievement(8, tmp.praiPending.gte(10));
                 player.generators.prai.amount = player.generators.prai.amount.add(tmp.praiPending);
                 player.generators.prai.total = player.generators.prai.total.add(tmp.praiPending);
                 player.generators.prai.totalInPR2 = player.generators.prai.totalInPR2.add(tmp.praiPending);
@@ -250,31 +251,30 @@ function reset(what) {
                     updateStart("upg2");
                     updateStart("prai");
                     calcPointsPerSecond();
-                    player.generators.upg1.bought = dZero;
-                    player.generators.upg2.bought = dZero;
-                    player.points = dZero;
-                    player.totalPointsInPRai = dZero;
+                    player.generators.upg1.bought = c.d0;
+                    player.generators.upg2.bought = c.d0;
+                    player.points = c.d0;
+                    player.totalPointsInPRai = c.d0;
                 }
             }
             break;
         case "pr2":
             if (tmp.pr2CanDo) {
                 player.generators.pr2.amount = player.generators.pr2.amount.add(1);
-                player.generators.pr2.best = Decimal.max(player.generators.pr2.best, player.generators.pr2.amount);
                 for (let i = 0; i < 4; i++) {
                     updateStart("upg1");
                     updateStart("upg2");
                     updateStart("prai");
                     updateStart("pr2");
                     calcPointsPerSecond();
-                    player.generators.prai.amount = dZero;
-                    player.generators.prai.total = dZero;
-                    player.generators.prai.totalInPR2 = dZero;
-                    player.generators.prai.bestInPR2 = dZero;
-                    player.generators.upg1.bought = dZero;
-                    player.generators.upg2.bought = dZero;
-                    player.points = dZero;
-                    player.totalPointsInPRai = dZero;
+                    player.generators.prai.amount = c.d0;
+                    player.generators.prai.total = c.d0;
+                    player.generators.prai.totalInPR2 = c.d0;
+                    player.generators.prai.bestInPR2 = c.d0;
+                    player.generators.upg1.bought = c.d0;
+                    player.generators.upg2.bought = c.d0;
+                    player.points = c.d0;
+                    player.totalPointsInPRai = c.d0;
                 }
             }
             break;
@@ -284,7 +284,7 @@ function reset(what) {
 }
 
 function calcPointsPerSecond() {
-    let i = dOne;
+    let i = c.d1;
     i = i.mul(player.generators.upg1.effect);
     i = i.mul(player.generators.prai.effect);
     i = i.mul(player.generators.pr2.effect);

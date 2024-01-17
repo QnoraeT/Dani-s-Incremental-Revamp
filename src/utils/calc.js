@@ -1,24 +1,46 @@
 "use strict";
 
-const dZero = Decimal.dZero;
-const dOne = Decimal.dOne;
-const dTwo = Decimal.dTwo;
-const dFour = Decimal.fromComponents_noNormalize(1, 0, 4);
-const dTen = Decimal.dTen;
-const dsqr2pi = new Decimal(Math.sqrt(2 * Math.PI))
-const ln10 = dTen.ln();
-const cbr2 = new Decimal(Math.cbrt(2));
+const c = {
+    d0: Decimal.dZero,
+    d1div3: Decimal.fromComponents_noNormalize(1, 0, 1/3),
+    d0_5: Decimal.fromComponents_noNormalize(1, 0, 0.5),
+    d1: Decimal.dOne,
+    d1_2: Decimal.fromComponents_noNormalize(1, 0, 1.2),
+    d1_25: Decimal.fromComponents_noNormalize(1, 0, 1.25),
+    d1_5: Decimal.fromComponents_noNormalize(1, 0, 1.5),
+    d1_55: Decimal.fromComponents_noNormalize(1, 0, 1.55),
+    dcbrt2: Decimal.fromComponents_noNormalize(1, 0, Math.cbrt(2)),
+    d2: Decimal.dTwo,
+    dln10: Decimal.fromComponents_noNormalize(1, 0, Math.log(10)),
+    dsqrt2pi: Decimal.fromComponents_noNormalize(1, 0, Math.sqrt(2 * Math.PI)),
+    d3: Decimal.fromComponents_noNormalize(1, 0, 3),
+    d4: Decimal.fromComponents_noNormalize(1, 0, 4),
+    d5: Decimal.fromComponents_noNormalize(1, 0, 5),
+    d6: Decimal.fromComponents_noNormalize(1, 0, 6),
+    d7: Decimal.fromComponents_noNormalize(1, 0, 7),
+    d8: Decimal.fromComponents_noNormalize(1, 0, 8),
+    d9: Decimal.fromComponents_noNormalize(1, 0, 9),
+    d10: Decimal.fromComponents_noNormalize(1, 0, 10),
+    d15: Decimal.fromComponents_noNormalize(1, 0, 15),
+    d60: Decimal.fromComponents_noNormalize(1, 0, 60),
+    d75: Decimal.fromComponents_noNormalize(1, 0, 75),
+    e2: Decimal.fromComponents_noNormalize(1, 0, 100),
+    e3: Decimal.fromComponents_noNormalize(1, 0, 1000),
+    e6: Decimal.fromComponents_noNormalize(1, 0, 1000000),
+    e10: Decimal.fromComponents_noNormalize(1, 0, 10000000000),
+}
+
 const DEFAULT_SCALE = [
-    { name: "scaled",        pow: D(2),   type: 0, color() { return `#0060FF` } },
-    { name: "superscaled",   pow: D(3),   type: 0, color() { return `#dfb600` } },
-    { name: "hyper",         pow: D(4),   type: 1, color() { return `#FF0060` } },
-    { name: "atomic",        pow: D(4),   type: 0, color() { return `#20BF3A` } },
-    { name: "supercritical", pow: D(5),   type: 1, color() { return `#8636FF` } },
-    { name: "meta",          pow: D(6),   type: 2, color() { return `#00C7F3` } },
-    { name: "exotic",        pow: D(15),  type: 0, color() { return `#FF8000` } },
-    { name: "instant",       pow: D(75),  type: 0, color() { return `#D0D0D0` } },
-    { name: "wtf",           pow: D(100), type: 1, color() { return colorChange("#ffffff", Math.sin(otherGameStuffIg.sessionTime) ** 2, 1) } },
-    { name: "ultimate",      pow: D(60),  type: 2, color() { return gRC(otherGameStuffIg.sessionTime, 1, 1) } }
+    { name: "scaled",        pow: c.d2,   type: 0, color() { return `#0060FF` } },
+    { name: "superscaled",   pow: c.d3,   type: 0, color() { return `#dfb600` } },
+    { name: "hyper",         pow: c.d4,   type: 1, color() { return `#FF0060` } },
+    { name: "atomic",        pow: c.d4,   type: 0, color() { return `#20BF3A` } },
+    { name: "supercritical", pow: c.d5,   type: 1, color() { return `#8636FF` } },
+    { name: "meta",          pow: c.d6,   type: 2, color() { return `#00C7F3` } },
+    { name: "exotic",        pow: c.d15,  type: 0, color() { return `#FF8000` } },
+    { name: "instant",       pow: c.d75,  type: 0, color() { return `#D0D0D0` } },
+    { name: "wtf",           pow: c.e2,   type: 1, color() { return colorChange("#ffffff", Math.sin(otherGameStuffIg.sessionTime) ** 2, 1) } },
+    { name: "ultimate",      pow: c.d60,  type: 2, color() { return gRC(otherGameStuffIg.sessionTime, 1, 1) } }
 ]
 
 function doAllScaling(x, scalList, inv, customScaling = []) {
@@ -297,5 +319,5 @@ function inverseFact(x) {
     x = new Decimal(x);
     if (x.layer > 2) return x.log10();
     if (x.layer > 1 && x.mag >= 10000) return x.log10().div(i.log10().log10());
-    return x.div(dsqr2pi).ln().div(Math.E).lambertw().add(1).exp().sub(0.5);
+    return x.div(c.dsqrt2pi).ln().div(Math.E).lambertw().add(1).exp().sub(0.5);
 }

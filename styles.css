@@ -1,137 +1,184 @@
 body {
-    background-color: #000;
+  background-color: #000;
 }
 
 .flex-container {
-    display: flex;
+  display: flex;
 }
 
 .flexJustifyCenter {
-    justify-content: center;
+  justify-content: center;
 }
 
 .flexJCSB {
-    justify-content: space-between;
+  justify-content: space-between;
 }
 
 .whiteText {
-    color: #fff;
+  color: #fff;
 }
 
 .blackText {
-    color: #000;
+  color: #000;
 }
 
 .yellowText {
-    color: #ff0;
+  color: #ff0;
 }
 
 .grayShadow {
-    text-shadow: 2px 2px grey;
+  text-shadow: 2px 2px grey;
 }
 
 .fontVerdana {
-    font-family: "Verdana";
+  font-family: "Verdana";
 }
 
 .fontTrebuchetMS {
-    font-family: "Helvetica, sans-serif";
+  font-family: "Helvetica, sans-serif";
 }
 
 .alignLeft {
-    text-align: left;
+  text-align: left;
 }
 
 .alignCenter {
-    text-align: center;
+  text-align: center;
 }
 
 .alignRight {
-    text-align: right;
+  text-align: right;
 }
 
 .mediumText {
-    font-size: 24px;
+  font-size: 24px;
 }
 
 .mediumBigText {
-    font-size: 24px;
+  font-size: 24px;
 }
 
 .bigText {
-    font-size: 40px;
+  font-size: 40px;
 }
 
 .text {
-    display: inline;
+  display: inline;
 }
 
 .mediumButton {
-    width: 200px;
-	height: 150px;
+  width: 200px;
+  height: 150px;
 }
 
 .thinMediumButton {
-    width: 200px;
-	height: 50px;
+  width: 200px;
+  height: 50px;
 }
 
 .largeButton {
-    width: 300px;
-	height: 200px;
+  width: 300px;
+  height: 200px;
 }
 
 .autoButton {
-    transition-duration: 0.2s;
-    background-color: #1c2024; 
+  transition-duration: 0.2s;
+  background-color: #1c2024;
 }
 
 .generatorButton {
-    transition-duration: 0.2s;
-    background-color: #1c2024; 
+  transition-duration: 0.2s;
+  background-color: #1c2024;
 }
 
 .generatorButton:hover {
-    background-color: #384048; 
+  background-color: #384048;
 }
 
 .genAutoButton {
-    transition-duration: 0.2s;
-    border: 5px solid #384048; 
+  transition-duration: 0.2s;
+  border: 5px solid #384048;
 }
 
 .genAutoButton:hover {
-    border: 5px solid #515c68; 
+  border: 5px solid #515c68;
 }
 
 .nope {
-    border: 5px solid #400
+  border: 5px solid #400;
 }
 
 .nope:hover {
-    border: 5px solid #600
+  border: 5px solid #600;
 }
 
 .ok {
-    border: 5px solid #040
+  border: 5px solid #040;
 }
 
 .ok:hover {
-    border: 5px solid #0f0
+  border: 5px solid #0f0;
 }
 
 .nopeFill {
-    background-color: #400
+  background-color: #400;
 }
 
 .nopeFill:hover {
-    background-color: #800
+  background-color: #800;
 }
 
 .okFill {
-    background-color: #040
+  background-color: #040;
 }
 
 .okFill:hover {
-    background-color: #080
+  background-color: #080;
+}
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 400px;
+  background-color: #222;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border: 2px solid #fff;
+
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -200px;
+
+  /* Fade in tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Tooltip arrow */
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #222 transparent transparent transparent;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
 }

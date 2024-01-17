@@ -21,6 +21,7 @@ function loadVue() {
             reset,
             ACHIEVEMENT_DATA,
             ACH_DEF_COLORS,
+            c
         }
 	})
 }

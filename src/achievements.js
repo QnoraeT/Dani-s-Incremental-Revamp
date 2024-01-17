@@ -19,10 +19,10 @@ const ACH_DEF_COLORS = {
 const ACHIEVEMENT_DATA = {
     rows: 2,
     cols: 7,
-    // status() = if its "canComplete" (true) or "unable" (anything else, this uses the description of why it can't be done), if the achievement is already in player then it will be always marked as "complete"
+    // status() = if its "canComplete" (true) or "unable" (anything else, this uses the description of why it can't be c.d1), if the achievement is already in player then it will be always marked as "complete"
     0: {
         name() { return `Starting off?`; },
-        desc() { return `Get 1 UP1.`; },
+        desc() { return `Get ${format(1)} UP1.`; },
         type() { return `points`; },
         reward() { return ``; },
         show() { return true },
@@ -31,7 +31,7 @@ const ACHIEVEMENT_DATA = {
     },
     1: {
         name() { return `Let me show you how cruel I was with this...`; },
-        desc() { return `Get 15 UP1.`; },
+        desc() { return `Get ${format(20)} UP1.`; },
         type() { return `points`; },
         reward() { return ``; },
         show() { return true },
@@ -49,7 +49,7 @@ const ACHIEVEMENT_DATA = {
     },
     3: {
         name() { return `Are you rich now?`; },
-        desc() { return `Have at least 10 PRai.`; },
+        desc() { return `Have at least ${format(10)} PRai.`; },
         type() { return `points`; },
         reward() { return `You unlock a new prestige layer, and UP1's scaling starts 2.5 later.`; },
         show() { return true },
@@ -57,7 +57,7 @@ const ACHIEVEMENT_DATA = {
         status() { return true }
     },
     4: {
-        name() { return `Oddly named 2nd prestige layer.`; },
+        name() { return `Oddly named 2nd prestige layer. Also this achievement shouldn't exist, it's literally just redundant.`; },
         desc() { return `Do a PR2 reset once.`; },
         type() { return `points`; },
         reward() { return `Increase your number generation by 200%.`; },
@@ -70,13 +70,13 @@ const ACHIEVEMENT_DATA = {
         desc() { return `Get your first softcap.`; },
         type() { return `points`; },
         reward() { return ``; },
-        show() { return player.generators.pr2.best.gte(1); },
+        show() { return true },
         if() { return true },
         status() { return true }
     },
     6: {
         name() { return `All that time wasted...`; },
-        desc() { return `Have ${format(D(1e10))} points without doing a PRai reset.`; },
+        desc() { return `Have ${format(c.e10)} points without doing a PRai reset.`; },
         type() { return `points`; },
         reward() { return `Your PRai's multiplier goes from 4x -> 10x.`; },
         show() { return true },
@@ -88,8 +88,8 @@ const ACHIEVEMENT_DATA = {
         desc() { return `Do a PR2 reset twice.`; },
         type() { return `points`; },
         reward() { return `UP1's scaling is weakened based off of PRai. Currently: ${formatPerc(ACHIEVEMENT_DATA[7].eff(), 3)} weaker.`; },
-        eff() { return player.generators.prai.amount.max(10).log10().root(3) },
-        show() { return player.generators.prai.best.gte(10); },
+        eff() { return player.generators.prai.amount.max(10).log10().root(3).sub(1).div(4).add(1) },
+        show() { return true },
         if() { return true },
         status() { return true }
     },
@@ -100,7 +100,7 @@ const ACHIEVEMENT_DATA = {
         reward() { return `PR2 requirement is reduced by ${formatPerc(1.5)}.`; },
         show() { return true },
         if() { return true },
-        status() { return tmp.praiPending.gte(10) ? true : `${format(tmp.praiPending)} / ${format(10)}` }
+        status() { return tmp.praiPending.gte(10) ? true : `${format(tmp.praiPending)} / ${format(10)} PRai pending` }
     },
     9: {
         name() { return `What once was part of a bygone era...`; },
@@ -113,7 +113,7 @@ const ACHIEVEMENT_DATA = {
     },
     10: {
         name() { return `This really is a clone of Distance Incremental!`; },
-        desc() { return `Have at least 40 UP1.`; },
+        desc() { return `Have at least ${format(50)} UP1.`; },
         type() { return `points`; },
         reward() { return `PRai effect is increased by 200%.`; },
         show() { return true },
@@ -136,7 +136,7 @@ const ACHIEVEMENT_DATA = {
         reward() { return `UP2 also boosts number gain at a reduced rate. Currently: ${format(ACHIEVEMENT_DATA[12].eff(), 2)}x`; },
         eff() { 
             let pow = D(0.2);
-            let eff = player.generators.upg2.eff;
+            let eff = player.generators.upg2.effect;
             eff = eff.pow(pow);
             return eff;
         },
@@ -166,8 +166,8 @@ const ACHIEVEMENT_DATA = {
 }
 
 function setAchievement(id, bool) {
-    if (!player.achievements[id] && bool) {
-        player.achievements[id] = true
+    if (!player.achievements.includes(id) && bool) {
+        player.achievements.push(id)
         // notify("Achievement", `You gained Achievement `)
     }
 }

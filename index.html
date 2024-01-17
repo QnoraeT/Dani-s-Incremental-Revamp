@@ -34,7 +34,8 @@
                         marginLeft: `3px`, 
                         backgroundColor: item.backgroundColor(), 
                         border: `3px solid ${tab[0] === item.staticName() ? item.highlightColor() : item.outlineColor()}` 
-                    }" v-if="item.if()" class="mediumText fontTrebuchetMS" v-on:click="switchTab(item.staticName(), 0)">{{item.name()}}</button>
+                    }" @onmousehover
+                    v-if="item.if()" class="mediumText fontTrebuchetMS" v-on:click="switchTab(item.staticName(), 0)">{{item.name()}}</button>
                 </div>
             </div>
         </div>
@@ -49,7 +50,7 @@
                                 <h3>Upgrade 1: {{format(player.generators.upg1.bought)}}{{player.generators.upg2.freeExtra.gt(0)?` (+${format(player.generators.upg2.freeExtra)})`:""}}</h3>
                                 Increase point gain by {{format(player.generators.upg1.calculatedEB, 2)}}x
                                 <br>Total: {{format(player.generators.upg1.effect, 2)}}x to point gain
-                                <br><span v-bind:style="{ color: tmp.up1ScalingColor }">Cost: {{format(player.generators.upg1.cost)}} points
+                                <br><span v-bind:style="{ color: tmp.up1ScalingColor }">Cost: {{format(player.generators.upg1.cost)}} points</span>
                             </button>
 
                             <button style="text-align: center" 
@@ -67,7 +68,7 @@
                                 <h3>Upgrade 2: {{format(player.generators.upg2.bought)}}{{player.generators.upg2.freeExtra.gt(0)?` (+${format(player.generators.upg2.freeExtra)})`:""}}</h3>
                                 Decreases Upgrade 1's cost by {{format(player.generators.upg2.calculatedEB, 2)}}x
                                 <br>Total: /{{format(player.generators.upg2.effect, 2)}} to Upgrade 1's cost
-                                <br><span v-bind:style="{ color: tmp.up2ScalingColor }">Cost: {{format(player.generators.upg2.cost)}} points
+                                <br><span v-bind:style="{ color: tmp.up2ScalingColor }">Cost: {{format(player.generators.upg2.cost)}} points</span>
                             </button>
 
                             <button style="text-align: center" 
@@ -123,13 +124,13 @@
                         class="whiteText largeButton fontVerdana generatorButton" id="pr2" v-if="player.nerf.pr2Active && player.generators.prai.best.gte(3)" v-on:click="reset('pr2')">
                             <h3>PR2: {{format(player.generators.pr2.amount)}}</h3>
                             Reset all of your previous progress to for a PR2 reset.
-                            <br>{{
+                            <br><span v-bind:style="{ color: tmp.pr2ScalingColor }">{{
                                 tmp.pr2CanDo
                                     ? false
                                         ? `You can PR2 reset ${format(player.generators.pr2.target.sub(player.generators.pr2.amount).floor())} times!`
                                         : `You can PR2 reset! (${format(player.generators.prai.amount)} / ${format(player.generators.pr2.cost)} PRai)`
                                     : `You need ${format(player.generators.prai.amount)} / ${format(player.generators.pr2.cost)} PRai to PR2 reset.`
-                            }}
+                            }}</span>
                             <br>You have {{format(player.generators.pr2.amount)}} PR2, which boosts your PRai and points by {{format(player.generators.pr2.effect, 2)}}x.
                             <br>{{tmp.pr2Text===""?"":`At ${format(tmp.pr2Text.info)} PR2 reset${tmp.pr2Text.info.eq(1)?"":"s"}, ${tmp.pr2Text.txt}`}}
                         </button>
@@ -150,42 +151,44 @@
                 <tr v-for="n in ACHIEVEMENT_DATA.rows">
                     <td v-for="m in ACHIEVEMENT_DATA.cols" style="color: #fff">
                         <div v-if="ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].if()" v-bind:style="{ 
-                            marginRight: `3px`, 
-                            marginLeft: `3px`, 
-                            width: `50px`,
-                            height: `50px`,
-                            border: `3px solid ${colorChange("#00ffff", 0.5, 1)}` 
-                            }">
-                        {{n}}, {{m}}
-                        </div>
-                    </td>
-                </tr>
-
-            </table>
-                        <!--                             
-                        <div v-if="ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].if()" v-bind:style="{ 
                             backgroundColor: 
                                 ACH_DEF_COLORS
                                 [ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].type()]
                                 [player.achievements.includes(((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1) 
-                                    ? "complete" 
-                                    : (ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status() === "true" 
-                                        ? "canComplete" 
-                                        : "unable")](),
-                            marginRight: `3px`, 
-                            marginLeft: `3px`, 
-                            width: `50px`,
-                            height: `50px`,
+                                    ? 'complete'
+                                    : (ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status() === true 
+                                        ? 'canComplete'
+                                        : 'unable')](),
                             border: `3px solid ${
                                 colorChange(ACH_DEF_COLORS
                                 [ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].type()]
                                 [player.achievements.includes(((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1) 
-                                    ? "complete" 
-                                    : (ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status() === "true" 
-                                        ? "canComplete" 
-                                        : "unable")](), 0.5, 1)}` }">
+                                    ? 'complete'
+                                    : (ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status() === true 
+                                        ? 'canComplete'
+                                        : 'unable')](), 0.5, 1)}`,
+                            marginRight: `3px`, 
+                            marginLeft: `3px`, 
+                            width: `50px`,
+                            height: `50px`,
+                        }" class="tooltip">
+                        <span class="tooltiptext">
+                            {{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].name()}}
+                            <br>{{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].desc()}}
+                            <br>{{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward()===''?'':`Reward: ${ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward()}`}}
+                            <br>{{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status() === true
+                                    ? ''
+                                    : ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status()}}
+                        </span>
+                        {{player.achievements.includes(((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1) 
+                                    ? 'complete'
+                                    : (ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status() === true 
+                                        ? 'canComplete'
+                                        : 'unable')}}
                         </div>
-                        -->
+                    </td>
+                </tr>
+            </table>
         </div>
 	</div>
 </body>
