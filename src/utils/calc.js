@@ -2,11 +2,16 @@
 
 const c = {
     d0: Decimal.dZero,
+    dlog1_05: Decimal.fromComponents_noNormalize(1, 0, Math.log10(1.05)),
+    d0_02: Decimal.fromComponents_noNormalize(1, 0, 0.02),
+    d0_25: Decimal.fromComponents_noNormalize(1, 0, 0.25),
     d1div3: Decimal.fromComponents_noNormalize(1, 0, 1/3),
     d0_5: Decimal.fromComponents_noNormalize(1, 0, 0.5),
     d1: Decimal.dOne,
+    d10div9: Decimal.fromComponents_noNormalize(1, 0, 10/9),
     d1_2: Decimal.fromComponents_noNormalize(1, 0, 1.2),
     d1_25: Decimal.fromComponents_noNormalize(1, 0, 1.25),
+    d4div3: Decimal.fromComponents_noNormalize(1, 0, 4/3),
     d1_5: Decimal.fromComponents_noNormalize(1, 0, 1.5),
     d1_55: Decimal.fromComponents_noNormalize(1, 0, 1.55),
     dcbrt2: Decimal.fromComponents_noNormalize(1, 0, Math.cbrt(2)),
@@ -31,16 +36,16 @@ const c = {
 }
 
 const DEFAULT_SCALE = [
-    { name: "scaled",        pow: c.d2,   type: 0, color() { return `#0060FF` } },
-    { name: "superscaled",   pow: c.d3,   type: 0, color() { return `#dfb600` } },
-    { name: "hyper",         pow: c.d4,   type: 1, color() { return `#FF0060` } },
-    { name: "atomic",        pow: c.d4,   type: 0, color() { return `#20BF3A` } },
-    { name: "supercritical", pow: c.d5,   type: 1, color() { return `#8636FF` } },
-    { name: "meta",          pow: c.d6,   type: 2, color() { return `#00C7F3` } },
-    { name: "exotic",        pow: c.d15,  type: 0, color() { return `#FF8000` } },
-    { name: "instant",       pow: c.d75,  type: 0, color() { return `#D0D0D0` } },
-    { name: "wtf",           pow: c.e2,   type: 1, color() { return colorChange("#ffffff", Math.sin(otherGameStuffIg.sessionTime) ** 2, 1) } },
-    { name: "ultimate",      pow: c.d60,  type: 2, color() { return gRC(otherGameStuffIg.sessionTime, 1, 1) } }
+    { name: "scaled",        pow: c.d2,  type: 0, color() { return `#0060FF` } },
+    { name: "superscaled",   pow: c.d3,  type: 0, color() { return `#dfb600` } },
+    { name: "hyper",         pow: c.d4,  type: 1, color() { return `#FF0060` } },
+    { name: "atomic",        pow: c.d4,  type: 0, color() { return `#20BF3A` } },
+    { name: "supercritical", pow: c.d5,  type: 1, color() { return `#8636FF` } },
+    { name: "meta",          pow: c.d6,  type: 2, color() { return `#00C7F3` } },
+    { name: "exotic",        pow: c.d15, type: 0, color() { return `#FF8000` } },
+    { name: "instant",       pow: c.d75, type: 0, color() { return `#D0D0D0` } },
+    { name: "wtf",           pow: c.e2,  type: 1, color() { return colorChange("#ffffff", Math.sin(otherGameStuffIg.sessionTime) ** 2, 1) } },
+    { name: "ultimate",      pow: c.d60, type: 2, color() { return gRC(otherGameStuffIg.sessionTime, 1, 1) } }
 ]
 
 function doAllScaling(x, scalList, inv, customScaling = []) {
@@ -276,7 +281,9 @@ function intRand(min, max) {
  * @returns {Decimal}
  */
 function inverseQuad(x, a, b, c) { // inverse of ax^2+bx+c, only
-    return b.pow(2).add(x.mul(a).mul(4)).sub(a.mul(c).mul(4)).sqrt().sub(b).div(a.mul(2));
+    return c.eq(0)
+            ? x.sub(a).div(b)
+            : x.sub(a).mul(c).mul(4).add(b.pow(2)).sqrt().sub(b).div(c.mul(2))
 }
 
 /**

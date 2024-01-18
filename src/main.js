@@ -100,12 +100,14 @@ function resetPlayer() {
         nerf: {
             up1Active: true,
             up2Active: true,
+            up3Active: true,
             praiActive: true,
             pr2Active: true
         },
         auto: {
             upg1: false,
             upg2: false,
+            upg3: false,
             pr2: false,
         },
         generators: {
@@ -131,6 +133,17 @@ function resetPlayer() {
                 freeExtra: c.d0,
                 effective: c.d0,
                 effect: c.d1,
+                best: c.d0
+            },
+            upg3: {
+                cost: c.e10,
+                target: c.d0,
+                effectBase: c.d0_02,
+                calculatedEB: c.d0_02,
+                bought: c.d0,
+                freeExtra: c.d0,
+                effective: c.d0,
+                effect: c.d0,
                 best: c.d0
             },
             prai: {
@@ -219,6 +232,21 @@ function updatePlayerData(player) {
     if (vers < 0) {
         vers = 0;
     }
+    if (vers === 0) {
+        player.generators.upg3 = {
+            cost: c.e10,
+            target: c.d0,
+            effectBase: c.d0_02,
+            calculatedEB: c.d0_02,
+            bought: c.d0,
+            freeExtra: c.d0,
+            effective: c.d0,
+            effect: c.d0,
+            best: c.d0
+        };
+        player.auto.upg3 = false;
+        player.nerf.up3Active = true;
+    }
     player = play;
 }
 
@@ -242,17 +270,19 @@ function reset(what) {
     switch(what) {
         case "prai":
             if (tmp.praiCanDo) {
-                setAchievement(8, tmp.praiPending.gte(10));
+                setAchievement(8, tmp.praiPending.gte(1000));
                 player.generators.prai.amount = player.generators.prai.amount.add(tmp.praiPending);
                 player.generators.prai.total = player.generators.prai.total.add(tmp.praiPending);
                 player.generators.prai.totalInPR2 = player.generators.prai.totalInPR2.add(tmp.praiPending);
                 for (let i = 0; i < 4; i++) {
                     updateStart("upg1");
                     updateStart("upg2");
+                    updateStart("upg3");
                     updateStart("prai");
                     calcPointsPerSecond();
                     player.generators.upg1.bought = c.d0;
                     player.generators.upg2.bought = c.d0;
+                    player.generators.upg3.bought = c.d0;
                     player.points = c.d0;
                     player.totalPointsInPRai = c.d0;
                 }
@@ -264,6 +294,7 @@ function reset(what) {
                 for (let i = 0; i < 4; i++) {
                     updateStart("upg1");
                     updateStart("upg2");
+                    updateStart("upg3");
                     updateStart("prai");
                     updateStart("pr2");
                     calcPointsPerSecond();
@@ -273,6 +304,7 @@ function reset(what) {
                     player.generators.prai.bestInPR2 = c.d0;
                     player.generators.upg1.bought = c.d0;
                     player.generators.upg2.bought = c.d0;
+                    player.generators.upg3.bought = c.d0;
                     player.points = c.d0;
                     player.totalPointsInPRai = c.d0;
                 }
@@ -288,6 +320,9 @@ function calcPointsPerSecond() {
     i = i.mul(player.generators.upg1.effect);
     i = i.mul(player.generators.prai.effect);
     i = i.mul(player.generators.pr2.effect);
+    if (player.achievements.includes(4)) {
+        i = i.mul(3);
+    }
     return i;
 }
 

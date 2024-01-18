@@ -4,13 +4,23 @@ function updateScaling(type) {
         case "upg1":
             if (tmp.scaling.upg1 === undefined) { tmp.scaling.upg1 = [] };
             tmp.scaling.upg1[0] = { start: D(20),  strength: D(1), bp: D(2), type: 0 };
-            // tmp.scaling.upg1[1] = { start: D(40),  strength: D(1), bp: D(3), type: 0 };
+            tmp.scaling.upg1[1] = { start: D(100),  strength: D(1), bp: D(3), type: 0 };
             // tmp.scaling.upg1[2] = { start: D(200), strength: D(1), bp: D(4), type: 1 };
+            if (player.achievements.includes(3)) {
+                tmp.scaling.upg1[0].start = tmp.scaling.upg1[0].start.add(2.5);
+            }
+            if (player.achievements.includes(7)) {
+                tmp.scaling.upg1[0].strength = tmp.scaling.upg1[0].strength.div(ACHIEVEMENT_DATA[7].eff());
+            }
             break;
         case "upg2":
             if (tmp.scaling.upg2 === undefined) { tmp.scaling.upg2 = [] };
             tmp.scaling.upg2[0] = { start: D(15), strength: D(1), bp: D(2), type: 0 };
             // tmp.scaling.upg2[1] = { start: D(30), strength: D(1), bp: D(3), type: 0 };
+            break;
+        case "upg3":
+            if (tmp.scaling.upg3 === undefined) { tmp.scaling.upg3 = [] };
+            tmp.scaling.upg3[0] = { start: D(25), strength: D(1), bp: D(2), type: 0 };
             break;
         case "pr2":
             if (tmp.scaling.pr2 === undefined) { tmp.scaling.pr2 = [] };
@@ -29,10 +39,10 @@ function updateSoftcap(type) {
         case "upg2":
             if (tmp.softcap.upg2 === undefined) { tmp.softcap.upg2 = [] };
             tmp.softcap.upg2[0] = { start: D(10), strength: D(1) };
-            if (player.generators.pr2.amount.gte(5)) {
-                tmp.softcap.upg2[0].start = tmp.softcap.upg2[0].start.mul(3);
-                tmp.softcap.upg2[0].strength = tmp.softcap.upg2[0].strength.div(1.5);
-            }
+            break;
+        case "upg3":
+            if (tmp.softcap.upg3 === undefined) { tmp.softcap.upg3 = [] };
+            tmp.softcap.upg3[0] = { start: D(8.5), strength: D(1) };
             break;
         default:
             throw new Error(`updateSoftcap ${type} does not exist`);

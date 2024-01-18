@@ -15,9 +15,19 @@ const PR2_EFF = [
     },
     {
         shown() { return true; },
-        when() { return D(5) },
-        text() { return `weaken the Upgrade 2 softcap by ${formatPerc(3, 3)} and delay it from ${format(10)} -> ${format(30)}`}
-    }
+        when() { return c.d4 },
+        text() { return `increase the Upgrade 2 base from ${format(1.2, 3)}x -> ${format(c.d4div3, 3)}x.`}
+    },
+    {
+        shown() { return true; },
+        when() { return c.d5 },
+        text() { return `unlock Upgrade 3.`}
+    },
+    {
+        shown() { return true; },
+        when() { return c.d7 },
+        text() { return `weaken the Upgrade 1 scaling by ${formatPerc(c.d10div9, 3)} and unlock the Upgrade 2 Autobuyer.`}
+    },
 ]
 
 function buyGenUPG(id){
@@ -36,6 +46,13 @@ function buyGenUPG(id){
                 updateStart("upg2");
             }
             break;
+        case 3:
+            if (player.points.gte(player.generators.upg3.cost)) {
+                player.points = player.points.sub(player.generators.upg3.cost);
+                player.generators.upg3.bought = player.generators.upg3.bought.add(1);
+                updateStart("upg3");
+            }
+            break;
         default:
             throw new Error(`Generator upgrade ${id} is not something you can buy... >_>`);
     }
@@ -44,12 +61,13 @@ function buyGenUPG(id){
 function updateAllStart() {
     updateStart("pr2");
     updateStart("prai");
+    updateStart("upg3");
     updateStart("upg2");
     updateStart("upg1");
 }
 
 function updateStart(type) {
-    let scal, pow, sta, i;
+    let scal, pow, sta, i, j;
     switch (type) {
         case "upg1":
             updateScaling("upg1");
@@ -71,7 +89,9 @@ function updateStart(type) {
                 player.generators.upg1.target = c.d0;
             }
 
-            player.generators.upg1.effectBase = c.d1_5;
+            i = c.d1_5
+            i = i.add(player.generators.upg3.effect);
+            player.generators.upg1.effectBase = i;
 
             i = c.d0;
             player.generators.upg1.freeExtra = i;
@@ -103,7 +123,7 @@ function updateStart(type) {
 
             setAchievement(0, player.generators.upg1.bought.gte(1));
             setAchievement(1, player.generators.upg1.bought.gte(20));
-            setAchievement(2, player.generators.upg1.bought.gte(50));
+            setAchievement(10, player.generators.upg1.bought.gte(100));
             break;
         case "upg2":
             updateScaling("upg2");
@@ -124,7 +144,11 @@ function updateStart(type) {
                 player.generators.upg2.target = c.d0;
             }
 
-            player.generators.upg2.effectBase = c.d1_2;
+            i = c.d1_2;
+            if (player.generators.pr2.amount.gte(4)) {
+                i = i.mul(c.d10div9);
+            }
+            player.generators.upg2.effectBase = i;
 
             i = c.d0;
             player.generators.upg2.freeExtra = i;
@@ -148,8 +172,6 @@ function updateStart(type) {
 
             tmp.upg2CanBuy = player.points.gte(player.generators.upg2.cost);
 
-            player.generators.upg2.calculatedEB = player.generators.upg2.effect.root(player.generators.upg2.effective);
-
             tmp.up2ScalingColor = `#FFFFFF`
             for (let i = tmp.scaling.upg2.length - 1; i >= 0; i--) {
                 if (player.generators.upg2.bought.gte(tmp.scaling.upg2[i].start)) {
@@ -158,10 +180,69 @@ function updateStart(type) {
                 }
             }
 
+            if (player.auto.upg2) {
+                player.generators.upg2.bought = Decimal.max(player.generators.upg2.bought, player.generators.upg2.target.add(1).floor())
+            }
+
+            break;
+        case "upg3":
+            updateScaling("upg3");
+            updateSoftcap("upg3");
+
+            tmp.upg3CostDiv = c.d1;
+
+            scal = player.generators.upg3.bought;
+            scal = doAllScaling(scal, tmp.scaling.upg3, false);
+            player.generators.upg3.cost = scal.mul(2).add(scal.pow(2).mul(c.dlog1_05)).add(10).pow10().div(tmp.upg3CostDiv);
+
+            if (player.points.mul(tmp.upg3CostDiv).gte(1e10)) {
+                scal = inverseQuad(player.points.mul(tmp.upg3CostDiv).log10().sub(10), c.d10, c.d2, c.dlog1_05)
+                scal = doAllScaling(scal, tmp.scaling.upg3, true);
+                player.generators.upg3.target = scal;
+            } else {
+                player.generators.upg3.target = c.d0;
+            }
+
+            i = c.d0_02;
+            player.generators.upg3.effectBase = i;
+
+            i = c.d0;
+            player.generators.upg3.freeExtra = i;
+
+            i = player.generators.upg3.bought;
+            i = i.add(player.generators.upg3.freeExtra);
+            player.generators.upg3.effective = i;
+
+            i = player.generators.upg3.effectBase.mul(player.generators.upg3.effective);
+            sta = tmp.softcap.upg3[0].start;
+            pow = tmp.softcap.upg3[0].strength;
+            i = scale(i, 0, false, sta, pow, c.d0_5);
+            player.generators.upg3.effect = i;
+
+            i = player.generators.upg3.effectBase.mul(player.generators.upg3.effective.add(1));
+            sta = tmp.softcap.upg3[0].start;
+            pow = tmp.softcap.upg3[0].strength;
+            i = scale(i, 0, false, sta, pow, c.d0_5);
+            player.generators.upg3.calculatedEB = i.sub(player.generators.upg3.effect);
+
+            tmp.upg3CanBuy = player.points.gte(player.generators.upg3.cost);
+
+            tmp.up3ScalingColor = `#FFFFFF`
+            for (let i = tmp.scaling.upg3.length - 1; i >= 0; i--) {
+                if (player.generators.upg3.bought.gte(tmp.scaling.upg3[i].start)) {
+                    tmp.up3ScalingColor = DEFAULT_SCALE[i].color();
+                    break;
+                }
+            }
+
+            if (player.auto.upg3) {
+                player.generators.upg3.bought = Decimal.max(player.generators.upg3.bought, player.generators.upg3.target.add(1).floor())
+            }
+
             break;
         case "prai":
             tmp.praiReq = c.e6;
-            tmp.praiExp = c.d1div3;
+            tmp.praiExp = c.d0_25;
 
             if (player.generators.pr2.amount.gte(1) && player.totalPointsInPRai.gte(tmp.praiReq)) {
                 i = player.totalPointsInPRai;
@@ -178,20 +259,26 @@ function updateStart(type) {
                 tmp.praiNext = tmp.praiReq.sub(player.totalPointsInPRai).div(player.pps);
             }
 
+            let j = c.d4;
+            if (player.achievements.includes(6)) {
+                j = j.mul(2.5);
+            }
+
             i = player.generators.prai.amount;
-            i = i.mul(4).add(1);
+            i = i.mul(j).add(1);
             player.generators.prai.effect = i;
 
             i = player.generators.prai.amount.add(tmp.praiPending);
-            i = i.mul(4).add(1);
+            i = i.mul(j).add(1);
             tmp.praiNextEffect = i;
 
             player.generators.prai.best = Decimal.max(player.generators.prai.best, player.generators.prai.amount);
             player.generators.prai.bestInPR2 = Decimal.max(player.generators.prai.bestInPR2, player.generators.prai.amount);
             tmp.praiCanDo = player.totalPointsInPRai.gte(tmp.praiReq);
+
             setAchievement(2, player.generators.prai.best.gte(1));
             setAchievement(3, player.generators.prai.best.gte(10));
-            setAchievement(6, player.totalPointsInPRai.gte(1e10));
+            setAchievement(6, player.totalPointsInPRai.gte(1e18));
             break;
         case "pr2":
             updateScaling("pr2");
@@ -200,17 +287,21 @@ function updateStart(type) {
 
             i = player.generators.pr2.amount;
             i = i.add(player.generators.pr2.freeExtra)
-            i = i.max(0).add(1).pow(scale(i.pow(2).mul(0.1).add(1), 1.3, false, c.d4, c.d1, c.d2));
+            i = i.max(0).add(1).pow(scale(i.mul(0.05).add(1.25), 1.3, false, c.d4, c.d1, c.d2));
             player.generators.pr2.effect = i;
 
             tmp.pr2CostDiv = c.d1;
+            if (player.achievements.includes(7)) {
+                tmp.pr2CostDiv = tmp.pr2CostDiv.mul(1.5);
+            }
+            tmp.pr2CostPow = c.d6;
 
             scal = player.generators.pr2.amount;
             scal = doAllScaling(scal, tmp.scaling.pr2, false);
-            player.generators.pr2.cost = scal.add(1).pow(3).mul(10).div(tmp.pr2CostDiv);
+            player.generators.pr2.cost = scal.add(1).factorial().mul(10).div(tmp.pr2CostDiv);
 
             if (player.generators.prai.amount.gte(10)) {
-                scal = player.generators.prai.amount.mul(tmp.pr2CostDiv).div(10).root(3).sub(1);
+                scal = inverseFact(player.generators.prai.amount.mul(tmp.pr2CostDiv).div(10)).sub(1);
                 scal = doAllScaling(scal, tmp.scaling.pr2, true);
                 player.generators.pr2.target = scal;
             } else {
@@ -239,6 +330,7 @@ function updateStart(type) {
                     }
                 }
             }
+
             setAchievement(4, player.generators.pr2.best.gte(1));
             setAchievement(7, player.generators.pr2.best.gte(2));
             setAchievement(9, player.generators.pr2.best.gte(4));
