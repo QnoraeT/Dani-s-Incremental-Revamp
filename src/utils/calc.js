@@ -2,8 +2,9 @@
 
 const c = {
     d0: Decimal.dZero,
-    dlog1_05: Decimal.fromComponents_noNormalize(1, 0, Math.log10(1.05)),
+    d0_01: Decimal.fromComponents_noNormalize(1, 0, 0.01),
     d0_02: Decimal.fromComponents_noNormalize(1, 0, 0.02),
+    dlog1_05: Decimal.fromComponents_noNormalize(1, 0, Math.log10(1.05)), //0.0211
     d0_25: Decimal.fromComponents_noNormalize(1, 0, 0.25),
     d1div3: Decimal.fromComponents_noNormalize(1, 0, 1/3),
     d0_5: Decimal.fromComponents_noNormalize(1, 0, 0.5),
@@ -14,6 +15,7 @@ const c = {
     d4div3: Decimal.fromComponents_noNormalize(1, 0, 4/3),
     d1_5: Decimal.fromComponents_noNormalize(1, 0, 1.5),
     d1_55: Decimal.fromComponents_noNormalize(1, 0, 1.55),
+    d5div3: Decimal.fromComponents_noNormalize(1, 0, 5/3),
     dcbrt2: Decimal.fromComponents_noNormalize(1, 0, Math.cbrt(2)),
     d2: Decimal.dTwo,
     dln10: Decimal.fromComponents_noNormalize(1, 0, Math.log(10)),
@@ -26,6 +28,7 @@ const c = {
     d8: Decimal.fromComponents_noNormalize(1, 0, 8),
     d9: Decimal.fromComponents_noNormalize(1, 0, 9),
     d10: Decimal.fromComponents_noNormalize(1, 0, 10),
+    d11: Decimal.fromComponents_noNormalize(1, 0, 11),
     d15: Decimal.fromComponents_noNormalize(1, 0, 15),
     d60: Decimal.fromComponents_noNormalize(1, 0, 60),
     d75: Decimal.fromComponents_noNormalize(1, 0, 75),
@@ -270,6 +273,48 @@ function rand(min, max) {
 
 function intRand(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+function polynomial() {
+    let res, r, calc;
+    let x = arguments[0];
+    let inv = arguments[1];
+    if (inv) {
+        if (arguments.length !== 4) {
+            res = x.root(arguments.length - 2);
+            for (var i = 0; i < 100; ++i) {
+                calc = [c.d0, c.d0];
+                for (let i = 2; i < arguments.length; i++) {
+                    calc[0] = calc[0].add(res.pow(arguments.length - i - 1).mul(arguments[i]));
+                }
+                
+                for (let i = 2; i < arguments.length - 1; i++) {
+                    calc[1] = calc[1].add(res.pow(arguments.length - i - 2).mul(arguments[i]).mul(arguments.length - i - 1));
+                }
+    
+                r = res.sub(calc[0].sub(x).div(calc[1]));
+    
+                if (res.sub(r).abs().lt(1e-10)) {
+                    return r;
+                }
+    
+                res = r;
+            }
+            console.warn(`inverse polynomial couldn't finish converging! (Final value: ${format(res)})`);
+            console.table(arguments);
+            return res;
+        } else {
+            return arguments[4].eq(0)
+                ? x.sub(arguments[2]).div(arguments[3])
+                : x.sub(arguments[2]).mul(arguments[4]).mul(4).add(arguments[3].pow(2)).sqrt().sub(arguments[3]).div(arguments[4].mul(2))
+        }
+    } else {
+        res = c.d0;
+        for (let i = 2; i < arguments.length; i++) {
+            res = res.add(x.pow(arguments.length - i - 1).mul(arguments[i]));
+        }
+        return res;
+    }
 }
 
 /**

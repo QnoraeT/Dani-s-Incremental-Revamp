@@ -1,3 +1,4 @@
+"use strict";
 const saveID = "danidanijr_save_revamp";
 const TABS_LIST = [
     {
@@ -227,12 +228,11 @@ function fixData(defaultData, newData) {
 }
 
 function updatePlayerData(player) {
-    let play = player;
-    let vers = player.version||-1;
-    if (vers < 0) {
-        vers = 0;
+    player.version = player.version||-1;
+    if (player.version < 0) {
+        player.version = 0;
     }
-    if (vers === 0) {
+    if (player.version === 0) {
         player.generators.upg3 = {
             cost: c.e10,
             target: c.d0,
@@ -246,8 +246,8 @@ function updatePlayerData(player) {
         };
         player.auto.upg3 = false;
         player.nerf.up3Active = true;
+        player.version = 1;
     }
-    player = play;
 }
 
 function resetTheFrickingGame() {

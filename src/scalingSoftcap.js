@@ -1,3 +1,4 @@
+"use strict";
 function updateScaling(type) {
     if (tmp.scaling === undefined) { tmp.scaling = {}; };
     switch (type) {
@@ -12,15 +13,18 @@ function updateScaling(type) {
             if (player.achievements.includes(7)) {
                 tmp.scaling.upg1[0].strength = tmp.scaling.upg1[0].strength.div(ACHIEVEMENT_DATA[7].eff());
             }
+            if (player.generators.pr2.amount.gte(7)) {
+                tmp.scaling.upg1[0].strength = tmp.scaling.upg1[0].strength.div(c.d10div9);
+            }
             break;
         case "upg2":
             if (tmp.scaling.upg2 === undefined) { tmp.scaling.upg2 = [] };
             tmp.scaling.upg2[0] = { start: D(15), strength: D(1), bp: D(2), type: 0 };
-            // tmp.scaling.upg2[1] = { start: D(30), strength: D(1), bp: D(3), type: 0 };
+            tmp.scaling.upg2[1] = { start: D(100), strength: D(1), bp: D(3), type: 0 };
             break;
         case "upg3":
             if (tmp.scaling.upg3 === undefined) { tmp.scaling.upg3 = [] };
-            tmp.scaling.upg3[0] = { start: D(25), strength: D(1), bp: D(2), type: 0 };
+            tmp.scaling.upg3[0] = { start: D(50), strength: D(1), bp: D(2), type: 0 };
             break;
         case "pr2":
             if (tmp.scaling.pr2 === undefined) { tmp.scaling.pr2 = [] };

@@ -1,3 +1,4 @@
+"use strict";
 const ACH_DEF_COLORS = {
     points: {
         unable() { return "#ff3333"; },

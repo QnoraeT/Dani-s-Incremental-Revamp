@@ -16,7 +16,7 @@ const PR2_EFF = [
     {
         shown() { return true; },
         when() { return c.d4 },
-        text() { return `increase the Upgrade 2 base from ${format(1.2, 3)}x -> ${format(c.d4div3, 3)}x.`}
+        text() { return `unlock the Upgrade 2 Autobuyer and increase the Upgrade 2 base from ${format(1.2, 3)}x -> ${format(c.d4div3, 3)}x.`}
     },
     {
         shown() { return true; },
@@ -26,7 +26,12 @@ const PR2_EFF = [
     {
         shown() { return true; },
         when() { return c.d7 },
-        text() { return `weaken the Upgrade 1 scaling by ${formatPerc(c.d10div9, 3)} and unlock the Upgrade 2 Autobuyer.`}
+        text() { return `weaken the Upgrade 1 scaling by ${formatPerc(c.d10div9, 3)}`}
+    },
+    {
+        shown() { return true; },
+        when() { return c.d11 },
+        text() { return `slow down Upgrade 3 cost by ${formatPerc(c.d10div9, 3)}`}
     },
 ]
 
@@ -192,18 +197,24 @@ function updateStart(type) {
             tmp.upg3CostDiv = c.d1;
 
             scal = player.generators.upg3.bought;
+            if (player.generators.pr2.amount.gte(11)) {
+                scal = scal.div(c.d10div9);
+            }
             scal = doAllScaling(scal, tmp.scaling.upg3, false);
-            player.generators.upg3.cost = scal.mul(2).add(scal.pow(2).mul(c.dlog1_05)).add(10).pow10().div(tmp.upg3CostDiv);
+            player.generators.upg3.cost = polynomial(scal, false, c.dlog1_05, c.d2, c.d10).pow10().div(tmp.upg3CostDiv);
 
             if (player.points.mul(tmp.upg3CostDiv).gte(1e10)) {
-                scal = inverseQuad(player.points.mul(tmp.upg3CostDiv).log10().sub(10), c.d10, c.d2, c.dlog1_05)
+                scal = polynomial(player.points.mul(tmp.upg3CostDiv).log10(), true, c.dlog1_05, c.d2, c.d10);
                 scal = doAllScaling(scal, tmp.scaling.upg3, true);
+                if (player.generators.pr2.amount.gte(11)) {
+                    scal = scal.mul(c.d10div9);
+                }
                 player.generators.upg3.target = scal;
             } else {
                 player.generators.upg3.target = c.d0;
             }
 
-            i = c.d0_02;
+            i = c.d0_01;
             player.generators.upg3.effectBase = i;
 
             i = c.d0;
@@ -266,10 +277,16 @@ function updateStart(type) {
 
             i = player.generators.prai.amount;
             i = i.mul(j).add(1);
+            if (player.achievements.includes(10)) {
+                i = i.mul(3);
+            }
             player.generators.prai.effect = i;
 
             i = player.generators.prai.amount.add(tmp.praiPending);
             i = i.mul(j).add(1);
+            if (player.achievements.includes(10)) {
+                i = i.mul(3);
+            }
             tmp.praiNextEffect = i;
 
             player.generators.prai.best = Decimal.max(player.generators.prai.best, player.generators.prai.amount);
@@ -286,22 +303,21 @@ function updateStart(type) {
             player.generators.pr2.freeExtra = i;
 
             i = player.generators.pr2.amount;
-            i = i.add(player.generators.pr2.freeExtra)
-            i = i.max(0).add(1).pow(scale(i.mul(0.05).add(1.25), 1.3, false, c.d4, c.d1, c.d2));
+            i = i.add(player.generators.pr2.freeExtra);
+            i = i.max(0).add(1).pow(scale(i.mul(0.05).add(1), 1.3, false, c.d4, c.d1, c.d2));
             player.generators.pr2.effect = i;
 
             tmp.pr2CostDiv = c.d1;
-            if (player.achievements.includes(7)) {
+            if (player.achievements.includes(8)) {
                 tmp.pr2CostDiv = tmp.pr2CostDiv.mul(1.5);
             }
-            tmp.pr2CostPow = c.d6;
 
             scal = player.generators.pr2.amount;
             scal = doAllScaling(scal, tmp.scaling.pr2, false);
-            player.generators.pr2.cost = scal.add(1).factorial().mul(10).div(tmp.pr2CostDiv);
+            player.generators.pr2.cost = scal.add(3).factorial().mul(c.d5div3).div(tmp.pr2CostDiv);
 
             if (player.generators.prai.amount.gte(10)) {
-                scal = inverseFact(player.generators.prai.amount.mul(tmp.pr2CostDiv).div(10)).sub(1);
+                scal = inverseFact(player.generators.prai.amount.mul(tmp.pr2CostDiv).div(c.d5div3)).sub(3);
                 scal = doAllScaling(scal, tmp.scaling.pr2, true);
                 player.generators.pr2.target = scal;
             } else {

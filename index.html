@@ -73,7 +73,7 @@
 
                             <button style="text-align: center" 
                             v-bind:class="{ nopeFill: !player.auto.upg2, okFill: player.auto.upg2 }"
-                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="genUP1" v-if="player.nerf.up2Active && false" v-on:click="player.auto.upg2 = !player.auto.upg2">
+                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="genUP1" v-if="player.nerf.up2Active && player.generators.pr2.best.gte(4)" v-on:click="player.auto.upg2 = !player.auto.upg2">
                                 <b>Upgrade 2 Autobuyer: {{player.auto.upg2?"On":"Off"}}</b>
                             </button>
                         </div>
@@ -90,9 +90,9 @@
                             </button>
 
                             <button style="text-align: center" 
-                            v-bind:class="{ nopeFill: !player.auto.upg2, okFill: player.auto.upg2 }"
-                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="genUP1" v-if="player.nerf.up2Active && false" v-on:click="player.auto.upg2 = !player.auto.upg2">
-                                <b>Upgrade 2 Autobuyer: {{player.auto.upg2?"On":"Off"}}</b>
+                            v-bind:class="{ nopeFill: !player.auto.upg3, okFill: player.auto.upg3 }"
+                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="genUP1" v-if="player.nerf.up3Active && false" v-on:click="player.auto.upg3 = !player.auto.upg3">
+                                <b>Upgrade 3 Autobuyer: {{player.auto.upg3?"On":"Off"}}</b>
                             </button>
                         </div>
                     </td>
