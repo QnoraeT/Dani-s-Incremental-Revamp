@@ -2,24 +2,28 @@
 
 const c = {
     d0: Decimal.dZero,
+    em4: Decimal.fromComponents_noNormalize(1, 0, 0.0001),
     d0_01: Decimal.fromComponents_noNormalize(1, 0, 0.01),
     d0_02: Decimal.fromComponents_noNormalize(1, 0, 0.02),
-    dlog1_05: Decimal.fromComponents_noNormalize(1, 0, Math.log10(1.05)), //0.0211
-    d0_25: Decimal.fromComponents_noNormalize(1, 0, 0.25),
-    d1div3: Decimal.fromComponents_noNormalize(1, 0, 1/3),
+    dlog1_05: Decimal.fromComponents_noNormalize(1, 0, Math.log10(1.05)), // 0.021189
+    d0_2: Decimal.fromComponents_noNormalize(1, 0, 0.2),
+    d0_25: Decimal.fromComponents_noNormalize(1, 0, 0.25), 
+    d1div3: Decimal.fromComponents_noNormalize(1, 0, 1/3), // 0.333333
     d0_5: Decimal.fromComponents_noNormalize(1, 0, 0.5),
+    d0_75: Decimal.fromComponents_noNormalize(1, 0, 0.75),
     d1: Decimal.dOne,
-    d10div9: Decimal.fromComponents_noNormalize(1, 0, 10/9),
+    d10div9: Decimal.fromComponents_noNormalize(1, 0, 10/9), // 1.111111
     d1_2: Decimal.fromComponents_noNormalize(1, 0, 1.2),
     d1_25: Decimal.fromComponents_noNormalize(1, 0, 1.25),
-    d4div3: Decimal.fromComponents_noNormalize(1, 0, 4/3),
+    d4div3: Decimal.fromComponents_noNormalize(1, 0, 4/3), // 1.3333333
     d1_5: Decimal.fromComponents_noNormalize(1, 0, 1.5),
     d1_55: Decimal.fromComponents_noNormalize(1, 0, 1.55),
-    d5div3: Decimal.fromComponents_noNormalize(1, 0, 5/3),
-    dcbrt2: Decimal.fromComponents_noNormalize(1, 0, Math.cbrt(2)),
+    d5div3: Decimal.fromComponents_noNormalize(1, 0, 5/3), // 1.666667
+    dcbrt2: Decimal.fromComponents_noNormalize(1, 0, Math.cbrt(2)), // 1.259921
     d2: Decimal.dTwo,
-    dln10: Decimal.fromComponents_noNormalize(1, 0, Math.log(10)),
-    dsqrt2pi: Decimal.fromComponents_noNormalize(1, 0, Math.sqrt(2 * Math.PI)),
+    dln10: Decimal.fromComponents_noNormalize(1, 0, Math.log(10)), // 2.302585
+    dsqrt2pi: Decimal.fromComponents_noNormalize(1, 0, Math.sqrt(2 * Math.PI)), // 2.506628
+    de: Decimal.fromComponents_noNormalize(1, 0, Math.E),
     d3: Decimal.fromComponents_noNormalize(1, 0, 3),
     d4: Decimal.fromComponents_noNormalize(1, 0, 4),
     d5: Decimal.fromComponents_noNormalize(1, 0, 5),
@@ -34,6 +38,7 @@ const c = {
     d75: Decimal.fromComponents_noNormalize(1, 0, 75),
     e2: Decimal.fromComponents_noNormalize(1, 0, 100),
     e3: Decimal.fromComponents_noNormalize(1, 0, 1000),
+    e4: Decimal.fromComponents_noNormalize(1, 0, 10000),
     e6: Decimal.fromComponents_noNormalize(1, 0, 1000000),
     e10: Decimal.fromComponents_noNormalize(1, 0, 10000000000),
 }
@@ -103,7 +108,7 @@ function scale(num, type, inverse = false, start, str, powScale) {
             return inverse
                     ? num.mul(str).mul(str.ln()).div(start).lambertw().mul(start).div(str.ln())
                     : Decimal.pow(str, num.div(start).sub(1)).mul(num)
-        // i gotta say, i have to give props to alemaninc for coming up with this cuz i never figured out a way to make a log cap smooth without an extreme speed difference lol
+        // i gotta say, i have to give props to alemaninc for coming up with this cuz i never figured out a way to make a log cap smooth without an extreme growth difference lol
         case 1.3:
         case "E3":
             str = str.sub(1);

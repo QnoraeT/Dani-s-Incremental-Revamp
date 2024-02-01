@@ -81,6 +81,11 @@ body {
   height: 200px;
 }
 
+.thinLargeButton {
+  width: 300px;
+  height: 75px;
+}
+
 .autoButton {
   transition-duration: 0.2s;
   background-color: #1c2024;
@@ -93,6 +98,15 @@ body {
 
 .generatorButton:hover {
   background-color: #384048;
+}
+
+.kuaButton {
+  transition-duration: 0.2s;
+  background-color: #411853;
+}
+
+.kuaButton:hover {
+  background-color: #610986;
 }
 
 .genAutoButton {

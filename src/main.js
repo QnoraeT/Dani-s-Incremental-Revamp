@@ -103,13 +103,31 @@ function resetPlayer() {
             up2Active: true,
             up3Active: true,
             praiActive: true,
-            pr2Active: true
+            pr2Active: true,
+            kuaActive: {
+                kpower: {
+                    upgrades: true,
+                    effects: true,
+                    gain: true
+                },
+                kshards: {
+                    upgrades: true,
+                    effects: true,
+                    gain: true
+                },
+                upgrades: true,
+                effects: true,
+                gain: true
+            },
         },
         auto: {
             upg1: false,
             upg2: false,
             upg3: false,
+            prai: false,
             pr2: false,
+            kua: false,
+            kuaUpgrades: false,
         },
         generators: {
             upg1: {
@@ -153,6 +171,7 @@ function resetPlayer() {
                 best: c.d0,
                 total: c.d0,
                 totalInPR2: c.d0,
+                totalInKua: c.d0,
                 bestInPR2: c.d0
             },
             pr2: {
@@ -165,13 +184,18 @@ function resetPlayer() {
         },
         kua: {
             amount: c.d0,
-            effect: c.d1,
+            total: c.d0,
+            best: c.d0,
             kshards: {
                 amount: c.d0,
+                total: c.d0,
+                best: c.d0,
                 upgrades: 0
             },
             kpower: {
                 amount: c.d0,
+                total: c.d0,
+                best: c.d0,
                 upgrades: 0
             }
         },
@@ -248,6 +272,43 @@ function updatePlayerData(player) {
         player.nerf.up3Active = true;
         player.version = 1;
     }
+    if (player.version === 1) {
+        player.kua.total = c.d0;
+        player.kua.best = c.d0;
+        player.kua.kshards.total = c.d0;
+        player.kua.kshards.best = c.d0;
+        player.kua.kpower.total = c.d0;
+        player.kua.kpower.best = c.d0;
+        player.kua.effects = { upg1Scaling: c.d1 };
+        player.kua.kshards.effects = {};
+        player.kua.kpower.effects = {};
+        player.nerf.kuaActive = {
+            kpower: {
+                upgrades: true,
+                effects: true,
+                gain: true
+            },
+            kshards: {
+                upgrades: true,
+                effects: true,
+                gain: true
+            },
+            upgrades: true,
+            effects: true,
+            gain: true
+        }
+        player.auto.prai = false;
+        player.auto.kua = false;
+        player.auto.kuaUpgrades = false;
+        player.version = 2;
+    }
+    if (player.version === 2) {
+        delete player.kua.effect;
+        delete player.kua.effects;
+        delete player.kua.kshards.effects;
+        delete player.kua.kpower.effects;
+        player.version = 3;
+    }
 }
 
 function resetTheFrickingGame() {
@@ -274,15 +335,16 @@ function reset(what) {
                 player.generators.prai.amount = player.generators.prai.amount.add(tmp.praiPending);
                 player.generators.prai.total = player.generators.prai.total.add(tmp.praiPending);
                 player.generators.prai.totalInPR2 = player.generators.prai.totalInPR2.add(tmp.praiPending);
+                player.generators.prai.totalInKua = player.generators.prai.totalInKua.add(tmp.praiPending);
                 for (let i = 0; i < 4; i++) {
-                    updateStart("upg1");
-                    updateStart("upg2");
-                    updateStart("upg3");
                     updateStart("prai");
-                    calcPointsPerSecond();
-                    player.generators.upg1.bought = c.d0;
-                    player.generators.upg2.bought = c.d0;
                     player.generators.upg3.bought = c.d0;
+                    updateStart("upg3");
+                    player.generators.upg2.bought = c.d0;
+                    updateStart("upg2");
+                    player.generators.upg1.bought = c.d0;
+                    updateStart("upg1");
+                    calcPointsPerSecond();
                     player.points = c.d0;
                     player.totalPointsInPRai = c.d0;
                 }
@@ -291,25 +353,22 @@ function reset(what) {
         case "pr2":
             if (tmp.pr2CanDo) {
                 player.generators.pr2.amount = player.generators.pr2.amount.add(1);
+                reset("prai");
                 for (let i = 0; i < 4; i++) {
-                    updateStart("upg1");
-                    updateStart("upg2");
-                    updateStart("upg3");
-                    updateStart("prai");
                     updateStart("pr2");
-                    calcPointsPerSecond();
                     player.generators.prai.amount = c.d0;
                     player.generators.prai.total = c.d0;
                     player.generators.prai.totalInPR2 = c.d0;
                     player.generators.prai.bestInPR2 = c.d0;
-                    player.generators.upg1.bought = c.d0;
-                    player.generators.upg2.bought = c.d0;
-                    player.generators.upg3.bought = c.d0;
-                    player.points = c.d0;
-                    player.totalPointsInPRai = c.d0;
                 }
             }
             break;
+        case "kua":
+            if (tmp.kuaCanDo) {
+                player.generators.kua.amount = player.generators.kua.amount.add(tmp.kuaPending);
+                player.generators.kua.total = player.generators.kua.total.add(tmp.kuaPending);
+                reset("pr2");
+            }
         default:
             throw new Error(`uhh i don't think ${what} is resettable`)
     }
@@ -326,10 +385,11 @@ function calcPointsPerSecond() {
     return i;
 }
 
-function loadGame() {
-    let oldTimeStamp = 0;
-    lastFPSCheck = 0;
 
+
+function loadGame() {
+    lastFPSCheck = 0;
+    let oldTimeStamp = 0;
     resetPlayer();
     game = {
         0: {
@@ -355,35 +415,45 @@ function loadGame() {
 
     function gameLoop(timeStamp) {
         try {
+            let generate;
             otherGameStuffIg.delta = (timeStamp - oldTimeStamp) / 1000;
-            fpsList.push(otherGameStuffIg.delta);
-            if (timeStamp > lastFPSCheck) {
-                lastFPSCheck = timeStamp + 500;
-                otherGameStuffIg.FPS = 0;
-                for (let i = 0; i < fpsList.length; ++i) {
-                    otherGameStuffIg.FPS += fpsList[i];
+            if (otherGameStuffIg.delta > 0) {
+                fpsList.push(otherGameStuffIg.delta);
+                if (timeStamp > lastFPSCheck) {
+                    lastFPSCheck = timeStamp + 500;
+                    otherGameStuffIg.FPS = 0;
+                    for (let i = 0; i < fpsList.length; ++i) {
+                        otherGameStuffIg.FPS += fpsList[i];
+                    }
+                    otherGameStuffIg.FPS = (fpsList.length / otherGameStuffIg.FPS).toFixed(1);
+                    fpsList = [];
                 }
-                otherGameStuffIg.FPS = (fpsList.length / otherGameStuffIg.FPS).toFixed(1);
-                fpsList = [];
-                // document.getElementById("fps").innerText = `FPS: ${FPS}`;
+    
+                let gameDelta = Decimal.mul(otherGameStuffIg.delta, player.timeSpeed).mul(player.setTimeSpeed);
+                player.gameTime = player.gameTime.add(gameDelta);
+                player.totalTime += otherGameStuffIg.delta;
+                otherGameStuffIg.sessionTime += otherGameStuffIg.delta;
+        
+                updateAllKua();
+                generate = tmp.kuaShardGeneration.times(gameDelta);
+                player.kua.kshards.amount = player.kua.kshards.amount.add(generate);
+                player.kua.kshards.total = player.kua.kshards.total.add(generate);
+                generate = tmp.kuaPowerGeneration.times(gameDelta);
+                player.kua.kpower.amount = player.kua.kpower.amount.add(generate);
+                player.kua.kpower.total = player.kua.kpower.total.add(generate);
+        
+                updateAllStart();
+                generate = player.pps.times(gameDelta);
+                player.pps = calcPointsPerSecond();
+                player.points = player.points.add(generate);
+                player.totalPointsInPRai = player.totalPointsInPRai.add(generate);
+                player.totalPoints = player.totalPoints.add(generate);
+        
+                if (timeStamp > lastSave + saveTime) {
+                    console.log(saveTheFrickingGame());
+                    lastSave = timeStamp;
+                }
             }
-
-            let gameDelta = Decimal.mul(otherGameStuffIg.delta, player.timeSpeed).mul(player.setTimeSpeed);
-            player.gameTime = player.gameTime.add(gameDelta);
-            player.totalTime += otherGameStuffIg.delta;
-            otherGameStuffIg.sessionTime += otherGameStuffIg.delta;
-
-            player.pps = calcPointsPerSecond();
-            player.points = player.points.add(player.pps.times(gameDelta));
-            player.totalPointsInPRai = player.totalPointsInPRai.add(player.pps.times(gameDelta));
-            player.totalPoints = player.totalPoints.add(player.pps.times(gameDelta));
-            updateAllStart()
-
-            if (timeStamp > lastSave + saveTime) {
-                console.log(saveTheFrickingGame());
-                lastSave = timeStamp;
-            }
-
         } catch (e) {
             console.error(e);
             console.log("Game saving has been paused. It's likely that your save is broken or the programmer (TearonQ) is an idiot? Don't call them that, though.");
@@ -394,3 +464,4 @@ function loadGame() {
         window.requestAnimationFrame(gameLoop);
     }
 }
+

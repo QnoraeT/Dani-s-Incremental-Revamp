@@ -304,7 +304,7 @@ function updateStart(type) {
 
             i = player.generators.pr2.amount;
             i = i.add(player.generators.pr2.freeExtra);
-            i = i.max(0).add(1).pow(scale(i.mul(0.05).add(1), 1.3, false, c.d4, c.d1, c.d2));
+            i = i.max(0).add(1).pow(i.mul(0.05).add(1).mul(c.de).ln());
             player.generators.pr2.effect = i;
 
             tmp.pr2CostDiv = c.d1;
