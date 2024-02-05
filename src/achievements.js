@@ -106,7 +106,7 @@ const ACHIEVEMENT_DATA = {
         name() { return `This really is a clone of Distance Incremental!`; },
         desc() { return `Have at least ${format(100)} UP1.`; },
         type() { return `points`; },
-        reward() { return `PRai effect is increased by 200%.`; },
+        reward() { return `PRai effect is increased by ${format(200)}%.`; },
         show() { return true },
         status() { return true }
     },
@@ -114,7 +114,7 @@ const ACHIEVEMENT_DATA = {
         name() { return `What even is this thing? Why do I have so little of it?`; },
         desc() { return `Convert all of your PRai to Kuaraniai.`; },
         type() { return `kua`; },
-        reward() { return `Your number generation is increased by 200%, and you start at 5 PRai every Kuaraniai reset, but the starting PRai doesn't count for Kuaraniai gain.`; },
+        reward() { return `Your number generation is increased by ${format(200)}%, and you start at ${format(10)} PRai every Kuaraniai reset, but the starting PRai doesn't count for Kuaraniai gain.`; },
         show() { return player.generators.pr2.best.gte(10); },
         status() { return true }
     },

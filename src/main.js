@@ -344,10 +344,11 @@ function reset(what) {
                     updateStart("upg2");
                     player.generators.upg1.bought = c.d0;
                     updateStart("upg1");
-                    calcPointsPerSecond();
+                    player.pps = calcPointsPerSecond();
                     player.points = c.d0;
                     player.totalPointsInPRai = c.d0;
                 }
+                console.log(player)
             }
             break;
         case "pr2":
@@ -365,10 +366,18 @@ function reset(what) {
             break;
         case "kua":
             if (tmp.kuaCanDo) {
-                player.generators.kua.amount = player.generators.kua.amount.add(tmp.kuaPending);
-                player.generators.kua.total = player.generators.kua.total.add(tmp.kuaPending);
+                player.kua.amount = player.kua.amount.add(tmp.kuaPending);
+                player.kua.total = player.kua.total.add(tmp.kuaPending);
                 reset("pr2");
+                player.generators.prai.totalInKua = c.d0;
+                if (player.achievements.includes(11)) {
+                    player.generators.prai.amount = c.d10;
+                    player.generators.prai.total = c.d10;
+                    player.generators.prai.totalInPR2 = c.d10;
+                    player.generators.prai.bestInPR2 = c.d10;
+                }
             }
+            break;
         default:
             throw new Error(`uhh i don't think ${what} is resettable`)
     }
@@ -382,10 +391,11 @@ function calcPointsPerSecond() {
     if (player.achievements.includes(4)) {
         i = i.mul(3);
     }
+    if (player.achievements.includes(11)) {
+        i = i.mul(3);
+    }
     return i;
 }
-
-
 
 function loadGame() {
     lastFPSCheck = 0;

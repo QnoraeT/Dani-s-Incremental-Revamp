@@ -34,7 +34,7 @@
                         marginLeft: `3px`, 
                         backgroundColor: item.backgroundColor(), 
                         border: `3px solid ${tab[0] === item.staticName() ? item.highlightColor() : item.outlineColor()}` 
-                    }" @mouseover="{ backgroundColor: colorChange(item.backgroundColor(), 0.8, 1) }"
+                    }"
                     v-if="item.if()" class="mediumText fontTrebuchetMS" v-on:click="switchTab(item.staticName(), 0)">{{item.name()}}</button>
                 </div>
             </div>
@@ -170,7 +170,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI / 2) / 8, 0.5, 1.0)}` }">                        
+                    <td style="" v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI / 2) / 8, 0.5, 1.0)}` }">                        
                         <div class="flex-container" style="justify-content: center;" v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.5, 1.0)}` }">
                             <span style="text-align: center; font-size: 16px;" v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime) / 4, 1.0, 1.0) }">You have {{format(player.kua.kshards.amount, 3)}} Kuaraniai shards.</span>
                         </div>
