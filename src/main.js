@@ -44,7 +44,7 @@ const TABS_LIST = [
         textColor() { return "#ffffff" },
         outlineColor() { return "#7958ff" },
         highlightColor() { return "#ff81cb" },
-        if() { return player.generators.pr2.best.gte(10) }
+        if() { return player.generators.pr2.best.gte(c.d10) }
     },
     {
         name() { return "Colosseum" },
@@ -53,7 +53,7 @@ const TABS_LIST = [
         textColor() { return "#ffffff" },
         outlineColor() { return "#ff3600" },
         highlightColor() { return "#ff9b7f" },
-        if() { return player.kua.kpower.upgrades >= 2 && player.kua.amount.gte(100) }
+        if() { return player.kua.kpower.upgrades >= 2 && player.kua.amount.gte(c.e2) }
     },
 ]
 
@@ -97,7 +97,7 @@ function resetPlayer() {
         gameTime: c.d0, // timespeed will affect this (totalGameTime)
         timeSpeed: c.d1,
         setTimeSpeed: c.d1, // change this if you think the game is going too fast or slow, i won't judge you =P
-        version: 0,
+        version: 3,
         nerf: {
             up1Active: true,
             up2Active: true,

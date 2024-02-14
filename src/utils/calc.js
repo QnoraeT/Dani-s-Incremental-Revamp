@@ -15,15 +15,15 @@ const c = {
     d10div9: Decimal.fromComponents_noNormalize(1, 0, 10/9), // 1.111111
     d1_2: Decimal.fromComponents_noNormalize(1, 0, 1.2),
     d1_25: Decimal.fromComponents_noNormalize(1, 0, 1.25),
-    d4div3: Decimal.fromComponents_noNormalize(1, 0, 4/3), // 1.3333333
+    dcbrt2: Decimal.fromComponents_noNormalize(1, 0, Math.cbrt(2)), // 1.259921
+    d4div3: Decimal.fromComponents_noNormalize(1, 0, 4/3), // 1.333333
     d1_5: Decimal.fromComponents_noNormalize(1, 0, 1.5),
     d1_55: Decimal.fromComponents_noNormalize(1, 0, 1.55),
     d5div3: Decimal.fromComponents_noNormalize(1, 0, 5/3), // 1.666667
-    dcbrt2: Decimal.fromComponents_noNormalize(1, 0, Math.cbrt(2)), // 1.259921
     d2: Decimal.dTwo,
     dln10: Decimal.fromComponents_noNormalize(1, 0, Math.log(10)), // 2.302585
     dsqrt2pi: Decimal.fromComponents_noNormalize(1, 0, Math.sqrt(2 * Math.PI)), // 2.506628
-    de: Decimal.fromComponents_noNormalize(1, 0, Math.E),
+    de: Decimal.fromComponents_noNormalize(1, 0, Math.E), // 2.718281
     d3: Decimal.fromComponents_noNormalize(1, 0, 3),
     d4: Decimal.fromComponents_noNormalize(1, 0, 4),
     d5: Decimal.fromComponents_noNormalize(1, 0, 5),
