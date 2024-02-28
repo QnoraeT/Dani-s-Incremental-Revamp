@@ -63,11 +63,10 @@ const otherGameStuffIg = {
     delta: 0
 }
 
-let version = 0;
 let game = {};
 let player = {};
-let tmp = {};
-let tab = [0, 0, 0];
+const tmp = {};
+const tab = [0, 0, 0];
 let fpsList = [];
 let lastFPSCheck = 0;
 let lastSave = 0;
