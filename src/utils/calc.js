@@ -92,10 +92,15 @@ function scale(num, type, inverse = false, start, str, powScale) {
     switch (type) {
         // Polynomial
         case 0:
+        case 0.1:
         case "P":
             return inverse
                     ? num.sub(start).mul(str).div(start).add(1).root(str).mul(start)
                     : num.div(start).pow(str).sub(1).mul(start).div(str).add(start)
+        case 0.2: // alemaninc
+            return inverse
+                    ? num.div(start).root(str).sub(1).mul(str).add(1).mul(start)
+                    : num.div(start).sub(1).div(str).add(1).pow(str).mul(start)
         // Exponential
         case 1:
         case 1.1:
@@ -108,8 +113,7 @@ function scale(num, type, inverse = false, start, str, powScale) {
             return inverse
                     ? num.mul(str).mul(str.ln()).div(start).lambertw().mul(start).div(str.ln())
                     : Decimal.pow(str, num.div(start).sub(1)).mul(num)
-        // i gotta say, i have to give props to alemaninc for coming up with this cuz i never figured out a way to make a log cap smooth without an extreme growth difference lol
-        case 1.3:
+        case 1.3: // i gotta say, i have to give props to alemaninc for coming up with this cuz i never figured out a way to make a log cap smooth without an extreme growth difference lol cuz i wasn't able to figure it out myself
         case "E3":
             str = str.sub(1);
             return inverse
@@ -120,8 +124,8 @@ function scale(num, type, inverse = false, start, str, powScale) {
         case 2.1:
         case "SE1":
             return inverse
-                    ? Decimal.pow(start, num).root(str).log(start).add(start).root(str).sub(start)
-                    : Decimal.pow(start, num.log(start).pow(str)).sub(start).pow(str).add(start)
+                    ? Decimal.pow(start, num.sub(start).mul(str).add(start).log(start).root(str))
+                    : Decimal.pow(start, num.log(start).pow(str)).sub(start).div(str).add(start)
         case 2.2:
         case "SE2":
             return inverse

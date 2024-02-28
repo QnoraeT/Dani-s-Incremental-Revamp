@@ -152,7 +152,37 @@
             </table>
         </div>
         <div id="kuaraniai" v-if="tab[0] === 'kua'">
-            <div class="flex-container" style="justify-content: center; margin-left: auto; margin-right: auto; width: 750px; height: 120px;">
+            <table style="margin-left: auto; margin-right: auto;">
+                <tr>
+                    <td>
+                        <button style="text-align: center; margin-top: 12px; margin-left: auto; margin-right: auto;" 
+                        v-bind:class="{ nope: !tmp.kuaCanDo, ok: tmp.kuaCanDo }"
+                        class="whiteText thinlargeButton fontVerdana kuaButton" id="kuaGain" v-on:click="reset('kua')">
+                            <h3>Kuaraniai: {{format(player.kua.amount, 3)}}</h3>
+                            Convert your {{format(tmp.effectivePrai)}} PRai into {{format(tmp.kuaPending, 4)}} Kuaraniai
+                            <br>{{
+                                tmp.kuaCanDo
+                                    ? `You can convert PRai to Kuaraniai! (${format(tmp.effectivePrai)} / ${format(tmp.kuaReq)} PRai)`
+                                    : `You need ${format(tmp.effectivePrai)} / ${format(tmp.kuaReq)} PRai to convert into Kuaraniai.`
+                            }}
+                            <br>You have {{format(player.kua.amount)}} Kuaraniai, which generates {{format(tmp.kuaShardGeneration, 2)}} Kuaraniai Shards (KShards) per second.
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI / 2) / 8, 0.5, 1.0)}` }">                        
+                        <div class="flex-container" style="justify-content: center;" v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.5, 1.0)}` }">
+                            <span style="text-align: center; font-size: 16px;" v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime) / 4, 1.0, 1.0) }">You have {{format(player.kua.kshards.amount, 3)}} Kuaraniai shards.</span>
+                        </div>
+                        <div class="flex-container" style="justify-content: center;" v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 1.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 1.5) / 8, 0.5, 1.0)}` }">
+                            <span style="text-align: center; font-size: 16px;" v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI) / 4, 1.0, 1.0) }">You have {{format(player.kua.kpower.amount, 3)}} Kuaraniai power.</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+        <!-- <div id="kuaraniai" v-if="tab[0] === 'kua'">
                 <button style="text-align: center; margin-top: 12px; width: 750px; height: 120px;" 
                 v-bind:class="{ nope: !tmp.kuaCanDo, ok: tmp.kuaCanDo }"
                 class="whiteText fontVerdana kuaButton" id="kuaGain" v-on:click="reset('kua')">
@@ -165,16 +195,8 @@
                     }}
                     <br>You have {{format(player.kua.amount)}} Kuaraniai, which generates {{format(tmp.kuaShardGeneration, 2)}} Kuaraniai Shards (KShards) per second.
                 </button>
-                <div style="" v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI / 2) / 8, 0.5, 1.0)}` }">                        
-                    <div class="flex-container" style="justify-content: center;" v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.5, 1.0)}` }">
-                        <span style="text-align: center; font-size: 16px; margin-left: 8px; margin-right: 8px;" v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime) / 4, 1.0, 1.0) }">You have {{format(player.kua.kshards.amount, 3)}} Kuaraniai shards.</span>
-                    </div>
-                    <div class="flex-container" style="justify-content: center;" v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 1.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 1.5) / 8, 0.5, 1.0)}` }">
-                        <span style="text-align: center; font-size: 16px; margin-left: 8px; margin-right: 8px;" v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI) / 4, 1.0, 1.0) }">You have {{format(player.kua.kpower.amount, 3)}} Kuaraniai power.</span>
-                    </div>
-                </div>
-            </div>
-            <!-- <table style="margin-left: auto; margin-right: auto;">
+
+            <table style="margin-left: auto; margin-right: auto;">
                 <tr>
                     <td>
 
@@ -190,9 +212,9 @@
                         </div>
                     </td>
                 </tr>
-            </table> -->
+            </table>
 
-        </div>
+        </div> -->
         <div id="options" v-if="tab[0] === 'opt'">
 
         </div>
