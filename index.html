@@ -219,6 +219,27 @@
 
         </div>
         <div id="stats" v-if="tab[0] === 'stat'">
+            <table style="margin-left: auto; margin-right: auto;">
+                <tr>
+                    <td v-for="(item, index) in tmp.scaleList" style="color: #fff">
+                        <div v-bind:style="{ backgroundColor: DEFAULT_SCALE[index].color() }" v-if="item.length > 0" style="
+                        border-radius: 100px;
+                        width: 100px;
+                        height: 20px;
+                        color: #fff;
+                        text-align: center;
+                        padding: 40px 0;
+                        " class="tooltip">
+                        {{DEFAULT_SCALE[index].name}}
+                            <span class="tooltiptext">
+                                <span v-for="j in item">
+                                    {{j}}
+                                </span>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
             <div class="flex-container" style="justify-content: space-between;">
                 
             </div>

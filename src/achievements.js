@@ -82,7 +82,7 @@ const ACHIEVEMENT_DATA = {
         desc() { return `Do a PR2 reset twice.`; },
         type() { return `points`; },
         reward() { return `UP1's scaling is weakened based off of PRai. Currently: ${formatPerc(ACHIEVEMENT_DATA[7].eff(), 3)} weaker.`; },
-        eff() { return player.generators.prai.amount.max(10).log10().root(3).sub(1).div(4).add(1) },
+        eff() { return player.value.generators.prai.amount.max(10).log10().root(3).sub(1).div(4).add(1) },
         show() { return true },
         status() { return true }
     },
@@ -92,14 +92,14 @@ const ACHIEVEMENT_DATA = {
         type() { return `points`; },
         reward() { return `PR2 requirement is reduced by ${formatPerc(1.5)}.`; },
         show() { return true },
-        status() { return tmp.praiPending.gte(1000) ? true : `${format(tmp.praiPending)} / ${format(1000)} PRai pending` }
+        status() { return tmp.value.praiPending.gte(1000) ? true : `${format(tmp.value.praiPending)} / ${format(1000)} PRai pending` }
     },
     9: {
         name() { return `What once was part of a bygone era...`; },
         desc() { return `Do a PR2 reset ${format(4)} times in total.`; },
         type() { return `points`; },
         reward() { return ``; },
-        show() { return player.generators.prai.best.gte(10); },
+        show() { return player.value.generators.prai.best.gte(10); },
         status() { return true }
     },
     10: {
@@ -115,7 +115,7 @@ const ACHIEVEMENT_DATA = {
         desc() { return `Convert all of your PRai to Kuaraniai.`; },
         type() { return `kua`; },
         reward() { return `Your number generation is increased by ${format(200)}%, and you start at ${format(10)} PRai every Kuaraniai reset, but the starting PRai doesn't count for Kuaraniai gain.`; },
-        show() { return player.generators.pr2.best.gte(10); },
+        show() { return player.value.generators.pr2.best.gte(10); },
         status() { return true }
     },
     12: {
@@ -125,11 +125,11 @@ const ACHIEVEMENT_DATA = {
         reward() { return `UP2 also boosts number gain at a reduced rate. Currently: ${format(ACHIEVEMENT_DATA[12].eff(), 2)}x`; },
         eff() { 
             let pow = D(0.2);
-            let eff = player.generators.upg2.effect;
+            let eff = player.value.generators.upg2.effect;
             eff = eff.pow(pow);
             return eff;
         },
-        show() { return player.generators.pr2.best.gte(10); },
+        show() { return player.value.generators.pr2.best.gte(10); },
         status() { return true }
     },
     13: {
@@ -137,8 +137,8 @@ const ACHIEVEMENT_DATA = {
         desc() { return `Have ${format(10)} Kuaraniai.`; },
         type() { return `kua`; },
         reward() { return `Kuaraniai gain is increased by 50%, and KShards boost number generation. Currently: ${format(ACHIEVEMENT_DATA[13].eff(), 2)}x`; },
-        eff() { return player.kua.kshards.amount.root(3).max(1); },
-        show() { return player.generators.pr2.best.gte(10); },
+        eff() { return player.value.kua.kshards.amount.root(3).max(1); },
+        show() { return player.value.generators.pr2.best.gte(10); },
         status() { return true }
     },
     14: {
@@ -146,14 +146,14 @@ const ACHIEVEMENT_DATA = {
         desc() { return `Complete Colosseum Challenge 'No UP2.'`; },
         type() { return `col`; },
         reward() { return ``; },
-        show() { return player.kua.kpower.upgrades >= 2 && player.kua.amount.gte(100); },
+        show() { return player.value.kua.kpower.upgrades >= 2 && player.value.kua.amount.gte(100); },
         status() { return true }
     },
 }
 
 function setAchievement(id, bool) {
-    if (!player.achievements.includes(id) && bool) {
-        player.achievements.push(id)
+    if (!player.value.achievements.includes(id) && bool) {
+        player.value.achievements.push(id)
         // notify("Achievement", `You gained Achievement `)
     }
 }

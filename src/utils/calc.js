@@ -7,11 +7,13 @@ const c = {
     d0_02: Decimal.fromComponents_noNormalize(1, 0, 0.02),
     dlog1_05: Decimal.fromComponents_noNormalize(1, 0, Math.log10(1.05)), // 0.021189
     d0_2: Decimal.fromComponents_noNormalize(1, 0, 0.2),
+    d10log1_05: Decimal.fromComponents_noNormalize(1, 0, Math.log10(1.6288946267774422)), // 0.211892
     d0_25: Decimal.fromComponents_noNormalize(1, 0, 0.25), 
     d1div3: Decimal.fromComponents_noNormalize(1, 0, 1/3), // 0.333333
     d0_5: Decimal.fromComponents_noNormalize(1, 0, 0.5),
     d0_75: Decimal.fromComponents_noNormalize(1, 0, 0.75),
     d1: Decimal.dOne,
+    d1_05: Decimal.fromComponents_noNormalize(1, 0, 1.05),
     d10div9: Decimal.fromComponents_noNormalize(1, 0, 10/9), // 1.111111
     d1_2: Decimal.fromComponents_noNormalize(1, 0, 1.2),
     d1_25: Decimal.fromComponents_noNormalize(1, 0, 1.25),
@@ -34,6 +36,9 @@ const c = {
     d10: Decimal.fromComponents_noNormalize(1, 0, 10),
     d11: Decimal.fromComponents_noNormalize(1, 0, 11),
     d15: Decimal.fromComponents_noNormalize(1, 0, 15),
+    d20: Decimal.fromComponents_noNormalize(1, 0, 20),
+    d25: Decimal.fromComponents_noNormalize(1, 0, 25),
+    d50: Decimal.fromComponents_noNormalize(1, 0, 50),
     d60: Decimal.fromComponents_noNormalize(1, 0, 60),
     d75: Decimal.fromComponents_noNormalize(1, 0, 75),
     e2: Decimal.fromComponents_noNormalize(1, 0, 100),

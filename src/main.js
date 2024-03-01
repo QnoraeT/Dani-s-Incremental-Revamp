@@ -44,7 +44,7 @@ const TABS_LIST = [
         textColor() { return "#ffffff" },
         outlineColor() { return "#7958ff" },
         highlightColor() { return "#ff81cb" },
-        if() { return player.generators.pr2.best.gte(c.d10) }
+        if() { return player.value.generators.pr2.best.gte(c.d10) }
     },
     {
         name() { return "Colosseum" },
@@ -53,7 +53,7 @@ const TABS_LIST = [
         textColor() { return "#ffffff" },
         outlineColor() { return "#ff3600" },
         highlightColor() { return "#ff9b7f" },
-        if() { return player.kua.kpower.upgrades >= 2 && player.kua.amount.gte(c.e2) }
+        if() { return player.value.kua.kpower.upgrades >= 2 && player.value.kua.amount.gte(c.e2) }
     },
 ]
 
@@ -63,9 +63,9 @@ const otherGameStuffIg = {
     delta: 0
 }
 
-let game = {};
-let player = {};
-const tmp = {};
+let game = Vue.ref({});
+let player = Vue.ref({});
+const tmp = Vue.ref({});
 const tab = [0, 0, 0];
 let fpsList = [];
 let lastFPSCheck = 0;
@@ -84,7 +84,7 @@ function switchTab(t, id) {
 }
 
 function resetPlayer() {
-    player = {
+    player.value = {
         chapter: 0,
         achievements: [],
         points: c.d0,
@@ -251,12 +251,12 @@ function fixData(defaultData, newData) {
 }
 
 function updatePlayerData(player) {
-    player.version = player.version||-1;
-    if (player.version < 0) {
-        player.version = 0;
+    player.value.version = player.value.version||-1;
+    if (player.value.version < 0) {
+        player.value.version = 0;
     }
-    if (player.version === 0) {
-        player.generators.upg3 = {
+    if (player.value.version === 0) {
+        player.value.generators.upg3 = {
             cost: c.e10,
             target: c.d0,
             effectBase: c.d0_02,
@@ -267,21 +267,21 @@ function updatePlayerData(player) {
             effect: c.d0,
             best: c.d0
         };
-        player.auto.upg3 = false;
-        player.nerf.up3Active = true;
-        player.version = 1;
+        player.value.auto.upg3 = false;
+        player.value.nerf.up3Active = true;
+        player.value.version = 1;
     }
-    if (player.version === 1) {
-        player.kua.total = c.d0;
-        player.kua.best = c.d0;
-        player.kua.kshards.total = c.d0;
-        player.kua.kshards.best = c.d0;
-        player.kua.kpower.total = c.d0;
-        player.kua.kpower.best = c.d0;
-        player.kua.effects = { upg1Scaling: c.d1 };
-        player.kua.kshards.effects = {};
-        player.kua.kpower.effects = {};
-        player.nerf.kuaActive = {
+    if (player.value.version === 1) {
+        player.value.kua.total = c.d0;
+        player.value.kua.best = c.d0;
+        player.value.kua.kshards.total = c.d0;
+        player.value.kua.kshards.best = c.d0;
+        player.value.kua.kpower.total = c.d0;
+        player.value.kua.kpower.best = c.d0;
+        player.value.kua.effects = { upg1Scaling: c.d1 };
+        player.value.kua.kshards.effects = {};
+        player.value.kua.kpower.effects = {};
+        player.value.nerf.kuaActive = {
             kpower: {
                 upgrades: true,
                 effects: true,
@@ -296,17 +296,17 @@ function updatePlayerData(player) {
             effects: true,
             gain: true
         }
-        player.auto.prai = false;
-        player.auto.kua = false;
-        player.auto.kuaUpgrades = false;
-        player.version = 2;
+        player.value.auto.prai = false;
+        player.value.auto.kua = false;
+        player.value.auto.kuaUpgrades = false;
+        player.value.version = 2;
     }
-    if (player.version === 2) {
-        delete player.kua.effect;
-        delete player.kua.effects;
-        delete player.kua.kshards.effects;
-        delete player.kua.kpower.effects;
-        player.version = 3;
+    if (player.value.version === 2) {
+        delete player.value.kua.effect;
+        delete player.value.kua.effects;
+        delete player.value.kua.kshards.effects;
+        delete player.value.kua.kpower.effects;
+        player.value.version = 3;
     }
 }
 
@@ -317,7 +317,7 @@ function resetTheFrickingGame() {
 
 function saveTheFrickingGame() {
     try {
-        game[currentSave].player = player;
+        game.value[currentSave].player = player.value;
         localStorage.setItem(saveID, JSON.stringify(game));
         return "Game was saved!";
     } catch (e) {
@@ -329,51 +329,50 @@ function saveTheFrickingGame() {
 function reset(what) {
     switch(what) {
         case "prai":
-            if (tmp.praiCanDo) {
-                setAchievement(8, tmp.praiPending.gte(1000));
-                player.generators.prai.amount = player.generators.prai.amount.add(tmp.praiPending);
-                player.generators.prai.total = player.generators.prai.total.add(tmp.praiPending);
-                player.generators.prai.totalInPR2 = player.generators.prai.totalInPR2.add(tmp.praiPending);
-                player.generators.prai.totalInKua = player.generators.prai.totalInKua.add(tmp.praiPending);
+            if (tmp.value.praiCanDo) {
+                setAchievement(8, tmp.value.praiPending.gte(1000));
+                player.value.generators.prai.amount = player.value.generators.prai.amount.add(tmp.value.praiPending);
+                player.value.generators.prai.total = player.value.generators.prai.total.add(tmp.value.praiPending);
+                player.value.generators.prai.totalInPR2 = player.value.generators.prai.totalInPR2.add(tmp.value.praiPending);
+                player.value.generators.prai.totalInKua = player.value.generators.prai.totalInKua.add(tmp.value.praiPending);
                 for (let i = 0; i < 4; i++) {
                     updateStart("prai");
-                    player.generators.upg3.bought = c.d0;
+                    player.value.generators.upg3.bought = c.d0;
                     updateStart("upg3");
-                    player.generators.upg2.bought = c.d0;
+                    player.value.generators.upg2.bought = c.d0;
                     updateStart("upg2");
-                    player.generators.upg1.bought = c.d0;
+                    player.value.generators.upg1.bought = c.d0;
                     updateStart("upg1");
-                    player.pps = calcPointsPerSecond();
-                    player.points = c.d0;
-                    player.totalPointsInPRai = c.d0;
+                    player.value.pps = calcPointsPerSecond();
+                    player.value.points = c.d0;
+                    player.value.totalPointsInPRai = c.d0;
                 }
-                console.log(player)
             }
             break;
         case "pr2":
-            if (tmp.pr2CanDo) {
-                player.generators.pr2.amount = player.generators.pr2.amount.add(1);
+            if (tmp.value.pr2CanDo) {
+                player.value.generators.pr2.amount = player.value.generators.pr2.amount.add(1);
                 reset("prai");
                 for (let i = 0; i < 4; i++) {
                     updateStart("pr2");
-                    player.generators.prai.amount = c.d0;
-                    player.generators.prai.total = c.d0;
-                    player.generators.prai.totalInPR2 = c.d0;
-                    player.generators.prai.bestInPR2 = c.d0;
+                    player.value.generators.prai.amount = c.d0;
+                    player.value.generators.prai.total = c.d0;
+                    player.value.generators.prai.totalInPR2 = c.d0;
+                    player.value.generators.prai.bestInPR2 = c.d0;
                 }
             }
             break;
         case "kua":
-            if (tmp.kuaCanDo) {
-                player.kua.amount = player.kua.amount.add(tmp.kuaPending);
-                player.kua.total = player.kua.total.add(tmp.kuaPending);
+            if (tmp.value.kuaCanDo) {
+                player.value.kua.amount = player.value.kua.amount.add(tmp.value.kuaPending);
+                player.value.kua.total = player.value.kua.total.add(tmp.value.kuaPending);
                 reset("pr2");
-                player.generators.prai.totalInKua = c.d0;
-                if (player.achievements.includes(11)) {
-                    player.generators.prai.amount = c.d10;
-                    player.generators.prai.total = c.d10;
-                    player.generators.prai.totalInPR2 = c.d10;
-                    player.generators.prai.bestInPR2 = c.d10;
+                player.value.generators.prai.totalInKua = c.d0;
+                if (player.value.achievements.includes(11)) {
+                    player.value.generators.prai.amount = c.d10;
+                    player.value.generators.prai.total = c.d10;
+                    player.value.generators.prai.totalInPR2 = c.d10;
+                    player.value.generators.prai.bestInPR2 = c.d10;
                 }
             }
             break;
@@ -384,13 +383,13 @@ function reset(what) {
 
 function calcPointsPerSecond() {
     let i = c.d1;
-    i = i.mul(player.generators.upg1.effect);
-    i = i.mul(player.generators.prai.effect);
-    i = i.mul(player.generators.pr2.effect);
-    if (player.achievements.includes(4)) {
+    i = i.mul(player.value.generators.upg1.effect);
+    i = i.mul(player.value.generators.prai.effect);
+    i = i.mul(player.value.generators.pr2.effect);
+    if (player.value.achievements.includes(4)) {
         i = i.mul(3);
     }
-    if (player.achievements.includes(11)) {
+    if (player.value.achievements.includes(11)) {
         i = i.mul(3);
     }
     return i;
@@ -400,7 +399,7 @@ function loadGame() {
     lastFPSCheck = 0;
     let oldTimeStamp = 0;
     resetPlayer();
-    game = {
+    game.value = {
         0: {
             name: "Save #1",
             mode: "normal",
@@ -408,10 +407,10 @@ function loadGame() {
         }
     };
 
-    let loadgame = JSON.parse(localStorage.getItem(saveID));
+    let loadgame = JSON.parse(localStorage.getItem(saveID))._value; // stupid hack but .value doesn't work
     if (loadgame !== null) {
-        game = fixData(game, loadgame);
-        player = game[currentSave].player;
+        game.value = fixData(game.value, loadgame);
+        player.value = game.value[currentSave].player;
         updatePlayerData(player);
     } else {
         currentSave = 0;
@@ -438,25 +437,25 @@ function loadGame() {
                     fpsList = [];
                 }
     
-                let gameDelta = Decimal.mul(otherGameStuffIg.delta, player.timeSpeed).mul(player.setTimeSpeed);
-                player.gameTime = player.gameTime.add(gameDelta);
-                player.totalTime += otherGameStuffIg.delta;
+                let gameDelta = Decimal.mul(otherGameStuffIg.delta, player.value.timeSpeed).mul(player.value.setTimeSpeed);
+                player.value.gameTime = player.value.gameTime.add(gameDelta);
+                player.value.totalTime += otherGameStuffIg.delta;
                 otherGameStuffIg.sessionTime += otherGameStuffIg.delta;
         
                 updateAllKua();
-                generate = tmp.kuaShardGeneration.times(gameDelta);
-                player.kua.kshards.amount = player.kua.kshards.amount.add(generate);
-                player.kua.kshards.total = player.kua.kshards.total.add(generate);
-                generate = tmp.kuaPowerGeneration.times(gameDelta);
-                player.kua.kpower.amount = player.kua.kpower.amount.add(generate);
-                player.kua.kpower.total = player.kua.kpower.total.add(generate);
+                generate = tmp.value.kuaShardGeneration.times(gameDelta);
+                player.value.kua.kshards.amount = player.value.kua.kshards.amount.add(generate);
+                player.value.kua.kshards.total = player.value.kua.kshards.total.add(generate);
+                generate = tmp.value.kuaPowerGeneration.times(gameDelta);
+                player.value.kua.kpower.amount = player.value.kua.kpower.amount.add(generate);
+                player.value.kua.kpower.total = player.value.kua.kpower.total.add(generate);
         
                 updateAllStart();
-                generate = player.pps.times(gameDelta);
-                player.pps = calcPointsPerSecond();
-                player.points = player.points.add(generate);
-                player.totalPointsInPRai = player.totalPointsInPRai.add(generate);
-                player.totalPoints = player.totalPoints.add(generate);
+                player.value.pps = calcPointsPerSecond();
+                generate = player.value.pps.times(gameDelta);
+                player.value.points = player.value.points.add(generate);
+                player.value.totalPointsInPRai = player.value.totalPointsInPRai.add(generate);
+                player.value.totalPoints = player.value.totalPoints.add(generate);
         
                 if (timeStamp > lastSave + saveTime) {
                     console.log(saveTheFrickingGame());

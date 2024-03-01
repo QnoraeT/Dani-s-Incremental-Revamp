@@ -35,18 +35,18 @@ function numberWithCommas(x) {
 function format(number, dec = 0, expdec = 3) {
     let n = new Decimal(number);
     if (n.lt(0)) return "-" + format(n.negate(), dec, expdec);
-    if (n.eq(0)) return "0";
-    if (!Decimal.isFinite(n.mag)) return "Infinity";
-    if (Decimal.isNaN(n.mag)) return "NaN";
+    if (n.eq(0)) return (0).toFixed(dec);
+    if (!Number.isFinite(n.mag)) return "Infinity";
+    if (Number.isNaN(n.mag)) return "NaN";
     if (n.lt(0.001)) {
         return "1 / " + format(n.recip(), dec, expdec);
     } else if (n.lt(1e6)) {
         return numberWithCommas(n.toNumber().toFixed(dec));
     } else if (n.lt(abbExp)) {
-        let abb = n.log(1000).mul(1.000000001).floor();
-        return n.div(Decimal.pow(1000, abb)).toNumber().toFixed(expdec) + " " + abbSuffixes[abb];
+        let abb = n.log10().mul(0.33333333336666665).floor();
+        return n.div(abb.mul(3).pow10()).toNumber().toFixed(expdec) + " " + abbSuffixes[abb];
     } else if (n.lt("e1e6")) {
-        let exp = n.log10().mul(1.000001).floor();
+        let exp = n.log10().mul(1.0000000001).floor();
         return n.div(exp.pow10()).toNumber().toFixed(expdec) + "e" + format(exp, 0, expdec);
     } else if (n.lt("10^^7")) {
         return "e" + format(n.log10(), dec, expdec);
@@ -67,9 +67,9 @@ function formatPerc(number, dec = 3, expdec = 3) {
 function formatTime(number, dec = 0, expdec = 3, limit = 2) {
     let n = new Decimal(number);
     if (n.lt(0)) return "-" + formatTime(n.negate(), dec, expdec);
-    if (n.eq(0)) return "0";
-    if (!Decimal.isFinite(n.mag)) return "Forever";
-    if (Decimal.isNaN(n.mag)) return "I don't know?";
+    if (n.eq(0)) return (0).toFixed(dec);
+    if (!Number.isFinite(n.mag)) return "Forever";
+    if (Number.isNaN(n.mag)) return "I don't know?";
     let lim = 0;
     let str = "";
     for (let i = timeList.length - 1; i >= 0; i--) {
