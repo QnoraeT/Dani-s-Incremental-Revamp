@@ -6,12 +6,23 @@ const KUA_UPGRADES = {
                 return "Unlock UP2's autobuyer and Kuaraniai Gain is multiplied by 3x";
             },
             cost() {
-                return dTen;
+                return c.d10;
             },
             show() {
                 return true;
             }
-        }
+        },
+        {
+            desc() {
+                return "Unlock UP2's autobuyer and Kuaraniai Gain is multiplied by 3x";
+            },
+            cost() {
+                return c.d10;
+            },
+            show() {
+                return true;
+            }
+        },
     ],
     KPower: [
         {
@@ -24,7 +35,7 @@ const KUA_UPGRADES = {
             show() {
                 return true;
             }
-        }
+        },
     ]
 }
 
@@ -47,7 +58,7 @@ function updateKua(type) {
 
             tmp.value.effectivePrai = player.value.generators.prai.totalInKua.add(tmp.value.praiPending);
             tmp.value.kuaCanDo = tmp.value.effectivePrai.gte(tmp.value.kuaReq) && player.value.nerf.kuaActive.gain;
-            tmp.value.kuaPending = tmp.value.kuaCanDo ? tmp.value.effectivePrai.div(tmp.value.kuaReq).mul(tmp.value.kuaMul).add(1).pow(tmp.value.kuaExp).log10().add(1).pow(tmp.value.kuaDilate).sub(1).pow10().sub(1) : c.d0;
+            tmp.value.kuaPending = tmp.value.kuaCanDo ? tmp.value.effectivePrai.div(tmp.value.kuaReq).mul(tmp.value.kuaMul).add(1).pow(tmp.value.kuaExp).log10().add(1).pow(tmp.value.kuaDilate).sub(1).pow10().sub(1).div(1.5) : c.d0;
 
             i = c.d0;
             if (player.value.nerf.kuaActive.kshards.gain) {

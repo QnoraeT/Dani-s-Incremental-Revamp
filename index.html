@@ -19,11 +19,20 @@
 </head>
 <body onload="loadGame()">
     <!-- I HATE HTML IT SUCKS -->
+    <canvas id="canvas" style="  
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: -2;">
+
+    </canvas>
 	<div id="app" class="fontVerdana">
-        <div class="flex-container">
-            <div style="flex-grow: 1; flex-basis: 0; text-align: left" class="bigText whiteText grayShadow">{{format(player.points, 3)}}</div>
-            <div style="flex-grow: 1; flex-basis: 0; text-align: center" class="mediumBigText yellowText" style="text-shadow: 2px 2px #880;">FPS: {{otherGameStuffIg.FPS}}</div>
-            <div style="flex-grow: 1; flex-basis: 0; text-align: right" class="bigText whiteText grayShadow">{{format(player.pps, 3)}}/s</div>
+        <div class="flex-container" style="background-color: #ffffff20;">
+            <div style="flex-grow: 1; flex-basis: 0; text-align: left; text-shadow: #ffffff 0px 0px 5px;" class="bigText whiteText grayShadow"> {{format(player.points, 3)}}</div>
+            <div style="flex-grow: 1; flex-basis: 0; text-align: center; text-shadow: #ffff00 0px 0px 3px;" class="mediumBigText yellowText" style="text-shadow: 2px 2px #880;">FPS: {{otherGameStuffIg.FPS}}</div>
+            <div style="flex-grow: 1; flex-basis: 0; text-align: right; text-shadow: #ffffff 0px 0px 5px;" class="bigText whiteText grayShadow">{{format(player.pps, 3)}}/s </div>
         </div>
         <div id="tabs">
             <div class="flex-container" style="justify-content: center; margin-bottom: 12px; margin-top: 12px;">
@@ -166,14 +175,31 @@
                                     : `You need ${format(tmp.effectivePrai)} / ${format(tmp.kuaReq)} PRai to convert into Kuaraniai.`
                             }}
                             <br>You have {{format(player.kua.amount)}} Kuaraniai, which generates {{format(tmp.kuaShardGeneration, 2)}} Kuaraniai Shards (KShards) per second.
+                            <br>Kuaraniai currently:
+                            <li>
+                                Reduces Upgrade 1's scaling strength by {{formatPerc(tmp.kuaEffects.upg1Scaling, 3)}}
+                            </li>
                         </button>
                     </td>
                 </tr>
                 <tr>
                     <td v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI / 2) / 8, 0.5, 1.0)}` }">                        
-                        <div class="flex-container" style="justify-content: center;" v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.5, 1.0)}` }">
-                            <span style="text-align: center; font-size: 16px;" v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime) / 4, 1.0, 1.0) }">You have {{format(player.kua.kshards.amount, 3)}} Kuaraniai shards.</span>
-                        </div>
+                        <table class="flex-container" style="justify-content: center;" v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.5, 1.0)}` }">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <span style="text-align: center; font-size: 16px; width: 100%" v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime) / 4, 1.0, 1.0) }">You have {{format(player.kua.kshards.amount, 3)}} Kuaraniai shards.</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td v-for="(item, index) in KUA_UPGRADES.KShards">
+                                        <button v-bind:style="{ opacity: 1 - ((index - player.kua.kshards.upgrades) / 5) }" v-if="index + 5 > player.kua.kshards.upgrades && item.show()" style="width: 120px; height: 120px;" class="whiteText kuaButton2">
+    
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                         <div class="flex-container" style="justify-content: center;" v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 1.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 1.5) / 8, 0.5, 1.0)}` }">
                             <span style="text-align: center; font-size: 16px;" v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI) / 4, 1.0, 1.0) }">You have {{format(player.kua.kpower.amount, 3)}} Kuaraniai power.</span>
                         </div>
@@ -234,6 +260,7 @@
                             <span class="tooltiptext">
                                 <span v-for="j in item">
                                     {{j}}
+                                    <br>
                                 </span>
                             </span>
                         </div>

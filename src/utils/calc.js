@@ -390,3 +390,49 @@ function inverseFact(x) {
     if (x.layer > 1 && x.mag >= 10000) return x.log10().div(i.log10().log10());
     return x.div(c.dsqrt2pi).ln().div(Math.E).lambertw().add(1).exp().sub(0.5);
 }
+
+function lerp(t, s, e, type, p) {
+    if (isNaN(t)) {
+        throw new Error(`malformed input [LERP]: ${t}, expecting f64`)
+    }
+    t = clamp(t, 0, 1);
+    if (t === 0) {
+        return s;
+    }
+    if (t === 1) {
+        return e;
+    }
+    switch (type) {
+        case "QuadIn":
+            t = t * t;
+            break;
+        case "QuadOut":
+            t = 1.0 - ((1.0 - t) * (1.0 - t));
+            break;
+        case "CubeIn":
+            t = t * t * t;
+            break;
+        case "CubeOut":
+            t = 1.0 - ((1.0 - t) * (1.0 - t) * (1.0 - t));
+            break;
+        case "Smooth":
+            t = 6 * (t ** 5) - 15 * (t ** 4) + 10 * (t ** 3);
+            break;
+        case "ExpSCurve":
+            t = (Math.tanh(p * Math.tan((t + 1.5 - ((t - 0.5) / 1e9)) * Math.PI)) + 1) / 2;
+            break;
+        case "Sine":
+            t = Math.sin(t * Math.PI / 2) ** 2;
+            break;
+        case "Expo":
+            if (p > 0) {
+                t = Math.coth(p / 2) * Math.tanh(p * t / 2);
+            } else if (p < 0) {
+                t = 1.0 - Math.coth(p / 2) * Math.tanh(p * (1.0 - t) / 2);
+            }
+            break;
+        default:
+            break;
+    }
+    return (s * (1 - t)) + (e * t);
+}

@@ -38,6 +38,7 @@ function updateScaling(type) {
             throw new Error(`updateScaling ${type} does not exist`);
     }
 
+    // TODO: apparently this fucks the performance but its too interesting for me to remove :c
     for (let i in tmp.value.scaling) {
         for (let j in tmp.value.scaling[i]) {
             if (tmp.value.scaling[i][j].res.gte(tmp.value.scaling[i][j].start)) {

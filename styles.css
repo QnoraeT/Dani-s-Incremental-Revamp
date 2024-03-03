@@ -124,14 +124,17 @@ body {
 
 .nope:hover {
   border: 5px solid #600;
+  box-shadow: 0 0 15px 5px #300000;
 }
 
 .ok {
   border: 5px solid #040;
+  box-shadow: 0 0 15px 5px #002000;
 }
 
 .ok:hover {
   border: 5px solid #0f0;
+  box-shadow: 0 0 25px 10px #008000;
 }
 
 .nopeFill {
@@ -148,6 +151,17 @@ body {
 
 .okFill:hover {
   background-color: #080;
+}
+
+.kuaButton2 {
+  transition-duration: 0.2s; 
+  border: 4px solid #b900ff; 
+  background-color: #4d008b;
+}
+
+.kuaButton2:hover {
+  border: 4px solid #ca37ff; 
+  background-color: #5f00ad;
 }
 
 /* Tooltip container */

@@ -314,10 +314,10 @@ function updateStart(type) {
 
             scal = player.value.generators.pr2.amount;
             scal = doAllScaling(scal, tmp.value.scaling.pr2, false);
-            player.value.generators.pr2.cost = scal.add(c.d3).factorial().mul(c.d5div3).div(tmp.value.pr2CostDiv);
+            player.value.generators.pr2.cost = scal.add(c.d4).factorial().mul(c.d5div3).div(tmp.value.pr2CostDiv);
 
             if (player.value.generators.prai.amount.gte(10)) {
-                scal = inverseFact(player.value.generators.prai.amount.mul(tmp.value.pr2CostDiv).div(c.d5div3)).sub(c.d3);
+                scal = inverseFact(player.value.generators.prai.amount.mul(tmp.value.pr2CostDiv).div(c.d5div3)).sub(c.d4);
                 scal = doAllScaling(scal, tmp.value.scaling.pr2, true);
                 player.value.generators.pr2.target = scal;
             } else {
