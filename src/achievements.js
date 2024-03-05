@@ -99,7 +99,7 @@ const ACHIEVEMENT_DATA = {
         desc() { return `Do a PR2 reset ${format(4)} times in total.`; },
         type() { return `points`; },
         reward() { return ``; },
-        show() { return player.value.generators.prai.best.gte(10); },
+        show() { return player.value.generators.prai.best.gte(c.d10); },
         status() { return true }
     },
     10: {
@@ -115,7 +115,7 @@ const ACHIEVEMENT_DATA = {
         desc() { return `Convert all of your PRai to Kuaraniai.`; },
         type() { return `kua`; },
         reward() { return `Your number generation is increased by ${format(200)}%, and you start at ${format(10)} PRai every Kuaraniai reset, but the starting PRai doesn't count for Kuaraniai gain.`; },
-        show() { return player.value.generators.pr2.best.gte(10); },
+        show() { return player.value.generators.pr2.best.gte(c.d10); },
         status() { return true }
     },
     12: {
@@ -129,7 +129,7 @@ const ACHIEVEMENT_DATA = {
             eff = eff.pow(pow);
             return eff;
         },
-        show() { return player.value.generators.pr2.best.gte(10); },
+        show() { return player.value.generators.pr2.best.gte(c.d10); },
         status() { return true }
     },
     13: {
@@ -138,7 +138,7 @@ const ACHIEVEMENT_DATA = {
         type() { return `kua`; },
         reward() { return `Kuaraniai gain is increased by 50%, and KShards boost number generation. Currently: ${format(ACHIEVEMENT_DATA[13].eff(), 2)}x`; },
         eff() { return player.value.kua.kshards.amount.root(3).max(1); },
-        show() { return player.value.generators.pr2.best.gte(10); },
+        show() { return player.value.generators.pr2.best.gte(c.d10); },
         status() { return true }
     },
     14: {

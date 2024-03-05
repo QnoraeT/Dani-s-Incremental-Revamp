@@ -3,7 +3,7 @@ const KUA_UPGRADES = {
     KShards: [
         {
             desc() {
-                return "Unlock UP2's autobuyer and Kuaraniai Gain is multiplied by 3x";
+                return `Unlock UP2's autobuyer and Kuaraniai Gain is multiplied by ${format(c.d3)}x`;
             },
             cost() {
                 return c.d10;
@@ -14,10 +14,62 @@ const KUA_UPGRADES = {
         },
         {
             desc() {
-                return "Unlock UP2's autobuyer and Kuaraniai Gain is multiplied by 3x";
+                return `KShards boost PRai's effect. Currently: `;
+            },
+            eff() {
+                let i = c.d1
+                return i
             },
             cost() {
-                return c.d10;
+                return D(50);
+            },
+            show() {
+                return true;
+            }
+        },
+        {
+            desc() {
+                return `UP1's effect reduces UP2's scaling strength. Currently: `;
+            },
+            eff() {
+                let i = c.d1
+                return i
+            },
+            cost() {
+                return D(400);
+            },
+            show() {
+                return true;
+            }
+        },
+        {
+            desc() {
+                return `UP1's scaling starts ${format(10)} later and is ${formatPerc(5/4)} weaker, and superscaling starts ${format(5)} later and is ${formatPerc(10/9)} weaker.`;
+            },
+            cost() {
+                return D(1000);
+            },
+            show() {
+                return true;
+            }
+        },
+        {
+            desc() {
+                return `PR2's effect exponent increases twice as fast, and UP2's base is increased from ${format(c.d4div3, 3)} to ${format(c.d1_5, 3)}.`;
+            },
+            cost() {
+                return D(2500);
+            },
+            show() {
+                return true;
+            }
+        },
+        {
+            desc() {
+                return `UP2's superscaling and softcap are ${formatPerc(3/2)} weaker.`;
+            },
+            cost() {
+                return D(12000);
             },
             show() {
                 return true;
@@ -27,10 +79,70 @@ const KUA_UPGRADES = {
     KPower: [
         {
             desc() {
-                return "";
+                return `Multiply KShard gain by ${format(5)}x, and KPower buffs Achievement 'Stockpiler'. Currently: `;
+            },
+            eff() {
+                let i = c.d1
+                return i
             },
             cost() {
                 return D(1000);
+            },
+            show() {
+                return true;
+            }
+        },
+        {
+            desc() {
+                return `Be able to unlock a new feature at ${format(100)} Kuaraniai, and KPower increases UP2's effectiveness. Currently: `;
+            },
+            eff() {
+                let i = c.d1
+                return i
+            },
+            cost() {
+                return D(10000);
+            },
+            show() {
+                return true;
+            }
+        },
+        {
+            desc() {
+                return `Kuaraniai's effect on UP1's scaling uses a better formula, and add another effect.`;
+            },
+            cost() {
+                return D(40000);
+            },
+            show() {
+                return true;
+            }
+        },
+        {
+            desc() {
+                return `UP2's softcap is ${formatPerc(D(5/3))} weaker and starts later based off of your KPower. Currently: `;
+            },
+            eff() {
+                let i = c.d1
+                return i
+            },
+            cost() {
+                return D(100000);
+            },
+            show() {
+                return true;
+            }
+        },
+        {
+            desc() {
+                return `PRai's effect is more powerful based off of your KPower. Currently: ^`;
+            },
+            eff() {
+                let i = c.d1
+                return i
+            },
+            cost() {
+                return D(250000);
             },
             show() {
                 return true;

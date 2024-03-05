@@ -33,6 +33,11 @@ const PR2_EFF = [
         when() { return c.d11 },
         text() { return `slow down Upgrade 3 cost by ${formatPerc(c.d10div9, 3)}`}
     },
+    {
+        shown() { return true; },
+        when() { return c.d15 },
+        text() { return `decrease Upgrade 2's superscaling strength by ${formatPerc(c.d8div7, 3)}`}
+    },
 ]
 
 function buyGenUPG(id){
@@ -86,8 +91,8 @@ function updateStart(type) {
             scal = doAllScaling(scal, tmp.value.scaling.upg1, false);
             player.value.generators.upg1.cost = Decimal.pow(player.value.generators.upg1.costBase, scal).div(tmp.value.upg1CostDiv).mul(5);
 
-            if (player.value.points.mul(tmp.value.upg1CostDiv).gte(5)) {
-                scal = player.value.points.div(5).mul(tmp.value.upg1CostDiv).log(player.value.generators.upg1.costBase);
+            if (player.value.points.mul(tmp.value.upg1CostDiv).gte(c.d5)) {
+                scal = player.value.points.div(c.d5).mul(tmp.value.upg1CostDiv).log(player.value.generators.upg1.costBase);
                 scal = doAllScaling(scal, tmp.value.scaling.upg1, true);
                 player.value.generators.upg1.target = scal;
             } else {
@@ -294,7 +299,7 @@ function updateStart(type) {
             tmp.value.praiCanDo = player.value.totalPointsInPRai.gte(tmp.value.praiReq);
 
             setAchievement(2, player.value.generators.prai.best.gte(c.d1));
-            setAchievement(3, player.value.generators.prai.best.gte(10));
+            setAchievement(3, player.value.generators.prai.best.gte(c.d10));
             setAchievement(6, player.value.totalPointsInPRai.gte(1e18));
             break;
         case "pr2":
@@ -304,19 +309,19 @@ function updateStart(type) {
 
             i = player.value.generators.pr2.amount;
             i = i.add(player.value.generators.pr2.freeExtra);
-            i = i.max(0).add(c.d1).pow(i.mul(0.05).add(c.d1).mul(c.de).ln());
+            i = i.max(0).add(c.d1).pow(i.mul(0.05).add(c.d1).ln().add(c.d1));
             player.value.generators.pr2.effect = i;
 
             tmp.value.pr2CostDiv = c.d1;
             if (player.value.achievements.includes(8)) {
-                tmp.value.pr2CostDiv = tmp.value.pr2CostDiv.mul(1.5);
+                tmp.value.pr2CostDiv = tmp.value.pr2CostDiv.mul(c.d1_5);
             }
 
             scal = player.value.generators.pr2.amount;
             scal = doAllScaling(scal, tmp.value.scaling.pr2, false);
             player.value.generators.pr2.cost = scal.add(c.d4).factorial().mul(c.d5div3).div(tmp.value.pr2CostDiv);
 
-            if (player.value.generators.prai.amount.gte(10)) {
+            if (player.value.generators.prai.amount.gte(c.d10)) {
                 scal = inverseFact(player.value.generators.prai.amount.mul(tmp.value.pr2CostDiv).div(c.d5div3)).sub(c.d4);
                 scal = doAllScaling(scal, tmp.value.scaling.pr2, true);
                 player.value.generators.pr2.target = scal;
@@ -348,7 +353,7 @@ function updateStart(type) {
             }
 
             setAchievement(4, player.value.generators.pr2.best.gte(c.d1));
-            setAchievement(7, player.value.generators.pr2.best.gte(2));
+            setAchievement(7, player.value.generators.pr2.best.gte(c.d2));
             setAchievement(9, player.value.generators.pr2.best.gte(c.d4));
             break;
         default:

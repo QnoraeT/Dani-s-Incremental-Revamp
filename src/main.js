@@ -364,6 +364,7 @@ function reset(what) {
             break;
         case "kua":
             if (tmp.value.kuaCanDo) {
+                setAchievement(11, true);
                 player.value.kua.amount = player.value.kua.amount.add(tmp.value.kuaPending);
                 player.value.kua.total = player.value.kua.total.add(tmp.value.kuaPending);
                 reset("pr2");
@@ -391,6 +392,12 @@ function calcPointsPerSecond() {
     }
     if (player.value.achievements.includes(11)) {
         i = i.mul(3);
+    }
+    if (player.value.achievements.includes(12)) {
+        i = i.mul(ACHIEVEMENT_DATA[12].eff());
+    }
+    if (player.value.achievements.includes(13)) {
+        i = i.mul(ACHIEVEMENT_DATA[13].eff());
     }
     return i;
 }

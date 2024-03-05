@@ -15,6 +15,7 @@ const c = {
     d1: Decimal.dOne,
     d1_05: Decimal.fromComponents_noNormalize(1, 0, 1.05),
     d10div9: Decimal.fromComponents_noNormalize(1, 0, 10/9), // 1.111111
+    d8div7: Decimal.fromComponents_noNormalize(1, 0, 8/7), // 1.142857
     d1_2: Decimal.fromComponents_noNormalize(1, 0, 1.2),
     d1_25: Decimal.fromComponents_noNormalize(1, 0, 1.25),
     dcbrt2: Decimal.fromComponents_noNormalize(1, 0, Math.cbrt(2)), // 1.259921
@@ -292,47 +293,47 @@ function intRand(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function polynomial(input, inverse = false) {
-    let res, r, calc;
-    let x = input;
-    let inv = inverse;
-    if (inv) {
-        if (arguments.length !== 4) {
-            res = x.root(arguments.length - 2);
-            for (var i = 0; i < 100; ++i) {
-                calc = [c.d0, c.d0];
-                for (let i = 2; i < arguments.length; i++) {
-                    calc[0] = calc[0].add(res.pow(arguments.length - i - 1).mul(arguments[i]));
-                }
+// function polynomial(input, inverse = false) {
+//     let res, r, calc;
+//     let x = input;
+//     let inv = inverse;
+//     if (inv) {
+//         if (arguments.length !== 4) {
+//             res = x.root(arguments.length - 2);
+//             for (var i = 0; i < 100; ++i) {
+//                 calc = [c.d0, c.d0];
+//                 for (let i = 2; i < arguments.length; i++) {
+//                     calc[0] = calc[0].add(res.pow(arguments.length - i - 1).mul(arguments[i]));
+//                 }
                 
-                for (let i = 2; i < arguments.length - 1; i++) {
-                    calc[1] = calc[1].add(res.pow(arguments.length - i - 2).mul(arguments[i]).mul(arguments.length - i - 1));
-                }
+//                 for (let i = 2; i < arguments.length - 1; i++) {
+//                     calc[1] = calc[1].add(res.pow(arguments.length - i - 2).mul(arguments[i]).mul(arguments.length - i - 1));
+//                 }
     
-                r = res.sub(calc[0].sub(x).div(calc[1]));
+//                 r = res.sub(calc[0].sub(x).div(calc[1]));
     
-                if (res.sub(r).abs().lt(1e-10)) {
-                    return r;
-                }
+//                 if (res.sub(r).abs().lt(1e-10)) {
+//                     return r;
+//                 }
     
-                res = r;
-            }
-            console.warn(`inverse polynomial couldn't finish converging! (Final value: ${format(res)})`);
-            console.table(arguments);
-            return res;
-        } else {
-            return arguments[4].eq(0)
-                ? x.sub(arguments[2]).div(arguments[3])
-                : x.sub(arguments[2]).mul(arguments[4]).mul(4).add(arguments[3].pow(2)).sqrt().sub(arguments[3]).div(arguments[4].mul(2))
-        }
-    } else {
-        res = c.d0;
-        for (let i = 2; i < arguments.length; i++) {
-            res = res.add(x.pow(arguments.length - i - 1).mul(arguments[i]));
-        }
-        return res;
-    }
-}
+//                 res = r;
+//             }
+//             console.warn(`inverse polynomial couldn't finish converging! (Final value: ${format(res)})`);
+//             console.table(arguments);
+//             return res;
+//         } else {
+//             return arguments[4].eq(0)
+//                 ? x.sub(arguments[2]).div(arguments[3])
+//                 : x.sub(arguments[2]).mul(arguments[4]).mul(4).add(arguments[3].pow(2)).sqrt().sub(arguments[3]).div(arguments[4].mul(2))
+//         }
+//     } else {
+//         res = c.d0;
+//         for (let i = 2; i < arguments.length; i++) {
+//             res = res.add(x.pow(arguments.length - i - 1).mul(arguments[i]));
+//         }
+//         return res;
+//     }
+// }
 
 /**
  * 
