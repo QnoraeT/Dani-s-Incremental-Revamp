@@ -153,6 +153,7 @@ const ACHIEVEMENT_DATA = {
 
 function setAchievement(id, bool) {
     if (!player.value.achievements.includes(id) && bool) {
+        console.log(`Gained Achievement ${id}!`)
         player.value.achievements.push(id)
         // notify("Achievement", `You gained Achievement `)
     }

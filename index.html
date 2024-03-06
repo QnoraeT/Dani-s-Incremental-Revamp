@@ -174,7 +174,7 @@
                                     ? `You can convert PRai to Kuaraniai! (${format(tmp.effectivePrai)} / ${format(tmp.kuaReq)} PRai)`
                                     : `You need ${format(tmp.effectivePrai)} / ${format(tmp.kuaReq)} PRai to convert into Kuaraniai.`
                             }}
-                            <br>You have {{format(player.kua.amount)}} Kuaraniai, which generates {{format(tmp.kuaShardGeneration, 2)}} Kuaraniai Shards (KShards) per second. It also:
+                            <br>You have {{format(player.kua.amount)}} Kuaraniai, which generates {{format(tmp.kuaShardGeneration, 4)}} Kuaraniai Shards (KShards) per second. It also:
                             <div v-if="player.nerf.kuaActive.effects">
                                 <li>Reduces Upgrade 1's scaling strength by {{formatPerc(tmp.kuaEffects.upg1Scaling, 3)}}</li>
                             </div>
@@ -188,8 +188,11 @@
                                 <tr>
                                     <td>
                                         <div style="text-align: center; font-size: 16px; width: 100%" v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime) / 4, 1.0, 1.0) }">
-                                            You have <b>{{format(player.kua.kshards.amount, 3)}}</b> Kuaraniai shards.
+                                            You have <b>{{format(player.kua.kshards.amount, 3)}}</b> Kuaraniai shards, which:
                                             <div v-if="player.nerf.kuaActive.kshards.effects">
+                                                <li>
+                                                    Generate {{format(tmp.kuaPowerGeneration, 4)}} Kuaraniai Power (KPower) per second.
+                                                </li>
                                                 <li v-if="player.achievements.includes(13)">
                                                     Hi!
                                                 </li>

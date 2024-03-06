@@ -25,3 +25,24 @@ function linearIncreaseMulti(x, inv, a, b) {
 log10 -> tetrate, minimum so that result is never more than input
 x.log10().tetrate(1.840232)
 
+kua effect:
+player.value.points.max(0).add(1).log10().pow(0.6).div(200).mul(player.value.kua.amount.max(0).mul(100000).add(1).pow(0.667)).add(1).log10().add(1)
+
+pr2 scaling: 2 -> 1.5
+
+function doAllScaling(x, scalList, inv, customScaling = []) {
+    let sta, pow, sType, base, index
+    x = D(x);
+    for (let i = 0; i < scalList.length; i++) {
+        index = inv ? i : scalList.length - i - 1;
+        sta = scalList[index].start;
+        pow = scalList[index].strength;
+        sType = scalList[index].type;
+        base = scalList[index].base;
+        
+        x = scale(x, sType, inv, sta, pow, base);
+    }
+    return x;
+}
+
+You have {x} Kuaraniai Shards, which produce {y} Kuaraniai Power (KPower) per second.

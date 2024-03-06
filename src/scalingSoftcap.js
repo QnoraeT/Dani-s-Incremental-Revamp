@@ -15,9 +15,12 @@ function updateScaling(type) {
             if (player.value.achievements.includes(7)) {
                 tmp.value.scaling.upg1[0].strength = tmp.value.scaling.upg1[0].strength.div(ACHIEVEMENT_DATA[7].eff());
             }
-            if (player.value.generators.pr2.amount.gte(7)) {
+            if (player.value.generators.pr2.amount.gte(c.d7)) {
                 tmp.value.scaling.upg1[0].strength = tmp.value.scaling.upg1[0].strength.div(c.d10div9);
             }
+
+            tmp.value.scaling.upg1[0].strength = tmp.value.scaling.upg1[0].strength.div(tmp.value.kuaEffects.upg1Scaling)
+            
             break;
         case "upg2":
             if (tmp.value.scaling.upg2 === undefined) { tmp.value.scaling.upg2 = [] };

@@ -188,7 +188,7 @@ function updateKua(type) {
 
             i = c.d1;
             if (player.value.nerf.kuaActive.effects) {
-                i = i.mul(player.value.points.max(0).add(1).log10().pow(0.5).div(100).mul(player.value.kua.amount.max(0).pow(0.75)).add(1).log10().add(1));
+                i = i.mul(player.value.points.max(0).add(1).log10().pow(0.6).div(200).mul(player.value.kua.amount.max(0).mul(100000).add(1).pow(2/3).sub(1)).add(1).log10().add(1));
             }
             tmp.value.kuaEffects.upg1Scaling = i;
             break;

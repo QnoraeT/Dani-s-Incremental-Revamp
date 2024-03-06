@@ -326,10 +326,10 @@ function saveTheFrickingGame() {
     }
 }
 
-function reset(what) {
-    switch(what) {
+function reset(layer, override) {
+    switch(layer) {
         case "prai":
-            if (tmp.value.praiCanDo) {
+            if (tmp.value.praiCanDo || override) {
                 setAchievement(8, tmp.value.praiPending.gte(1000));
                 player.value.generators.prai.amount = player.value.generators.prai.amount.add(tmp.value.praiPending);
                 player.value.generators.prai.total = player.value.generators.prai.total.add(tmp.value.praiPending);
@@ -350,9 +350,9 @@ function reset(what) {
             }
             break;
         case "pr2":
-            if (tmp.value.pr2CanDo) {
+            if (tmp.value.pr2CanDo || override) {
                 player.value.generators.pr2.amount = player.value.generators.pr2.amount.add(1);
-                reset("prai");
+                reset("prai", true);
                 for (let i = 0; i < 4; i++) {
                     updateStart("pr2");
                     player.value.generators.prai.amount = c.d0;
@@ -363,17 +363,18 @@ function reset(what) {
             }
             break;
         case "kua":
-            if (tmp.value.kuaCanDo) {
+            if (tmp.value.kuaCanDo || override) {
                 setAchievement(11, true);
                 player.value.kua.amount = player.value.kua.amount.add(tmp.value.kuaPending);
                 player.value.kua.total = player.value.kua.total.add(tmp.value.kuaPending);
-                reset("pr2");
+                reset("pr2", true);
                 player.value.generators.prai.totalInKua = c.d0;
                 if (player.value.achievements.includes(11)) {
                     player.value.generators.prai.amount = c.d10;
                     player.value.generators.prai.total = c.d10;
                     player.value.generators.prai.totalInPR2 = c.d10;
                     player.value.generators.prai.bestInPR2 = c.d10;
+                    // not add totalInKua because not counted
                 }
             }
             break;

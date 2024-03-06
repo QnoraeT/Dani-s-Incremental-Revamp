@@ -62,23 +62,17 @@ const DEFAULT_SCALE = [
     { name: "ultimate",      pow: c.d60, type: 2, color() { return gRC(otherGameStuffIg.sessionTime, 1, 1) } }
 ]
 
-function doAllScaling(x, scalList, inv, customScaling = []) {
-    let sta, pow, index, stat, doSpecial = true;
-    try {
-        for (let i = 0; i < customScaling.length; i++) {
-            customScaling[0].type;
-        }
-        doSpecial = true;
-    } catch {
-        doSpecial = false;
-    }
+function doAllScaling(x, scalList, inv) {
+    let sta, pow, sType, base, index
     x = D(x);
     for (let i = 0; i < scalList.length; i++) {
         index = inv ? i : scalList.length - i - 1;
-        stat = doSpecial ? (customScaling[index] ?? DEFAULT_SCALE[index]) : DEFAULT_SCALE[index];
         sta = scalList[index].start;
         pow = scalList[index].strength;
-        x = scale(x, stat.type, inv, sta, pow, stat.pow);
+        sType = scalList[index].type;
+        base = scalList[index].bp;
+        
+        x = scale(x, sType, inv, sta, pow, base);
     }
     return x;
 }
@@ -293,48 +287,6 @@ function intRand(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-// function polynomial(input, inverse = false) {
-//     let res, r, calc;
-//     let x = input;
-//     let inv = inverse;
-//     if (inv) {
-//         if (arguments.length !== 4) {
-//             res = x.root(arguments.length - 2);
-//             for (var i = 0; i < 100; ++i) {
-//                 calc = [c.d0, c.d0];
-//                 for (let i = 2; i < arguments.length; i++) {
-//                     calc[0] = calc[0].add(res.pow(arguments.length - i - 1).mul(arguments[i]));
-//                 }
-                
-//                 for (let i = 2; i < arguments.length - 1; i++) {
-//                     calc[1] = calc[1].add(res.pow(arguments.length - i - 2).mul(arguments[i]).mul(arguments.length - i - 1));
-//                 }
-    
-//                 r = res.sub(calc[0].sub(x).div(calc[1]));
-    
-//                 if (res.sub(r).abs().lt(1e-10)) {
-//                     return r;
-//                 }
-    
-//                 res = r;
-//             }
-//             console.warn(`inverse polynomial couldn't finish converging! (Final value: ${format(res)})`);
-//             console.table(arguments);
-//             return res;
-//         } else {
-//             return arguments[4].eq(0)
-//                 ? x.sub(arguments[2]).div(arguments[3])
-//                 : x.sub(arguments[2]).mul(arguments[4]).mul(4).add(arguments[3].pow(2)).sqrt().sub(arguments[3]).div(arguments[4].mul(2))
-//         }
-//     } else {
-//         res = c.d0;
-//         for (let i = 2; i < arguments.length; i++) {
-//             res = res.add(x.pow(arguments.length - i - 1).mul(arguments[i]));
-//         }
-//         return res;
-//     }
-// }
-
 /**
  * 
  * @param {Decimal} x the value before the quadratic polynomial
@@ -364,8 +316,8 @@ function inverseCube(x, a, b, c, d, tol = 1e-10) { // inverse of ax^3+bx^2+cx+d
     b = new Decimal(b);
     c = new Decimal(c);
     d = new Decimal(d);
-    res = x.root(3);
-    r;
+    let res = x.root(3);
+    let r;
 
     // newton's method 
     for (var i = 0; i < 100; ++i) {
@@ -390,6 +342,22 @@ function inverseFact(x) {
     if (x.layer > 2) return x.log10();
     if (x.layer > 1 && x.mag >= 10000) return x.log10().div(i.log10().log10());
     return x.div(c.dsqrt2pi).ln().div(Math.E).lambertw().add(1).exp().sub(0.5);
+}
+
+/**
+ * This solves the product
+ * Product of n=0 to x of a+bn
+ * inverse is with respect to x
+ * @param {Decimal} x 
+ * @param {Decimal} a 
+ * @param {Decimal} b 
+ */
+function linearIncreaseMulti(x, a, b) { // i cannot find a good inverse for this
+    x = new Decimal(x);
+    a = new Decimal(a);
+    b = new Decimal(b);
+
+    return b.pow(x.add(1)).mul(a.div(b).add(x).factorial()).div(a.div(b).factorial()).div(b);
 }
 
 function lerp(t, s, e, type, p) {
