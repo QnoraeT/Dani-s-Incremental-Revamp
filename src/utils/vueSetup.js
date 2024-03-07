@@ -1,4 +1,5 @@
 "use strict";
+
 function loadVue() {
     Vue.createApp({
         data() {
@@ -22,7 +23,10 @@ function loadVue() {
                 ACHIEVEMENT_DATA,
                 ACH_DEF_COLORS,
                 c,
-                KUA_UPGRADES
+                KUA_UPGRADES,
+                buyKShardUpg,
+                buyKPowerUpg,
+                
             }
     }}).mount('#app')
 }

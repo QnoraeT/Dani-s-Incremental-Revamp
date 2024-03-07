@@ -30,6 +30,11 @@ const PR2_EFF = [
     },
     {
         shown() { return true; },
+        when() { return c.d10 },
+        text() { return `unlock a new layer`}
+    },
+    {
+        shown() { return true; },
         when() { return c.d11 },
         text() { return `slow down Upgrade 3 cost by ${formatPerc(c.d10div9, 3)}`}
     },
@@ -158,6 +163,9 @@ function updateStart(type) {
             if (player.value.generators.pr2.amount.gte(c.d4)) {
                 i = i.mul(c.d10div9);
             }
+            if (player.value.kua.kpower.upgrades >= 1) {
+                i = i.add(KUA_UPGRADES.KPower[0].eff())
+            }
             player.value.generators.upg2.effectBase = i;
 
             i = c.d0;
@@ -219,7 +227,7 @@ function updateStart(type) {
                 player.value.generators.upg3.target = c.d0;
             }
 
-            i = c.d0_01;
+            i = c.em2;
             player.value.generators.upg3.effectBase = i;
 
             i = c.d0;
@@ -227,6 +235,9 @@ function updateStart(type) {
 
             i = player.value.generators.upg3.bought;
             i = i.add(player.value.generators.upg3.freeExtra);
+            if (player.value.kua.kpower.upgrades >= 2) {
+                i = i.mul(KUA_UPGRADES.KPower[1].eff());
+            }
             player.value.generators.upg3.effective = i;
 
             i = player.value.generators.upg3.effectBase.mul(player.value.generators.upg3.effective);
@@ -285,6 +296,9 @@ function updateStart(type) {
             if (player.value.achievements.includes(10)) {
                 i = i.mul(c.d3);
             }
+            if (player.value.kua.kpower.upgrades >= 2) {
+                i = i.mul(KUA_UPGRADES.KShards[1].eff());
+            } 
             player.value.generators.prai.effect = i;
 
             i = player.value.generators.prai.amount.add(tmp.value.praiPending);
@@ -309,7 +323,7 @@ function updateStart(type) {
 
             i = player.value.generators.pr2.amount;
             i = i.add(player.value.generators.pr2.freeExtra);
-            i = i.max(0).add(c.d1).pow(i.mul(0.05).add(c.d1).ln().add(c.d1));
+            i = i.max(0).add(c.d1).pow(i.mul(c.d0_05).add(c.d1).ln().add(c.d1));
             player.value.generators.pr2.effect = i;
 
             tmp.value.pr2CostDiv = c.d1;
@@ -319,10 +333,10 @@ function updateStart(type) {
 
             scal = player.value.generators.pr2.amount;
             scal = doAllScaling(scal, tmp.value.scaling.pr2, false);
-            player.value.generators.pr2.cost = scal.add(c.d4).factorial().mul(c.d5div3).div(tmp.value.pr2CostDiv);
+            player.value.generators.pr2.cost = scal.add(c.d4).factorial().mul(c.d5div12).div(tmp.value.pr2CostDiv);
 
             if (player.value.generators.prai.amount.gte(c.d10)) {
-                scal = inverseFact(player.value.generators.prai.amount.mul(tmp.value.pr2CostDiv).div(c.d5div3)).sub(c.d4);
+                scal = inverseFact(player.value.generators.prai.amount.mul(tmp.value.pr2CostDiv).div(c.d5div12)).sub(c.d4);
                 scal = doAllScaling(scal, tmp.value.scaling.pr2, true);
                 player.value.generators.pr2.target = scal;
             } else {

@@ -177,6 +177,7 @@
                             <br>You have {{format(player.kua.amount)}} Kuaraniai, which generates {{format(tmp.kuaShardGeneration, 4)}} Kuaraniai Shards (KShards) per second. It also:
                             <div v-if="player.nerf.kuaActive.effects">
                                 <li>Reduces Upgrade 1's scaling strength by {{formatPerc(tmp.kuaEffects.upg1Scaling, 3)}}</li>
+                                <li v-if="player.kua.kpower.upgrades >= 3">Raises Points gain to ^{{format(tmp.kuaEffects.ptPower, 3)}}</li>
                             </div>
                         </button>
                     </td>
@@ -193,8 +194,8 @@
                                                 <li>
                                                     Generate {{format(tmp.kuaPowerGeneration, 4)}} Kuaraniai Power (KPower) per second.
                                                 </li>
-                                                <li v-if="player.achievements.includes(13)">
-                                                    Hi!
+                                                <li v-if="player.kua.kpower.upgrades >= 3">
+                                                    Multiply PRai's effect by {{format(KUA_UPGRADES.KShards[1].eff(), 2)}}x.
                                                 </li>
                                             </div>
                                         </div>
@@ -202,10 +203,10 @@
                                 </tr>
                                 <tr>
                                     <td v-for="(item, index) in KUA_UPGRADES.KShards">
-                                        <button v-bind:style="{ opacity: (1 - ((index - player.kua.kshards.upgrades) / 5)) ** 2 }" v-if="index < player.kua.kshards.upgrades + 5 && item.show()" style="width: 150px; height: 150px; font-size: 12px" class="whiteText kuaButton2 fontVerdana">
+                                        <button @click="buyKShardUpg(index)" v-bind:style="{ opacity: (1 - ((index - player.kua.kshards.upgrades) / 5)) ** 2 }" v-if="index >= player.kua.kpower.upgrades && index < player.kua.kshards.upgrades + 5 && item.show()" style="width: 150px; height: 150px; font-size: 12px" class="whiteText kuaButton2 fontVerdana">
                                             <span style="vertical-align: top;">{{item.desc()}}</span>
                                             <br><br>
-                                            <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost())}} KShards</span>
+                                            <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost(), 1)}} KShards</span>
                                         </button>
                                     </td>
                                 </tr>
@@ -218,8 +219,11 @@
                                         <div style="text-align: center; font-size: 16px; width: 100%" v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI) / 4, 1.0, 1.0) }">
                                             You have <b>{{format(player.kua.kpower.amount, 3)}}</b> Kuaraniai power.
                                             <div v-if="player.nerf.kuaActive.kpower.effects">
-                                                <li v-if="player.achievements.includes(13)">
-                                                    Hi!
+                                                <li v-if="player.kua.kpower.upgrades >= 1">
+                                                    Increases Upgrade 2's base by +{{format(KUA_UPGRADES.KPower[0].eff(), 3)}}.
+                                                </li>
+                                                <li v-if="player.kua.kpower.upgrades >= 2">
+                                                    Makes Upgrade 3 {{format(KUA_UPGRADES.KPower[1].eff().sub(1).mul(100), 3)}}% more effective.
                                                 </li>
                                             </div>
                                         </div>
@@ -227,10 +231,10 @@
                                 </tr>
                                 <tr>
                                     <td v-for="(item, index) in KUA_UPGRADES.KPower">
-                                        <button v-bind:style="{ opacity: (1 - ((index - player.kua.kpower.upgrades) / 5)) ** 2 }" v-if="index < player.kua.kpower.upgrades + 5 && item.show()" style="width: 150px; height: 150px; font-size: 12px" class="whiteText kuaButton2 fontVerdana">
+                                        <button @click="buyKPowerUpg(index)" v-bind:style="{ opacity: (1 - ((index - player.kua.kpower.upgrades) / 5)) ** 2 }" v-if="index >= player.kua.kpower.upgrades && index < player.kua.kpower.upgrades + 5 && item.show()" style="width: 150px; height: 150px; font-size: 12px" class="whiteText kuaButton2 fontVerdana">
                                             <span style="display: inline; vertical-align: top;">{{item.desc()}}</span>
                                             <br><br>
-                                            <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost())}} KPower</span>
+                                            <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost(), 1)}} KPower</span>
                                         </button>
                                     </td>
                                 </tr>

@@ -444,23 +444,30 @@ function loadGame() {
                     otherGameStuffIg.FPS = (fpsList.length / otherGameStuffIg.FPS).toFixed(1);
                     fpsList = [];
                 }
-    
+
                 let gameDelta = Decimal.mul(otherGameStuffIg.delta, player.value.timeSpeed).mul(player.value.setTimeSpeed);
                 player.value.gameTime = player.value.gameTime.add(gameDelta);
                 player.value.totalTime += otherGameStuffIg.delta;
                 otherGameStuffIg.sessionTime += otherGameStuffIg.delta;
-        
+
                 updateAllKua();
-                generate = tmp.value.kuaShardGeneration.times(gameDelta);
+                generate = tmp.value.kuaShardGeneration.mul(gameDelta);
                 player.value.kua.kshards.amount = player.value.kua.kshards.amount.add(generate);
                 player.value.kua.kshards.total = player.value.kua.kshards.total.add(generate);
-                generate = tmp.value.kuaPowerGeneration.times(gameDelta);
+                generate = tmp.value.kuaPowerGeneration.mul(gameDelta);
                 player.value.kua.kpower.amount = player.value.kua.kpower.amount.add(generate);
                 player.value.kua.kpower.total = player.value.kua.kpower.total.add(generate);
-        
+
                 updateAllStart();
+                if (player.value.kua.kshards.upgrades >= 1) {
+                    generate = tmp.value.praiPending.mul(gameDelta).mul(c.em4)
+                    player.value.generators.prai.amount = player.value.generators.prai.amount.add(generate);
+                    player.value.generators.prai.total = player.value.generators.prai.total.add(generate);
+                    player.value.generators.prai.totalInPR2 = player.value.generators.prai.totalInPR2.add(generate);
+                    player.value.generators.prai.totalInKua = player.value.generators.prai.totalInKua.add(generate);
+                }
                 player.value.pps = calcPointsPerSecond();
-                generate = player.value.pps.times(gameDelta);
+                generate = player.value.pps.mul(gameDelta);
                 player.value.points = player.value.points.add(generate);
                 player.value.totalPointsInPRai = player.value.totalPointsInPRai.add(generate);
                 player.value.totalPoints = player.value.totalPoints.add(generate);
