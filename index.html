@@ -183,8 +183,32 @@
                     </td>
                 </tr>
                 <tr>
-                    <td v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI / 2) / 8, 0.5, 1.0)}` }">                        
-                        <table class="flex-container" style="justify-content: center;" v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.5, 1.0)}` }">
+                    <td v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI / 2) / 8, 0.5, 1.0)}` }">
+                        <div class="flex-container" style="justify-content: center;" v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.5, 1.0)}` }">
+                            <div style="display: relative; text-align: center; font-size: 16px; width: 100%" v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime) / 4, 1.0, 1.0) }">
+                                You have <b>{{format(player.kua.kshards.amount, 3)}}</b> Kuaraniai shards, which:
+                                <div v-if="player.nerf.kuaActive.kshards.effects">
+                                    <li>
+                                        Generate {{format(tmp.kuaPowerGeneration, 4)}} Kuaraniai Power (KPower) per second.
+                                    </li>
+                                    <li v-if="player.kua.kshards.upgrades >= 2">
+                                        Multiply PRai's effect by {{format(KUA_UPGRADES.KShards[1].eff(), 2)}}x.
+                                    </li>
+                                </div>
+                            </div>
+                            <table style="display: relative;">
+                                <tr>
+                                    <td v-for="(item, index) in KUA_UPGRADES.KShards">
+                                        <button @click="buyKShardUpg(index)" v-bind:style="{ opacity: (1 - ((index - player.kua.kshards.upgrades) / 5)) ** 2 }" v-if="index >= player.kua.kshards.upgrades && index < player.kua.kshards.upgrades + 5 && item.show()" style="width: 150px; height: 150px; font-size: 12px" class="whiteText kuaButton2 fontVerdana">
+                                            <span style="vertical-align: top;">{{item.desc()}}</span>
+                                            <br><br>
+                                            <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost(), 1)}} KShards</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <!-- <table class="flex-container" style="justify-content: center;" v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.5, 1.0)}` }">
                             <tbody>
                                 <tr>
                                     <td>
@@ -203,7 +227,7 @@
                                 </tr>
                                 <tr>
                                     <td v-for="(item, index) in KUA_UPGRADES.KShards">
-                                        <button @click="buyKShardUpg(index)" v-bind:style="{ opacity: (1 - ((index - player.kua.kshards.upgrades) / 5)) ** 2 }" v-if="index >= player.kua.kpower.upgrades && index < player.kua.kshards.upgrades + 5 && item.show()" style="width: 150px; height: 150px; font-size: 12px" class="whiteText kuaButton2 fontVerdana">
+                                        <button @click="buyKShardUpg(index)" v-bind:style="{ opacity: (1 - ((index - player.kua.kshards.upgrades) / 5)) ** 2 }" v-if="index >= player.kua.kshards.upgrades && index < player.kua.kshards.upgrades + 5 && item.show()" style="width: 150px; height: 150px; font-size: 12px" class="whiteText kuaButton2 fontVerdana">
                                             <span style="vertical-align: top;">{{item.desc()}}</span>
                                             <br><br>
                                             <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost(), 1)}} KShards</span>
@@ -240,7 +264,7 @@
                                 </tr>
                             </tbody>
 
-                        </table>
+                        </table> -->
                     </td>
                 </tr>
             </table>

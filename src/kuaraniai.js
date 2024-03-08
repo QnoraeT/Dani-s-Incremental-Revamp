@@ -17,12 +17,12 @@ const KUA_UPGRADES = {
                 return `KShards boost PRai's effect. Currently: ${format(this.eff(), 2)}x`;
             },
             eff() {
-                let i = c.d1;
-                    i = player.value.kua.kshards.amount.max(c.d0).add(c.d1).pow(2).sub(1).div(2).add(c.d1);
+                let i = player.value.kua.kshards.amount.max(c.d0);
+                    i = i.add(i.mul(4.5)).add(i.pow(2).mul(4.5)).log10().pow(0.85).pow10()
                 return i;
             },
             cost() {
-                return c.d0_5;
+                return c.d1;
             },
             show() {
                 return true;
@@ -38,7 +38,7 @@ const KUA_UPGRADES = {
                 return i;
             },
             cost() {
-                return c.d40;
+                return c.d4;
             },
             show() {
                 return true;
@@ -49,7 +49,7 @@ const KUA_UPGRADES = {
                 return `UP1's scaling starts ${format(c.d10)} later and is ${format(c.d20, 3)}% weaker, and superscaling starts ${format(c.d5)} later and is ${format(c.d10, 3)}% weaker.`;
             },
             cost() {
-                return c.e2;
+                return c.d10;
             },
             show() {
                 return true;
@@ -60,7 +60,7 @@ const KUA_UPGRADES = {
                 return `PR2's effect exponent increases twice as fast, and UP2's base is increased from ${format(c.d4div3, 3)} to ${format(c.d1_5, 3)}.`;
             },
             cost() {
-                return c.d250;
+                return c.d50;
             },
             show() {
                 return true;
@@ -71,7 +71,7 @@ const KUA_UPGRADES = {
                 return `UP2's superscaling and softcap are ${format(c.d1div3.mul(c.e2), 3)}% weaker.`;
             },
             cost() {
-                return c.d1200;
+                return c.d150;
             },
             show() {
                 return true;
@@ -124,10 +124,11 @@ const KUA_UPGRADES = {
         },
         {
             desc() {
-                return `UP2's softcap is ${formatPerc(D(5/3))} weaker and starts later based off of your KPower. Currently: `;
+                return `UP2's softcap is ${format(40, 3)}% weaker and starts later based off of your KPower. Currently: ${format(this.eff(), 2)}x`;
             },
             eff() {
                 let i = c.d1;
+                    i = player.value.kua.kpower.amount.max(0).add(1).log10().pow(1.05).pow10().pow(0.75)
                 return i;
             },
             cost() {
@@ -216,9 +217,19 @@ function updateKua(type) {
 }
 
 function buyKShardUpg(id) {
-
+    if (id === player.value.kua.kshards.upgrades) {
+        if (player.value.kua.kshards.amount.gte(KUA_UPGRADES.KShards[id].cost())) {
+            player.value.kua.kshards.upgrades++;
+            player.value.kua.kshards.amount.sub(KUA_UPGRADES.KShards[id].cost());
+        }
+    }
 }
 
 function buyKPowerUpg(id) {
-
+    if (id === player.value.kua.kpower.upgrades) {
+        if (player.value.kua.kpower.amount.gte(KUA_UPGRADES.KPower[id].cost())) {
+            player.value.kua.kpower.upgrades++;
+            player.value.kua.kpower.amount.sub(KUA_UPGRADES.KPower[id].cost());
+        }
+    }
 }

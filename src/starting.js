@@ -43,6 +43,16 @@ const PR2_EFF = [
         when() { return c.d15 },
         text() { return `decrease Upgrade 2's superscaling strength by ${formatPerc(c.d8div7, 3)}`}
     },
+    {
+        shown() { return true; },
+        when() { return c.d20 },
+        text() { return `weaken Upgrade 1's cost scaling by ${format(10, 3)}%`}
+    },
+    {
+        shown() { return player.value.kua.amount.gte(c.d10); },
+        when() { return c.d25 },
+        text() { return `makes upgrade 1 and 2's scaling and super scaling start ${format(15, 1)} later`}
+    },
 ]
 
 function buyGenUPG(id){
@@ -163,8 +173,11 @@ function updateStart(type) {
             if (player.value.generators.pr2.amount.gte(c.d4)) {
                 i = i.mul(c.d10div9);
             }
+            if (player.value.kua.kshards.upgrades >= 5) {
+                i = i.mul(1.125);
+            }
             if (player.value.kua.kpower.upgrades >= 1) {
-                i = i.add(KUA_UPGRADES.KPower[0].eff())
+                i = i.add(KUA_UPGRADES.KPower[0].eff());
             }
             player.value.generators.upg2.effectBase = i;
 
@@ -286,7 +299,7 @@ function updateStart(type) {
                 tmp.value.praiNext = tmp.value.praiReq.sub(player.value.totalPointsInPRai).div(player.value.pps);
             }
 
-            let j = c.d4;
+            j = c.d4;
             if (player.value.achievements.includes(6)) {
                 j = j.mul(2.5);
             }
@@ -306,6 +319,9 @@ function updateStart(type) {
             if (player.value.achievements.includes(10)) {
                 i = i.mul(c.d3);
             }
+            if (player.value.kua.kpower.upgrades >= 2) {
+                i = i.mul(KUA_UPGRADES.KShards[1].eff());
+            } 
             tmp.value.praiNextEffect = i;
 
             player.value.generators.prai.best = Decimal.max(player.value.generators.prai.best, player.value.generators.prai.amount);
@@ -323,7 +339,13 @@ function updateStart(type) {
 
             i = player.value.generators.pr2.amount;
             i = i.add(player.value.generators.pr2.freeExtra);
-            i = i.max(0).add(c.d1).pow(i.mul(c.d0_05).add(c.d1).ln().add(c.d1));
+
+            j = D(0.05);
+            if (player.value.kua.kshards.upgrades >= 5) {
+                j = j.mul(2);
+            }
+
+            i = i.max(0).add(c.d1).pow(i.mul(j).add(c.d1).ln().add(c.d1));
             player.value.generators.pr2.effect = i;
 
             tmp.value.pr2CostDiv = c.d1;
