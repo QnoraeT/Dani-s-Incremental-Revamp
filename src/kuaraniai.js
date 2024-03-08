@@ -18,7 +18,8 @@ const KUA_UPGRADES = {
             },
             eff() {
                 let i = player.value.kua.kshards.amount.max(c.d0);
-                    i = i.add(i.mul(4.5)).add(i.pow(2).mul(4.5)).log10().pow(0.85).pow10()
+                i = i.add(i.mul(4)).add(i.pow(2).mul(4)).add(1)
+                if (i.gte(1)) { i = i.log10().pow(0.85).pow10() }
                 return i;
             },
             cost() {

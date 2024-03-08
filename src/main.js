@@ -171,7 +171,8 @@ function resetPlayer() {
                 total: c.d0,
                 totalInPR2: c.d0,
                 totalInKua: c.d0,
-                bestInPR2: c.d0
+                bestInPR2: c.d0,
+                timeInPRai: c.d0
             },
             pr2: {
                 amount: c.d0,
@@ -185,6 +186,7 @@ function resetPlayer() {
             amount: c.d0,
             total: c.d0,
             best: c.d0,
+            timeInKua: c.d0,
             kshards: {
                 amount: c.d0,
                 total: c.d0,
@@ -308,6 +310,11 @@ function updatePlayerData(player) {
         delete player.value.kua.kpower.effects;
         player.value.version = 3;
     }
+    if (player.value.version === 3) {
+        player.value.generators.prai.timeInPrai = c.d0;
+        player.value.kua.timeInKua = c.d0;
+        player.value.version = 4;
+    }
 }
 
 function resetTheFrickingGame() {
@@ -335,6 +342,7 @@ function reset(layer, override) {
                 player.value.generators.prai.total = player.value.generators.prai.total.add(tmp.value.praiPending);
                 player.value.generators.prai.totalInPR2 = player.value.generators.prai.totalInPR2.add(tmp.value.praiPending);
                 player.value.generators.prai.totalInKua = player.value.generators.prai.totalInKua.add(tmp.value.praiPending);
+                player.value.generators.prai.timeInPRai = c.d0;
                 for (let i = 0; i < 4; i++) {
                     updateStart("prai");
                     player.value.generators.upg3.bought = c.d0;
@@ -367,6 +375,7 @@ function reset(layer, override) {
                 setAchievement(11, true);
                 player.value.kua.amount = player.value.kua.amount.add(tmp.value.kuaPending);
                 player.value.kua.total = player.value.kua.total.add(tmp.value.kuaPending);
+                player.value.kua.timeInKua = c.d0;
                 reset("pr2", true);
                 player.value.generators.prai.totalInKua = c.d0;
                 if (player.value.achievements.includes(11)) {
@@ -450,6 +459,7 @@ function loadGame() {
                 player.value.totalTime += otherGameStuffIg.delta;
                 otherGameStuffIg.sessionTime += otherGameStuffIg.delta;
 
+                player.value.kua.timeInKua = player.value.kua.timeInKua.add(gameDelta);
                 updateAllKua();
                 generate = tmp.value.kuaShardGeneration.mul(gameDelta);
                 player.value.kua.kshards.amount = player.value.kua.kshards.amount.add(generate);
@@ -458,9 +468,10 @@ function loadGame() {
                 player.value.kua.kpower.amount = player.value.kua.kpower.amount.add(generate);
                 player.value.kua.kpower.total = player.value.kua.kpower.total.add(generate);
 
+                player.value.generators.prai.timeInPRai = player.value.generators.prai.timeInPRai.add(gameDelta);
                 updateAllStart();
                 if (player.value.kua.kshards.upgrades >= 1) {
-                    generate = tmp.value.praiPending.mul(gameDelta).mul(c.em4)
+                    generate = tmp.value.praiPending.mul(gameDelta).mul(c.em4);
                     player.value.generators.prai.amount = player.value.generators.prai.amount.add(generate);
                     player.value.generators.prai.total = player.value.generators.prai.total.add(generate);
                     player.value.generators.prai.totalInPR2 = player.value.generators.prai.totalInPR2.add(generate);
@@ -477,7 +488,7 @@ function loadGame() {
                     lastSave = timeStamp;
                 }
 
-                drawing()
+                drawing();
             }
         } catch (e) {
             console.error(e);
@@ -499,14 +510,14 @@ function loadGame() {
         draw.width = window.innerWidth;
         draw.height = window.innerHeight;
 
-        stats.norm += otherGameStuffIg.delta
+        stats.norm += otherGameStuffIg.delta;
         if (stats.norm >= 0.1) {
             if (stats.norm >= 10) {
-                stats.norm = 0.1
+                stats.norm = 0.1;
             }
 
             for (let atmps = 0; atmps < 10 && stats.norm >= 0.1; atmps++) {
-                stats.norm -= 0.1
+                stats.norm -= 0.1;
 
                 let obj = {
                     type: 0, 
@@ -517,10 +528,10 @@ function loadGame() {
                     defGhost: 32 + 32 * Math.random()
                 }
 
-                obj.life = obj.maxLife
-                obj.x = obj.dir === 1 ? -100 : (draw.width + 100)
+                obj.life = obj.maxLife;
+                obj.x = obj.dir === 1 ? -100 : (draw.width + 100);
         
-                particles.push(obj)
+                particles.push(obj);
             }
         }
         // stats.kua += otherGameStuffIg.delta
@@ -553,16 +564,16 @@ function loadGame() {
                 case 0:
                     particles[i].life -= otherGameStuffIg.delta
                     if (particles[i].life <= 0) {
-                        particles.splice(i, 1)
+                        particles.splice(i, 1);
                         i--;
                         break;
                     }
-                    particles[i].x += otherGameStuffIg.delta * (particles[i].dir * (particles[i].life + 1)) * ((1 + 2 * Math.random()) / 3) * 100
-                    particles[i].y += otherGameStuffIg.delta * (4 * (Math.random() - 0.5))
+                    particles[i].x += otherGameStuffIg.delta * (particles[i].dir * (particles[i].life + 1)) * ((1 + 2 * Math.random()) / 3) * 100;
+                    particles[i].y += otherGameStuffIg.delta * (4 * (Math.random() - 0.5));
                     particles[i].y = lerp(1 - (0.75 ** otherGameStuffIg.delta), particles[i].y, 30);
 
                     pen.beginPath();
-                    let alpha = particles[i].defGhost * particles[i].life / particles[i].maxLife
+                    let alpha = particles[i].defGhost * particles[i].life / particles[i].maxLife;
                     pen.fillStyle = `hsla(0, 100%, 100%, ${alpha / 255})`;
 
                     pen.arc(particles[i].x,
@@ -573,7 +584,7 @@ function loadGame() {
                     pen.fill();
                     break;
                 default:
-                    throw new Error(`Particle type ${particles[i].type} is not a valid type :c`)
+                    throw new Error(`Particle type ${particles[i].type} is not a valid type :c`);
             }
             // dots[i][4] += Math.random() - 0.5;
             // dots[i][5] += Math.random() - 0.5;
