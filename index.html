@@ -64,7 +64,7 @@
 
                             <button style="text-align: center" 
                             v-bind:class="{ nopeFill: !player.auto.upg1, okFill: player.auto.upg1 }"
-                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="genUP1" v-if="player.nerf.up1Active && player.generators.pr2.best.gte(2)" @click="player.auto.upg1 = !player.auto.upg1">
+                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="autoUP1" v-if="player.nerf.up1Active && player.generators.pr2.best.gte(2)" @click="player.auto.upg1 = !player.auto.upg1">
                                 <b>Upgrade 1 Autobuyer: {{player.auto.upg1?"On":"Off"}}</b>
                             </button>
                         </div>
@@ -82,7 +82,7 @@
 
                             <button style="text-align: center" 
                             v-bind:class="{ nopeFill: !player.auto.upg2, okFill: player.auto.upg2 }"
-                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="genUP1" v-if="player.nerf.up2Active && player.generators.pr2.best.gte(4)" @click="player.auto.upg2 = !player.auto.upg2">
+                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="autoUP2" v-if="player.nerf.up2Active && player.generators.pr2.best.gte(4)" @click="player.auto.upg2 = !player.auto.upg2">
                                 <b>Upgrade 2 Autobuyer: {{player.auto.upg2?"On":"Off"}}</b>
                             </button>
                         </div>
@@ -100,7 +100,7 @@
 
                             <button style="text-align: center" 
                             v-bind:class="{ nopeFill: !player.auto.upg3, okFill: player.auto.upg3 }"
-                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="genUP1" v-if="player.nerf.up3Active && false" @click="player.auto.upg3 = !player.auto.upg3">
+                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="autoUP3" v-if="player.nerf.up3Active && player.kua.kshards.upgrades >= 7" @click="player.auto.upg3 = !player.auto.upg3">
                                 <b>Upgrade 3 Autobuyer: {{player.auto.upg3?"On":"Off"}}</b>
                             </button>
                         </div>
@@ -123,39 +123,53 @@
             </table>
             <table style="margin-top: 12px; margin-left: auto; margin-right: auto;">
                 <tr>
-                    <td>
-                        <button style="text-align: center" 
-                        v-bind:class="{ nope: !tmp.praiCanDo, ok: tmp.praiCanDo }"
-                        class="whiteText largeButton fontVerdana generatorButton" id="prai" v-if="player.nerf.praiActive" @click="reset('prai')">
-                        <h3>PRai: {{format(player.generators.prai.amount)}}</h3>
-                            {{`Reset your progress to gain ${player.generators.pr2.best.gte(1) ? format(tmp.praiPending) + " " : ""}PRai.`}}
-                            <br>{{
-                                tmp.praiCanDo
-                                    ? tmp.praiPending.lt(1e6) && player.generators.pr2.best.gte(1)
-                                        ? `Next in ${format(tmp.praiNext)} points.`
-                                        : ""
-                                    : `You can PRai reset in ${formatTime(tmp.praiNext)}`
-                            }}
-                            <br>You have {{format(player.generators.prai.amount)}} PRai, which boosts your points by {{format(player.generators.prai.effect, 2)}}x.
-                            <br>{{tmp.praiCanDo ? `Resetting now, PRai will boost your points by ${format(tmp.praiNextEffect, 2)}x` : ""}}
-                        </button>
+                    <td> 
+                        <div class="flex-container" style="flex-direction: column;">
+                            <button style="text-align: center" 
+                            v-bind:class="{ nope: !tmp.praiCanDo, ok: tmp.praiCanDo }"
+                            class="whiteText largeButton fontVerdana generatorButton" id="prai" v-if="player.nerf.praiActive" @click="reset('prai')">
+                            <h3>PRai: {{format(player.generators.prai.amount)}}</h3>
+                                {{`Reset your progress to gain ${player.generators.pr2.best.gte(1) ? format(tmp.praiPending) + " " : ""}PRai.`}}
+                                <br>{{
+                                    tmp.praiCanDo
+                                        ? tmp.praiPending.lt(1e6) && player.generators.pr2.best.gte(1)
+                                            ? `Next in ${format(tmp.praiNext)} points.`
+                                            : ""
+                                        : `You can PRai reset in ${formatTime(tmp.praiNext)}`
+                                }}
+                                <br>You have {{format(player.generators.prai.amount)}} PRai, which boosts your points by {{format(player.generators.prai.effect, 2)}}x.
+                                <br>{{tmp.praiCanDo ? `Resetting now, PRai will boost your points by ${format(tmp.praiNextEffect, 2)}x` : ""}}
+                            </button>
+                            <button style="text-align: center; width: 300px; height: 50px;" 
+                            v-bind:class="{ nopeFill: !player.auto.prai, okFill: player.auto.prai }"
+                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="autoPRai" v-if="player.nerf.praiActive && player.kua.kshards.upgrades >= 1" @click="player.auto.prai = !player.auto.prai">
+                                <b>PRai Generator: {{player.auto.prai?"On":"Off"}}</b>
+                            </button>
+                        </div>
                     </td>
                     <td>
-                        <button style="text-align: center" 
-                        v-bind:class="{ nope: !tmp.pr2CanDo, ok: tmp.pr2CanDo }"
-                        class="whiteText largeButton fontVerdana generatorButton" id="pr2" v-if="player.nerf.pr2Active && player.generators.prai.best.gte(3)" @click="reset('pr2')">
-                            <h3>PR2: {{format(player.generators.pr2.amount)}}</h3>
-                            Reset all of your previous progress to for a PR2 reset.
-                            <br><span v-bind:style="{ color: tmp.pr2ScalingColor }">{{
-                                tmp.pr2CanDo
-                                    ? false
-                                        ? `You can PR2 reset ${format(player.generators.pr2.target.sub(player.generators.pr2.amount).floor())} times!`
-                                        : `You can PR2 reset! (${format(player.generators.prai.amount)} / ${format(player.generators.pr2.cost)} PRai)`
-                                    : `You need ${format(player.generators.prai.amount)} / ${format(player.generators.pr2.cost)} PRai to PR2 reset.`
-                            }}</span>
-                            <br>You have {{format(player.generators.pr2.amount)}} PR2, which boosts your PRai and points by {{format(player.generators.pr2.effect, 2)}}x.
-                            <br>{{tmp.pr2Text===""?"":`At ${format(tmp.pr2Text.info)} PR2 reset${tmp.pr2Text.info.eq(1)?"":"s"}, ${tmp.pr2Text.txt}`}}
-                        </button>
+                        <div class="flex-container" style="flex-direction: column;">
+                            <button style="text-align: center" 
+                            v-bind:class="{ nope: !tmp.pr2CanDo, ok: tmp.pr2CanDo }"
+                            class="whiteText largeButton fontVerdana generatorButton" id="pr2" v-if="player.nerf.pr2Active && player.generators.prai.best.gte(3)" @click="reset('pr2')">
+                                <h3>PR2: {{format(player.generators.pr2.amount)}}</h3>
+                                Reset all of your previous progress to for a PR2 reset.
+                                <br><span v-bind:style="{ color: tmp.pr2ScalingColor }">{{
+                                    tmp.pr2CanDo
+                                        ? false
+                                            ? `You can PR2 reset ${format(player.generators.pr2.target.sub(player.generators.pr2.amount).floor())} times!`
+                                            : `You can PR2 reset! (${format(player.generators.prai.amount)} / ${format(player.generators.pr2.cost)} PRai)`
+                                        : `You need ${format(player.generators.prai.amount)} / ${format(player.generators.pr2.cost)} PRai to PR2 reset.`
+                                }}</span>
+                                <br>You have {{format(player.generators.pr2.amount)}} PR2, which boosts your PRai and points by {{format(player.generators.pr2.effect, 2)}}x.
+                                <br>{{tmp.pr2Text===""?"":`At ${format(tmp.pr2Text.info)} PR2 reset${tmp.pr2Text.info.eq(1)?"":"s"}, ${tmp.pr2Text.txt}`}}
+                            </button>
+                            <button style="text-align: center; width: 300px; height: 50px;" 
+                            v-bind:class="{ nopeFill: !player.auto.pr2, okFill: player.auto.pr2 }"
+                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="autoPR2" v-if="player.nerf.pr2Active && false" @click="player.auto.pr2 = !player.auto.pr2">
+                                <b>PR2 Autobuyer: {{player.auto.pr2?"On":"Off"}}</b>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             </table>
@@ -172,10 +186,12 @@
                             ? `You can convert PRai to Kuaraniai! (${format(tmp.effectivePrai)} / ${format(tmp.kuaReq)} PRai)`
                             : `You need ${format(tmp.effectivePrai)} / ${format(tmp.kuaReq)} PRai to convert into Kuaraniai.`
                     }}
-                    <br>You have {{format(player.kua.amount)}} Kuaraniai, which generates {{format(tmp.kuaShardGeneration, 4)}} Kuaraniai Shards (KShards) per second. It also:
+                    <br>You have {{format(player.kua.amount, 3)}} Kuaraniai, which generates {{format(tmp.kuaShardGeneration, 4)}} Kuaraniai Shards (KShards) per second. It also:
                     <div v-if="player.nerf.kuaActive.effects">
-                        <li>Reduces Upgrade 1's scaling strength by {{formatPerc(tmp.kuaEffects.upg1Scaling, 3)}}</li>
+                        <li>Reduces Upgrade 1's scaling strength by {{formatPerc(tmp.kuaEffects.upg1Scaling, 3)}}</li> 
+                        <li v-if="player.kua.kpower.upgrades >= 6">Reduces Upgrade 1's super scaling strength by {{formatPerc(tmp.kuaEffects.upg1SuperScaling, 3)}}</li>
                         <li v-if="player.kua.kpower.upgrades >= 3">Raises Points gain to ^{{format(tmp.kuaEffects.ptPower, 3)}}</li>
+                        <li v-if="player.kua.kpower.upgrades >= 6">Delays Upgrade 2's softcap by x{{format(tmp.kuaEffects.upg2Softcap, 2)}}</li>
                     </div>
                 </button>
                 <div class="flex-container" style="flex-direction: column; justify-content: center;" v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `3px solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.5, 1.0)}` }">
@@ -184,16 +200,20 @@
                             You have <b>{{format(player.kua.kshards.amount, 3)}}</b> Kuaraniai shards, which:
                             <div v-if="player.nerf.kuaActive.kshards.effects">
                                 <li>
-                                    Generate {{format(tmp.kuaPowerGeneration, 4)}} Kuaraniai Power (KPower) per second.
+                                    Generate {{format(tmp.kuaPowerGeneration, 3)}} Kuaraniai Power (KPower) per second.
                                 </li>
                                 <li v-if="player.kua.kshards.upgrades >= 2">
                                     Multiply PRai's effect by {{format(KUA_UPGRADES.KShards[1].eff(), 2)}}x.
+                                </li>
+                                <li v-if="player.kua.kshards.upgrades >= 8">
+                                    Multiply PRai gain by {{format(KUA_UPGRADES.KShards[7].eff(), 2)}}x.
                                 </li>
                             </div>
                         </div>
                         <div class="flex-container" style="flex-direction: row; justify-content: center;">
                             <div v-for="(item, index) in KUA_UPGRADES.KShards">
                                 <button @click="buyKShardUpg(index)" v-bind:style="{ opacity: (1 - ((index - player.kua.kshards.upgrades) / 5)) ** 2 }" v-if="index >= player.kua.kshards.upgrades && index < player.kua.kshards.upgrades + 5 && item.show()" style="margin-left: 2px; margin-right: 2px; width: 150px; height: 150px; font-size: 12px" class="whiteText kuaButton2 fontVerdana">
+                                    <span v-if="item.eh" style="color: #ff0; font-size: 10px"><b>[ NOT IMPLEMENTED ]</b><br></span>
                                     <span style="vertical-align: top;">{{item.desc()}}</span>
                                     <br><br>
                                     <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost(), 1)}} KShards</span>
@@ -211,11 +231,18 @@
                                 <li v-if="player.kua.kpower.upgrades >= 2">
                                     Makes Upgrade 3 {{format(KUA_UPGRADES.KPower[1].eff().sub(1).mul(100), 3)}}% more effective.
                                 </li>
+                                <li v-if="player.kua.kpower.upgrades >= 4">
+                                    Delays Upgrade 2's softcap by {{format(KUA_UPGRADES.KPower[3].eff(), 2)}}x.
+                                </li>
+                                <li v-if="player.kua.kpower.upgrades >= 5">
+                                    Raises PRai's effect to ^{{format(KUA_UPGRADES.KPower[4].eff(), 4)}}.
+                                </li>
                             </div>
                         </div>
                         <div class="flex-container" style="flex-direction: row; justify-content: center;">
                             <div v-for="(item, index) in KUA_UPGRADES.KPower">
                                 <button @click="buyKPowerUpg(index)" v-bind:style="{ opacity: (1 - ((index - player.kua.kpower.upgrades) / 5)) ** 2 }" v-if="index >= player.kua.kpower.upgrades && index < player.kua.kpower.upgrades + 5 && item.show()" style="margin-left: 2px; margin-right: 2px; width: 150px; height: 150px; font-size: 12px" class="whiteText kuaButton2 fontVerdana">
+                                    <span v-if="item.eh" style="color: #ff0; font-size: 10px"><b>[ NOT IMPLEMENTED ]</b><br></span>
                                     <span style="vertical-align: top;">{{item.desc()}}</span>
                                     <br><br>
                                     <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost(), 1)}} KPower</span>

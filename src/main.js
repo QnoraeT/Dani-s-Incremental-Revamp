@@ -172,7 +172,8 @@ function resetPlayer() {
                 totalInPR2: c.d0,
                 totalInKua: c.d0,
                 bestInPR2: c.d0,
-                timeInPRai: c.d0
+                timeInPRai: c.d0,
+                times: c.d0
             },
             pr2: {
                 amount: c.d0,
@@ -187,6 +188,7 @@ function resetPlayer() {
             total: c.d0,
             best: c.d0,
             timeInKua: c.d0,
+            times: c.d0,
             kshards: {
                 amount: c.d0,
                 total: c.d0,
@@ -315,6 +317,11 @@ function updatePlayerData(player) {
         player.value.kua.timeInKua = c.d0;
         player.value.version = 4;
     }
+    if (player.value.version === 4) {
+        player.value.generators.prai.times = c.d0;
+        player.value.kua.times = c.d0;
+        player.value.version = 5;
+    }
 }
 
 function resetTheFrickingGame() {
@@ -337,46 +344,58 @@ function reset(layer, override) {
     switch(layer) {
         case "prai":
             if (tmp.value.praiCanDo || override) {
-                setAchievement(8, tmp.value.praiPending.gte(1000));
-                player.value.generators.prai.amount = player.value.generators.prai.amount.add(tmp.value.praiPending);
-                player.value.generators.prai.total = player.value.generators.prai.total.add(tmp.value.praiPending);
-                player.value.generators.prai.totalInPR2 = player.value.generators.prai.totalInPR2.add(tmp.value.praiPending);
-                player.value.generators.prai.totalInKua = player.value.generators.prai.totalInKua.add(tmp.value.praiPending);
-                player.value.generators.prai.timeInPRai = c.d0;
+                if (!override) {
+                    setAchievement(8, tmp.value.praiPending.gte(1000));
+                    player.value.generators.prai.amount = player.value.generators.prai.amount.add(tmp.value.praiPending);
+                    player.value.generators.prai.total = player.value.generators.prai.total.add(tmp.value.praiPending);
+                    player.value.generators.prai.totalInPR2 = player.value.generators.prai.totalInPR2.add(tmp.value.praiPending);
+                    player.value.generators.prai.totalInKua = player.value.generators.prai.totalInKua.add(tmp.value.praiPending);
+                    player.value.generators.prai.times = player.value.generators.prai.times.add(c.d1);
+                }
+
                 for (let i = 0; i < 4; i++) {
-                    updateStart("prai");
+                    player.value.generators.prai.timeInPRai = c.d0;
                     player.value.generators.upg3.bought = c.d0;
-                    updateStart("upg3");
                     player.value.generators.upg2.bought = c.d0;
-                    updateStart("upg2");
                     player.value.generators.upg1.bought = c.d0;
+                    updateStart("prai");
+                    updateStart("upg3");
+                    updateStart("upg2");
                     updateStart("upg1");
                     player.value.pps = calcPointsPerSecond();
                     player.value.points = c.d0;
                     player.value.totalPointsInPRai = c.d0;
                 }
+
             }
             break;
         case "pr2":
             if (tmp.value.pr2CanDo || override) {
-                player.value.generators.pr2.amount = player.value.generators.pr2.amount.add(1);
-                reset("prai", true);
+                if (!override) {
+                    player.value.generators.pr2.amount = player.value.generators.pr2.amount.add(1);
+                }
+
                 for (let i = 0; i < 4; i++) {
-                    updateStart("pr2");
                     player.value.generators.prai.amount = c.d0;
                     player.value.generators.prai.total = c.d0;
                     player.value.generators.prai.totalInPR2 = c.d0;
                     player.value.generators.prai.bestInPR2 = c.d0;
+                    updateStart("pr2");
+                    reset("prai", true);
                 }
             }
             break;
         case "kua":
             if (tmp.value.kuaCanDo || override) {
-                setAchievement(11, true);
-                player.value.kua.amount = player.value.kua.amount.add(tmp.value.kuaPending);
-                player.value.kua.total = player.value.kua.total.add(tmp.value.kuaPending);
+                if (!override) {
+                    setAchievement(11, true);
+                    player.value.kua.amount = player.value.kua.amount.add(tmp.value.kuaPending);
+                    player.value.kua.total = player.value.kua.total.add(tmp.value.kuaPending);
+                    player.value.kua.times = player.value.kua.times.add(c.d1);
+                }
+
+                player.value.generators.prai.times = c.d0;
                 player.value.kua.timeInKua = c.d0;
-                reset("pr2", true);
                 player.value.generators.prai.totalInKua = c.d0;
                 if (player.value.achievements.includes(11)) {
                     player.value.generators.prai.amount = c.d10;
@@ -385,6 +404,8 @@ function reset(layer, override) {
                     player.value.generators.prai.bestInPR2 = c.d10;
                     // not add totalInKua because not counted
                 }
+                updateKua("kua")
+                reset("pr2", true);
             }
             break;
         default:
@@ -398,16 +419,22 @@ function calcPointsPerSecond() {
     i = i.mul(player.value.generators.prai.effect);
     i = i.mul(player.value.generators.pr2.effect);
     if (player.value.achievements.includes(4)) {
-        i = i.mul(3);
+        i = i.mul(c.d3);
     }
     if (player.value.achievements.includes(11)) {
-        i = i.mul(3);
+        i = i.mul(c.d3);
     }
     if (player.value.achievements.includes(12)) {
         i = i.mul(ACHIEVEMENT_DATA[12].eff());
     }
     if (player.value.achievements.includes(13)) {
         i = i.mul(ACHIEVEMENT_DATA[13].eff());
+    }
+    if (player.value.kua.kpower.upgrades >= 3) {
+        i = i.pow(tmp.value.kuaEffects.ptPower);
+    } 
+    if (i.gte(c.e200)) {
+        i = scale(i, 2.1, false, c.e200, c.d1, c.d0_5)
     }
     return i;
 }
@@ -470,7 +497,7 @@ function loadGame() {
 
                 player.value.generators.prai.timeInPRai = player.value.generators.prai.timeInPRai.add(gameDelta);
                 updateAllStart();
-                if (player.value.kua.kshards.upgrades >= 1) {
+                if (player.value.kua.kshards.upgrades >= 1 && player.value.auto.prai) {
                     generate = tmp.value.praiPending.mul(gameDelta).mul(c.em4);
                     player.value.generators.prai.amount = player.value.generators.prai.amount.add(generate);
                     player.value.generators.prai.total = player.value.generators.prai.total.add(generate);
@@ -483,6 +510,10 @@ function loadGame() {
                 player.value.totalPointsInPRai = player.value.totalPointsInPRai.add(generate);
                 player.value.totalPoints = player.value.totalPoints.add(generate);
         
+                setAchievement(17, player.value.points.gte(c.e24) && player.value.generators.upg1.bought.eq(c.d0) && player.value.generators.upg2.bought.eq(c.d0) && player.value.generators.upg3.bought.eq(c.d0));
+                setAchievement(22, player.value.points.gte(c.e80) && player.value.generators.upg1.bought.eq(c.d0) && player.value.generators.upg2.bought.eq(c.d0) && player.value.generators.upg3.bought.eq(c.d0));
+                setAchievement(24, player.value.points.gte(c.e90) && player.value.generators.upg1.bought.eq(c.d0) && player.value.generators.upg2.bought.eq(c.d0));
+
                 if (timeStamp > lastSave + saveTime) {
                     console.log(saveTheFrickingGame());
                     lastSave = timeStamp;
