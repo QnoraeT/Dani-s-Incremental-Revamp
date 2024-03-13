@@ -105,6 +105,19 @@ body {
   background-color: #411853;
 }
 
+.colButton {
+  transition-duration: 0.2s;
+  background-color: #521400;
+  border: 5px solid #ff4000;
+  box-shadow: 0 0 10px 3px rgb(66, 17, 0);
+}
+
+.colButton:hover {
+  background-color: #7a1f00;
+  border: 5px solid #ff9775;
+  box-shadow: 0 0 15px 5px #8f2400;
+}
+
 .kuaButton:hover {
   background-color: #610986;
 }

@@ -136,7 +136,10 @@ const ACHIEVEMENT_DATA = {
             if (player.value.achievements.includes(30)) {
                 pow = pow.add(c.d0_05);
             }
-            let eff = player.value.generators.upg2.effect;
+            let eff = player.value.generators.upg2.effect.max(c.d1);
+            if (player.value.kua.kpower.upgrades >= 7) {
+                eff = eff.root(c.d3);
+            }
             eff = eff.pow(pow);
             return eff;
         },
@@ -154,7 +157,7 @@ const ACHIEVEMENT_DATA = {
     },
     14: { // ! Unable 
         name() { return `Does every incremental game need to have a challenge like this? Probably.`; },
-        desc() { return `Complete Colosseum Challenge 'No UP2.'`; },
+        desc() { return `Complete Colosseum Challenge 'No Kuaraniai.'`; },
         type() { return `col`; },
         reward() { return ``; },
         show() { return player.value.kua.kpower.upgrades >= 2 && player.value.kua.amount.gte(c.e2); },
@@ -241,6 +244,9 @@ const ACHIEVEMENT_DATA = {
         reward() { return `Upgrade 2 also boosts PRai gain at a drastically reduced rate. Currently: ${format(this.eff(), 2)}x`; },
         eff() {
             let eff = player.value.generators.upg2.effect.max(c.e10);
+            if (player.value.kua.kpower.upgrades >= 7) {
+                eff = eff.root(c.d3).max(c.e10);
+            }
             eff = eff.div(c.e10).pow(c.d0_03);
             return eff;
         },
@@ -257,7 +263,7 @@ const ACHIEVEMENT_DATA = {
     },
     25: { // TODO: Get, Effect
         name() { return `speedrun? :o`; },
-        desc() { return `Reach ${format(c.e140)} points in the first ${format(c.d5, 2)} seconds in a Kuaraniai run.`; },
+        desc() { return `Reach ${format(c.e260)} points in the first ${format(c.d5, 2)} seconds in a Kuaraniai run.`; },
         type() { return `points`; },
         reward() { return `Point gain is boosted but it decays over the next ${format(c.d60, 2)} seconds. Currently: ${format(this.eff(), 2)}x`; },
         eff() {
@@ -306,7 +312,7 @@ const ACHIEVEMENT_DATA = {
     },
     30: { 
         name() { return `Stockpiler 2`; },
-        desc() { return `Save up ${format(c.e60)} PRai on a Kuaraniai run.`; },
+        desc() { return `Save up ${format(c.e85)} PRai on a Kuaraniai run.`; },
         type() { return `points`; },
         reward() { return `Achievement \"Stockpiler\" is boosted again.`; },
         show() { return player.value.generators.pr2.best.gte(c.d10); },

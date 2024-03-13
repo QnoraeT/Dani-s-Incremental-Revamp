@@ -91,12 +91,12 @@ function resetPlayer() {
         pps: c.d1,
         totalPoints: c.d0,
         totalPointsInPRai: c.d0,
-        inChallenge: [], 
+        inChallenge: {}, 
         totalTime: 0, // timespeed doesn't affect this
         gameTime: c.d0, // timespeed will affect this (totalGameTime)
         timeSpeed: c.d1,
         setTimeSpeed: c.d1, // change this if you think the game is going too fast or slow, i won't judge you =P
-        version: 3,
+        version: 0,
         nerf: {
             up1Active: true,
             up2Active: true,
@@ -204,8 +204,12 @@ function resetPlayer() {
         },
         col: {
             completed: {},
+            saved: {},
             power: c.d0,
+            totalPower: c.d0,
+            bestPower: c.d0,
             time: c.d0,
+            maxTime: c.d0
         },
         settings: {
             notation: "Mixed Scientific",
@@ -322,11 +326,31 @@ function updatePlayerData(player) {
         player.value.kua.times = c.d0;
         player.value.version = 5;
     }
+    if (player.value.version === 5) {
+        player.value.col.maxTime = c.d0;
+        player.value.version = 6;
+    }
+    if (player.value.version === 6) {
+        player.value.col.saved = {};
+        player.value.col.totalPower = c.d0;
+        player.value.col.bestPower = c.d0;
+        player.value.version = 7;
+    }
+    if (player.value.version === 6) {
+        player.value.col.saved = {};
+        player.value.col.totalPower = c.d0;
+        player.value.col.bestPower = c.d0;
+        player.value.version = 7;
+    }
+    if (player.value.version === 7) {
+        player.value.inChallenge = {};
+        player.value.version = 8;
+    }
 }
 
 function resetTheFrickingGame() {
     localStorage.setItem(saveID, null);
-    document.location.reload(true);
+    loadGame();
 }
 
 function saveTheFrickingGame() {
@@ -345,7 +369,7 @@ function reset(layer, override) {
         case "prai":
             if (tmp.value.praiCanDo || override) {
                 if (!override) {
-                    setAchievement(8, tmp.value.praiPending.gte(1000));
+                    setAchievement(8, tmp.value.praiPending.gte(c.e3));
                     player.value.generators.prai.amount = player.value.generators.prai.amount.add(tmp.value.praiPending);
                     player.value.generators.prai.total = player.value.generators.prai.total.add(tmp.value.praiPending);
                     player.value.generators.prai.totalInPR2 = player.value.generators.prai.totalInPR2.add(tmp.value.praiPending);
@@ -353,7 +377,7 @@ function reset(layer, override) {
                     player.value.generators.prai.times = player.value.generators.prai.times.add(c.d1);
                 }
 
-                for (let i = 0; i < 4; i++) {
+                for (let i = 0; i < 2; i++) {
                     player.value.generators.prai.timeInPRai = c.d0;
                     player.value.generators.upg3.bought = c.d0;
                     player.value.generators.upg2.bought = c.d0;
@@ -366,7 +390,6 @@ function reset(layer, override) {
                     player.value.points = c.d0;
                     player.value.totalPointsInPRai = c.d0;
                 }
-
             }
             break;
         case "pr2":
@@ -375,7 +398,7 @@ function reset(layer, override) {
                     player.value.generators.pr2.amount = player.value.generators.pr2.amount.add(1);
                 }
 
-                for (let i = 0; i < 4; i++) {
+                for (let i = 0; i < 2; i++) {
                     player.value.generators.prai.amount = c.d0;
                     player.value.generators.prai.total = c.d0;
                     player.value.generators.prai.totalInPR2 = c.d0;
@@ -433,11 +456,10 @@ function calcPointsPerSecond() {
     if (player.value.kua.kpower.upgrades >= 3) {
         i = i.pow(tmp.value.kuaEffects.ptPower);
     } 
-    if (i.gte(c.e200)) {
-        i = scale(i, 2.1, false, c.e200, c.d1, c.d0_5)
-    }
     return i;
 }
+
+let vueLoaded = false;
 
 function loadGame() {
     lastFPSCheck = 0;
@@ -461,7 +483,10 @@ function loadGame() {
         console.log("reset");
     }
 
-    loadVue();
+    if (!vueLoaded) {
+        loadVue();
+        vueLoaded = true;
+    }
 
     window.requestAnimationFrame(gameLoop);
 
@@ -485,6 +510,11 @@ function loadGame() {
                 player.value.gameTime = player.value.gameTime.add(gameDelta);
                 player.value.totalTime += otherGameStuffIg.delta;
                 otherGameStuffIg.sessionTime += otherGameStuffIg.delta;
+
+                updateAllCol();
+                generate = tmp.value.colosseumPowerGeneration.mul(gameDelta);
+                player.value.col.power = player.value.col.power.add(generate)
+                player.value.col.totalPower = player.value.col.totalPower.add(generate)
 
                 player.value.kua.timeInKua = player.value.kua.timeInKua.add(gameDelta);
                 updateAllKua();
@@ -517,6 +547,17 @@ function loadGame() {
                 if (timeStamp > lastSave + saveTime) {
                     console.log(saveTheFrickingGame());
                     lastSave = timeStamp;
+                }
+
+                // misc unimportant stuff
+
+                let k = { upg1: "Upgrade 1", upg2: "Upgrade 2", upg3: "Upgrade 3", pr2: "PR2" }
+                for (let i in tmp.value.scaling) {
+                    for (let j in tmp.value.scaling[i]) {
+                        if (tmp.value.scaling[i][j].res.gte(tmp.value.scaling[i][j].start)) {
+                            tmp.value.scaleList[j].push(`${k[i]} - ${format(tmp.value.scaling[i][j].strength.mul(c.e2), 3)}% starting at ${format(tmp.value.scaling[i][j].start, 3)}`)
+                        }
+                    }
                 }
 
                 drawing();

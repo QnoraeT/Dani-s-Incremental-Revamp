@@ -34,11 +34,16 @@ function updateScaling(type) {
             }
 
             tmp.value.scaling.upg1[1].strength = tmp.value.scaling.upg1[1].strength.div(tmp.value.kuaEffects.upg1SuperScaling);
+
+            if (player.value.kua.kpower.upgrades >= 9) {
+                tmp.value.scaling.upg1[2].strength = tmp.value.scaling.upg1[2].strength.div(KUA_UPGRADES.KPower[8].eff());
+            }
             break;
         case "upg2":
             if (tmp.value.scaling.upg2 === undefined) { tmp.value.scaling.upg2 = [] };
-            tmp.value.scaling.upg2[0] = { res: player.value.generators.upg2.bought, start: c.d15, strength: c.d1, bp: c.d2, type: 0 };
-            tmp.value.scaling.upg2[1] = { res: player.value.generators.upg2.bought, start: c.e2, strength: c.d1, bp: c.d3, type: 0 };
+            tmp.value.scaling.upg2[0] = { res: player.value.generators.upg2.bought, start: c.d15,  strength: c.d1, bp: c.d2, type: 0 };
+            tmp.value.scaling.upg2[1] = { res: player.value.generators.upg2.bought, start: c.e2,   strength: c.d1, bp: c.d3, type: 0 };
+            tmp.value.scaling.upg2[2] = { res: player.value.generators.upg2.bought, start: c.d500, strength: c.d1, bp: c.d4, type: 1 };
 
             if (player.value.generators.pr2.amount.gte(c.d15)) {
                 tmp.value.scaling.upg2[1].strength = tmp.value.scaling.upg2[1].strength.mul(c.d0_875);
@@ -60,6 +65,10 @@ function updateScaling(type) {
             if (player.value.kua.kshards.upgrades >= 6) {
                 tmp.value.scaling.upg2[1].strength = tmp.value.scaling.upg2[1].strength.div(c.d1_5);
             }
+
+            if (player.value.kua.kpower.upgrades >= 9) {
+                tmp.value.scaling.upg2[2].strength = tmp.value.scaling.upg2[2].strength.div(KUA_UPGRADES.KPower[8].eff());
+            }
             break;
         case "upg3":
             if (tmp.value.scaling.upg3 === undefined) { tmp.value.scaling.upg3 = [] };
@@ -68,21 +77,11 @@ function updateScaling(type) {
         case "pr2":
             if (tmp.value.scaling.pr2 === undefined) { tmp.value.scaling.pr2 = [] };
             tmp.value.scaling.pr2[0] = { res: player.value.generators.pr2.amount, start: c.d10, strength: c.d1, bp: c.d2, type: 0 };
-            // tmp.value.scaling.pr2[1] = { start: c.d20, strength: c.d1, bp: c.d3, type: 0 };
-            // tmp.value.scaling.pr2[2] = { start: D(45), strength: c.d1, bp: c.d4, type: 1 };
+            tmp.value.scaling.pr2[1] = { res: player.value.generators.pr2.amount, start: c.d25, strength: c.d1, bp: c.d3, type: 0 };
+            // tmp.value.scaling.pr2[2] = { res: player.value.generators.pr2.amount, start: D(45), strength: c.d1, bp: c.d4, type: 1 };
             break;
         default:
             throw new Error(`updateScaling ${type} does not exist`);
-    }
-
-    // TODO: apparently this fucks the performance but its too interesting for me to remove :c
-    let k = { upg1: "Upgrade 1", upg2: "Upgrade 2", upg3: "Upgrade 3", pr2: "PR2" }
-    for (let i in tmp.value.scaling) {
-        for (let j in tmp.value.scaling[i]) {
-            if (tmp.value.scaling[i][j].res.gte(tmp.value.scaling[i][j].start)) {
-                tmp.value.scaleList[j].push(`${k[i]} - ${format(tmp.value.scaling[i][j].strength.mul(c.e2), 3)}% starting at ${format(tmp.value.scaling[i][j].start, 3)}`)
-            }
-        }
     }
 }
 

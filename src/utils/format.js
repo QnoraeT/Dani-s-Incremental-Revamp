@@ -77,7 +77,7 @@ function formatTime(number, dec = 0, expdec = 3, limit = 2) {
             break;
         }
         if (n.gte(timeList[i].amt)) {
-            str = str + " " + format(n.div(timeList[i].amt), 0, expdec) + " " + timeList[i].name;
+            str = str + " " + format(n.div(timeList[i].amt), (lim + 1 >= limit || timeList[i].stop) ? dec : 0, expdec) + " " + timeList[i].name;
             n = n.sub(n.div(timeList[i].amt).floor().mul(timeList[i].amt));
             lim++;
             if (timeList[i].stop) {

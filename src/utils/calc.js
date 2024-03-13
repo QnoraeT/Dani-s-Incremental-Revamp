@@ -6,7 +6,10 @@ const c = {
     em2:         Decimal.fromComponents_noNormalize(1, 0, 0.01),
     d0_02:       Decimal.fromComponents_noNormalize(1, 0, 0.02),
     dlog1_05:    Decimal.fromComponents_noNormalize(1, 0, Math.log10(1.05)), // 0.021189
+    d0_022:      Decimal.fromComponents_noNormalize(1, 0, 0.022),
+    d0_025:      Decimal.fromComponents_noNormalize(1, 0, 0.025),
     d0_03:       Decimal.fromComponents_noNormalize(1, 0, 0.03),
+    d0_04:       Decimal.fromComponents_noNormalize(1, 0, 0.04),
     d0_05:       Decimal.fromComponents_noNormalize(1, 0, 0.05),
     d0_1:        Decimal.fromComponents_noNormalize(1, 0, 0.1),
     d0_15:       Decimal.fromComponents_noNormalize(1, 0, 0.15),
@@ -16,6 +19,7 @@ const c = {
     d0_275:      Decimal.fromComponents_noNormalize(1, 0, 0.275), 
     d0_3:        Decimal.fromComponents_noNormalize(1, 0, 0.3),
     d1div3:      Decimal.fromComponents_noNormalize(1, 0, 1/3), // 0.333333
+    d0_4:        Decimal.fromComponents_noNormalize(1, 0, 0.4),
     d5div12:     Decimal.fromComponents_noNormalize(1, 0, 5/12), // 0.416667
     d0_5:        Decimal.fromComponents_noNormalize(1, 0, 0.5),
     d0_55:       Decimal.fromComponents_noNormalize(1, 0, 0.55),
@@ -29,8 +33,11 @@ const c = {
     d0_9:        Decimal.fromComponents_noNormalize(1, 0, 0.9),
     d0_95:       Decimal.fromComponents_noNormalize(1, 0, 0.95),
     d1:          Decimal.dOne,
+    d1_01:       Decimal.fromComponents_noNormalize(1, 0, 1.01),
+    d1_02:       Decimal.fromComponents_noNormalize(1, 0, 1.02),
     d1_025:      Decimal.fromComponents_noNormalize(1, 0, 1.025),
     d1_05:       Decimal.fromComponents_noNormalize(1, 0, 1.05),
+    d1_1:        Decimal.fromComponents_noNormalize(1, 0, 1.1),
     d10div9:     Decimal.fromComponents_noNormalize(1, 0, 10/9), // 1.111111
     d1_125:      Decimal.fromComponents_noNormalize(1, 0, 1.125),
     d8div7:      Decimal.fromComponents_noNormalize(1, 0, 8/7), // 1.142857
@@ -58,9 +65,11 @@ const c = {
     d11:         Decimal.fromComponents_noNormalize(1, 0, 11),
     d15:         Decimal.fromComponents_noNormalize(1, 0, 15),
     d15_5:       Decimal.fromComponents_noNormalize(1, 0, 15.5),
+    d16:         Decimal.fromComponents_noNormalize(1, 0, 16),
     d20:         Decimal.fromComponents_noNormalize(1, 0, 20),
     d25:         Decimal.fromComponents_noNormalize(1, 0, 25),
     d30:         Decimal.fromComponents_noNormalize(1, 0, 30),
+    d32:         Decimal.fromComponents_noNormalize(1, 0, 32),
     d40:         Decimal.fromComponents_noNormalize(1, 0, 40),
     d50:         Decimal.fromComponents_noNormalize(1, 0, 50),
     d55:         Decimal.fromComponents_noNormalize(1, 0, 55),
@@ -73,6 +82,7 @@ const c = {
     d300:        Decimal.fromComponents_noNormalize(1, 0, 300),
     logMaxNum:   Decimal.fromComponents_noNormalize(1, 0, Math.log10(2) * 1024), // 308.254716
     d400:        Decimal.fromComponents_noNormalize(1, 0, 400),
+    d500:        Decimal.fromComponents_noNormalize(1, 0, 500),
     e3:          Decimal.fromComponents_noNormalize(1, 0, 1000),
     d1200:       Decimal.fromComponents_noNormalize(1, 0, 1200),
     d2500:       Decimal.fromComponents_noNormalize(1, 0, 2500),
@@ -88,6 +98,7 @@ const c = {
     e9:          Decimal.fromComponents_noNormalize(1, 0, 1000000000), 
     e10:         Decimal.fromComponents_noNormalize(1, 0, 10000000000), 
     e12:         Decimal.fromComponents_noNormalize(1, 0, 1000000000000), 
+    e15:         Decimal.fromComponents_noNormalize(1, 0, 1000000000000000), 
     maxSafe:     Decimal.fromComponents_noNormalize(1, 0, 9007199254740991), // e15.954589770191003
     e16:         Decimal.fromComponents_noNormalize(1, 1, 16),
     e18:         Decimal.fromComponents_noNormalize(1, 1, 18),
@@ -99,10 +110,12 @@ const c = {
     e55:         Decimal.fromComponents_noNormalize(1, 1, 55),
     e60:         Decimal.fromComponents_noNormalize(1, 1, 60),
     e80:         Decimal.fromComponents_noNormalize(1, 1, 80),
+    e85:         Decimal.fromComponents_noNormalize(1, 1, 85),
     e90:         Decimal.fromComponents_noNormalize(1, 1, 90),
     e100:        Decimal.fromComponents_noNormalize(1, 1, 100),
     e140:        Decimal.fromComponents_noNormalize(1, 1, 140),
     e200:        Decimal.fromComponents_noNormalize(1, 1, 200),
+    e260:        Decimal.fromComponents_noNormalize(1, 1, 260),
     maxNum:      Decimal.fromComponents_noNormalize(1, 1, Math.log10(2) * 1024), // 1.797e308 - e308.254716
 }
 
@@ -397,7 +410,7 @@ function inverseCube(x, a, b, c, d, tol = 1e-10) { // inverse of ax^3+bx^2+cx+d
 function inverseFact(x) {
     x = new Decimal(x);
     if (x.layer > 2) return x.log10();
-    if (x.layer > 1 && x.mag >= 10000) return x.log10().div(i.log10().log10());
+    if (x.layer > 1 && x.mag >= 10000) return x.log10().div(x.log10().log10());
     return x.div(c.dsqrt2pi).ln().div(Math.E).lambertw().add(1).exp().sub(0.5);
 }
 
