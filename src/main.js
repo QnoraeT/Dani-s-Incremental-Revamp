@@ -448,10 +448,10 @@ function calcPointsPerSecond() {
         i = i.mul(c.d3);
     }
     if (player.value.achievements.includes(12)) {
-        i = i.mul(ACHIEVEMENT_DATA[12].eff());
+        i = i.mul(ACHIEVEMENT_DATA[12].eff);
     }
     if (player.value.achievements.includes(13)) {
-        i = i.mul(ACHIEVEMENT_DATA[13].eff());
+        i = i.mul(ACHIEVEMENT_DATA[13].eff);
     }
     if (player.value.kua.kpower.upgrades >= 3) {
         i = i.pow(tmp.value.kuaEffects.ptPower);
@@ -460,6 +460,7 @@ function calcPointsPerSecond() {
 }
 
 let vueLoaded = false;
+let runGame = [true, true];
 
 function loadGame() {
     lastFPSCheck = 0;

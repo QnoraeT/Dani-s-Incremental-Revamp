@@ -206,20 +206,20 @@
                                     Generate {{format(tmp.kuaPowerGeneration, 3)}} Kuaraniai Power (KPower) per second.
                                 </li>
                                 <li v-if="player.kua.kshards.upgrades >= 2">
-                                    Multiply PRai's effect by {{format(KUA_UPGRADES.KShards[1].eff(), 2)}}x.
+                                    Multiply PRai's effect by {{format(KUA_UPGRADES.KShards[1].eff, 2)}}x.
                                 </li>
                                 <li v-if="player.kua.kshards.upgrades >= 8">
-                                    Multiply PRai gain by {{format(KUA_UPGRADES.KShards[7].eff(), 2)}}x.
+                                    Multiply PRai gain by {{format(KUA_UPGRADES.KShards[7].eff, 2)}}x.
                                 </li>
                             </div>
                         </div>
                         <div class="flex-container" style="flex-direction: row; justify-content: center;">
                             <div v-for="(item, index) in KUA_UPGRADES.KShards">
-                                <button @click="buyKShardUpg(index)" v-bind:style="{ opacity: (1 - ((index - player.kua.kshards.upgrades) / 5)) ** 2 }" v-if="index >= player.kua.kshards.upgrades && index < player.kua.kshards.upgrades + 5 && item.show()" style="margin-left: 2px; margin-right: 2px; width: 160px; height: 160px; font-size: 12px" class="whiteText kuaButton2 fontVerdana">
+                                <button @click="buyKShardUpg(index)" v-bind:style="{ opacity: (1 - ((index - player.kua.kshards.upgrades) / 5)) ** 2 }" v-if="index >= player.kua.kshards.upgrades && index < player.kua.kshards.upgrades + 5 && item.show" style="margin-left: 2px; margin-right: 2px; width: 160px; height: 160px; font-size: 12px" class="whiteText kuaButton2 fontVerdana">
                                     <span v-if="item.eh" style="color: #ff0; font-size: 10px"><b>[ NOT IMPLEMENTED ]</b><br></span>
-                                    <span style="vertical-align: top;">{{item.desc()}}</span>
+                                    <span style="vertical-align: top;">{{item.desc}}</span>
                                     <br><br>
-                                    <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost(), 1)}} KShards</span>
+                                    <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost, 1)}} KShards</span>
                                 </button>
                             </div>
                         </div>
@@ -229,26 +229,26 @@
                             You have <b>{{format(player.kua.kpower.amount, 3)}}</b> Kuaraniai power.
                             <div v-if="player.nerf.kuaActive.kpower.effects">
                                 <li v-if="player.kua.kpower.upgrades >= 1">
-                                    Increases Upgrade 2's base by +{{format(KUA_UPGRADES.KPower[0].eff(), 3)}}.
+                                    Increases Upgrade 2's base by +{{format(KUA_UPGRADES.KPower[0].eff, 3)}}.
                                 </li>
                                 <li v-if="player.kua.kpower.upgrades >= 2">
-                                    Makes Upgrade 3 {{format(KUA_UPGRADES.KPower[1].eff().sub(1).mul(100), 3)}}% more effective.
+                                    Makes Upgrade 3 {{format(KUA_UPGRADES.KPower[1].eff.sub(1).mul(100), 3)}}% more effective.
                                 </li>
                                 <li v-if="player.kua.kpower.upgrades >= 4">
-                                    Delays Upgrade 2's softcap by {{format(KUA_UPGRADES.KPower[3].eff(), 2)}}x.
+                                    Delays Upgrade 2's softcap by {{format(KUA_UPGRADES.KPower[3].eff, 2)}}x.
                                 </li>
                                 <li v-if="player.kua.kpower.upgrades >= 5">
-                                    Raises PRai's effect to ^{{format(KUA_UPGRADES.KPower[4].eff(), 4)}}.
+                                    Raises PRai's effect to ^{{format(KUA_UPGRADES.KPower[4].eff, 4)}}.
                                 </li>
                             </div>
                         </div>
                         <div class="flex-container" style="flex-direction: row; justify-content: center;">
                             <div v-for="(item, index) in KUA_UPGRADES.KPower">
-                                <button @click="buyKPowerUpg(index)" v-bind:style="{ opacity: (1 - ((index - player.kua.kpower.upgrades) / 5)) ** 2 }" v-if="index >= player.kua.kpower.upgrades && index < player.kua.kpower.upgrades + 5 && item.show()" style="margin-left: 2px; margin-right: 2px; width: 160px; height: 160px; font-size: 12px" class="whiteText kuaButton2 fontVerdana">
+                                <button @click="buyKPowerUpg(index)" v-bind:style="{ opacity: (1 - ((index - player.kua.kpower.upgrades) / 5)) ** 2 }" v-if="index >= player.kua.kpower.upgrades && index < player.kua.kpower.upgrades + 5 && item.show" style="margin-left: 2px; margin-right: 2px; width: 160px; height: 160px; font-size: 12px" class="whiteText kuaButton2 fontVerdana">
                                     <span v-if="item.eh" style="color: #ff0; font-size: 10px"><b>[ NOT IMPLEMENTED ]</b><br></span>
-                                    <span style="vertical-align: top;">{{item.desc()}}</span>
+                                    <span style="vertical-align: top;">{{item.desc}}</span>
                                     <br><br>
-                                    <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost(), 1)}} KPower</span>
+                                    <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost, 1)}} KPower</span>
                                 </button>
                             </div>
                         </div>
@@ -262,9 +262,15 @@
                 <span style="color: #ff4000; text-align: center; font-size: 20px;">This will give you about <span style="font-size: 24px;"><b>{{formatTime(player.col.maxTime, 3)}}</b></span> within challenges.</span>
             </div>
             <div class="flex-container" style="flex-direction: row; justify-content: center; margin-top: 40px;">
-                <button class="colButton whiteText fontVerdana" style="flex-direction: column; margin-left: 2px; margin-right: 2px; width: 250px; height: 400px; font-size: 12px">
-                    
-                </button>
+                <div v-for="(item, index) in COL_CHALLENGES" class="flex-container">
+                    <button v-if="item.show" class="colButton whiteText fontVerdana" style="flex-direction: column; justify-content: center; margin-left: 2px; margin-right: 2px; width: 250px; height: 400px; font-size: 12px">
+                        <div class="colButtonHeader">
+                            <span style="font-size: 14px">{{['One-Time', 'Multiple (' + 'format(player.col.completed[index] ?? new Decimal(0))' + '/' + 'format(item.cap)' + ')', 'Continuous'][item.type]}}</span>
+                            <br>
+                            <span style="font-size: 26px">{{item.name}}</span>
+                        </div>
+                    </button>
+                </div>
             </div>
         </div>
         <div id="options" v-if="tab[0] === 'opt'">
@@ -302,35 +308,35 @@
             <table style="margin-left: auto; margin-right: auto;">
                 <tr v-for="n in ACHIEVEMENT_DATA.rows">
                     <td v-for="m in ACHIEVEMENT_DATA.cols" style="color: #fff">
-                        <div v-if="ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].show()" v-bind:style="{ 
+                        <div v-if="ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].show" v-bind:style="{ 
                             backgroundColor: 
                                 ACH_DEF_COLORS
-                                [ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].type()]
+                                [ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].type]
                                 [player.achievements.includes(((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1) 
                                     ? 'complete'
-                                    : (ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status() === true 
+                                    : (ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status
                                         ? 'canComplete'
-                                        : 'unable')](),
+                                        : 'unable')],
                             border: `3px solid ${
                                 colorChange(ACH_DEF_COLORS
-                                [ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].type()]
+                                [ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].type]
                                 [player.achievements.includes(((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1) 
                                     ? 'complete'
-                                    : (ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status() === true 
+                                    : (ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status
                                         ? 'canComplete'
-                                        : 'unable')](), 0.5, 1)}`,
+                                        : 'unable')], 0.5, 1)}`,
                             marginRight: `3px`, 
                             marginLeft: `3px`, 
                             width: `50px`,
                             height: `50px`,
                         }" class="tooltip">
                         <span class="tooltiptext">
-                            {{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].name()}}
-                            <br>{{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].desc()}}
-                            <br>{{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward()===''?'':`Reward: ${ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward()}`}}
-                            <br>{{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status() === true
+                            {{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].name}}
+                            <br>{{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].desc}}
+                            <br>{{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward===''?'':`Reward: ${ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward}`}}
+                            <br>{{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status === true
                                     ? ''
-                                    : ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status()}}
+                                    : ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status}}
                         </span>
                         </div>
                     </td>

@@ -13,7 +13,7 @@ function updateScaling(type) {
                 tmp.value.scaling.upg1[0].start = tmp.value.scaling.upg1[0].start.add(c.d2_5);
             }
             if (player.value.achievements.includes(7)) {
-                tmp.value.scaling.upg1[0].strength = tmp.value.scaling.upg1[0].strength.div(ACHIEVEMENT_DATA[7].eff());
+                tmp.value.scaling.upg1[0].strength = tmp.value.scaling.upg1[0].strength.div(ACHIEVEMENT_DATA[7].eff);
             }
             if (player.value.generators.pr2.amount.gte(c.d7)) {
                 tmp.value.scaling.upg1[0].strength = tmp.value.scaling.upg1[0].strength.div(c.d10div9);
@@ -36,7 +36,7 @@ function updateScaling(type) {
             tmp.value.scaling.upg1[1].strength = tmp.value.scaling.upg1[1].strength.div(tmp.value.kuaEffects.upg1SuperScaling);
 
             if (player.value.kua.kpower.upgrades >= 9) {
-                tmp.value.scaling.upg1[2].strength = tmp.value.scaling.upg1[2].strength.div(KUA_UPGRADES.KPower[8].eff());
+                tmp.value.scaling.upg1[2].strength = tmp.value.scaling.upg1[2].strength.div(KUA_UPGRADES.KPower[8].eff);
             }
             break;
         case "upg2":
@@ -55,7 +55,7 @@ function updateScaling(type) {
             }
 
             if (player.value.kua.kshards.upgrades >= 3) {
-                tmp.value.scaling.upg2[0].strength = tmp.value.scaling.upg2[0].strength.div(KUA_UPGRADES.KShards[2].eff())
+                tmp.value.scaling.upg2[0].strength = tmp.value.scaling.upg2[0].strength.div(KUA_UPGRADES.KShards[2].eff)
             }
 
             if (player.value.generators.pr2.amount.gte(c.d15)) {
@@ -67,7 +67,7 @@ function updateScaling(type) {
             }
 
             if (player.value.kua.kpower.upgrades >= 9) {
-                tmp.value.scaling.upg2[2].strength = tmp.value.scaling.upg2[2].strength.div(KUA_UPGRADES.KPower[8].eff());
+                tmp.value.scaling.upg2[2].strength = tmp.value.scaling.upg2[2].strength.div(KUA_UPGRADES.KPower[8].eff);
             }
             break;
         case "upg3":
@@ -93,7 +93,7 @@ function updateSoftcap(type) {
             tmp.value.softcap.upg2[0] = { start: c.d10, strength: c.d1 };
 
             if (player.value.kua.kpower.upgrades >= 4) {
-                tmp.value.softcap.upg2[0].start = tmp.value.softcap.upg2[0].start.mul(KUA_UPGRADES.KPower[3].eff());
+                tmp.value.softcap.upg2[0].start = tmp.value.softcap.upg2[0].start.mul(KUA_UPGRADES.KPower[3].eff);
                 tmp.value.softcap.upg2[0].strength = tmp.value.softcap.upg2[0].strength.mul(c.d0_6);
             }
 

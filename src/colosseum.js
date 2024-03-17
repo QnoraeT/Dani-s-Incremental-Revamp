@@ -8,10 +8,12 @@
 const COL_CHALLENGES = {
     sd: {
         type: 0,
-        name() { return `No Kuaraniai`; },
-        goal() { return c.e25; },
-        desc() { return `Reach ${format(this.goal())} Points.`; },
-        reward() { return `Reach ${format(this.goal())} Points.`; },
+        get name() { return `No Kuaraniai`; },
+        get goal() { return c.e25; },
+        get desc() { return `Reach ${format(this.goal)} Points.`; },
+        get reward() { return `Unlock another tab in this, and every KPower Upgrade above 10 unlocks a new challenge.`; },
+        get cap() { return c.d1; },
+        get show() { return true; }
     }
 }
 

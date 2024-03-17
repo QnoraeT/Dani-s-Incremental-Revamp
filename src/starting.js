@@ -109,20 +109,20 @@ function updateStart(type) {
             scal = player.value.generators.upg1.bought;
             scal = doAllScaling(scal, tmp.value.scaling.upg1, false);
             if (player.value.achievements.includes(17)) {
-                scal = scal.div(ACHIEVEMENT_DATA[17].eff());
+                scal = scal.div(ACHIEVEMENT_DATA[17].eff);
             }
             if (player.value.kua.kpower.upgrades >= 10) {
-                scal = scal.div(KUA_UPGRADES.KPower[9].eff())
+                scal = scal.div(KUA_UPGRADES.KPower[9].eff)
             }
             player.value.generators.upg1.cost = Decimal.pow(player.value.generators.upg1.costBase, scal).div(tmp.value.upg1CostDiv).mul(c.d5);
 
             if (player.value.points.mul(tmp.value.upg1CostDiv).gte(c.d5)) {
                 scal = player.value.points.div(c.d5).mul(tmp.value.upg1CostDiv).log(player.value.generators.upg1.costBase);
                 if (player.value.kua.kpower.upgrades >= 10) {
-                    scal = scal.mul(KUA_UPGRADES.KPower[9].eff())
+                    scal = scal.mul(KUA_UPGRADES.KPower[9].eff)
                 }
                 if (player.value.achievements.includes(17)) {
-                    scal = scal.mul(ACHIEVEMENT_DATA[17].eff());
+                    scal = scal.mul(ACHIEVEMENT_DATA[17].eff);
                 }
                 scal = doAllScaling(scal, tmp.value.scaling.upg1, true);
                 player.value.generators.upg1.target = scal;
@@ -143,7 +143,7 @@ function updateStart(type) {
             i = player.value.generators.upg1.bought;
             i = i.add(player.value.generators.upg1.freeExtra);
             if (player.value.achievements.includes(16)) {
-                i = i.mul(ACHIEVEMENT_DATA[16].eff());
+                i = i.mul(ACHIEVEMENT_DATA[16].eff);
             }
             player.value.generators.upg1.effective = i;
 
@@ -201,26 +201,26 @@ function updateStart(type) {
             scal = player.value.generators.upg2.bought;
             scal = doAllScaling(scal, tmp.value.scaling.upg2, false);
             if (player.value.achievements.includes(17)) {
-                scal = scal.div(ACHIEVEMENT_DATA[17].eff());
+                scal = scal.div(ACHIEVEMENT_DATA[17].eff);
             }
             if (player.value.kua.kshards.upgrades >= 9) {
-                scal = scal.sub(KUA_UPGRADES.KShards[8].eff());
+                scal = scal.sub(KUA_UPGRADES.KShards[8].eff);
             }
             if (player.value.kua.kpower.upgrades >= 10) {
-                scal = scal.div(KUA_UPGRADES.KPower[9].eff())
+                scal = scal.div(KUA_UPGRADES.KPower[9].eff)
             }
             player.value.generators.upg2.cost = Decimal.pow(player.value.generators.upg2.costBase, scal).div(tmp.value.upg2CostDiv).mul(c.e3);
 
             if (player.value.points.mul(tmp.value.upg2CostDiv).gte(c.e3)) {
                 scal = player.value.points.div(c.e3).mul(tmp.value.upg2CostDiv).log(player.value.generators.upg2.costBase);
                 if (player.value.kua.kpower.upgrades >= 10) {
-                    scal = scal.mul(KUA_UPGRADES.KPower[9].eff())
+                    scal = scal.mul(KUA_UPGRADES.KPower[9].eff)
                 }
                 if (player.value.kua.kshards.upgrades >= 9) {
-                    scal = scal.add(KUA_UPGRADES.KShards[8].eff());
+                    scal = scal.add(KUA_UPGRADES.KShards[8].eff);
                 }
                 if (player.value.achievements.includes(17)) {
-                    scal = scal.mul(ACHIEVEMENT_DATA[17].eff());
+                    scal = scal.mul(ACHIEVEMENT_DATA[17].eff);
                 }
                 scal = doAllScaling(scal, tmp.value.scaling.upg2, true);
                 player.value.generators.upg2.target = scal;
@@ -236,7 +236,7 @@ function updateStart(type) {
                 i = i.mul(c.d1_125);
             }
             if (player.value.kua.kpower.upgrades >= 1) {
-                i = i.add(KUA_UPGRADES.KPower[0].eff());
+                i = i.add(KUA_UPGRADES.KPower[0].eff);
             }
             if (player.value.achievements.includes(22)) {
                 i = i.mul(c.d1_025);
@@ -301,14 +301,14 @@ function updateStart(type) {
             }
             scal = doAllScaling(scal, tmp.value.scaling.upg3, false);
             if (player.value.achievements.includes(17)) {
-                scal = scal.div(ACHIEVEMENT_DATA[17].eff());
+                scal = scal.div(ACHIEVEMENT_DATA[17].eff);
             }
             player.value.generators.upg3.cost = Decimal.pow(c.d1_05, scal.pow(c.d2)).mul(Decimal.pow(c.e2, scal)).mul(c.e10).div(tmp.value.upg3CostDiv);
 
             if (player.value.points.mul(tmp.value.upg3CostDiv).gte(c.e10)) {
                 scal = player.value.points.mul(tmp.value.upg3CostDiv).log10().mul(c.dlog1_05).add(c.d0_788107).sqrt().sub(c.d1).div(c.dlog1_05);
                 if (player.value.achievements.includes(17)) {
-                    scal = scal.mul(ACHIEVEMENT_DATA[17].eff());
+                    scal = scal.mul(ACHIEVEMENT_DATA[17].eff);
                 }
                 scal = doAllScaling(scal, tmp.value.scaling.upg3, true);
                 if (player.value.generators.pr2.amount.gte(c.d11)) {
@@ -331,7 +331,7 @@ function updateStart(type) {
             i = player.value.generators.upg3.bought;
             i = i.add(player.value.generators.upg3.freeExtra);
             if (player.value.kua.kpower.upgrades >= 2) {
-                i = i.mul(KUA_UPGRADES.KPower[1].eff());
+                i = i.mul(KUA_UPGRADES.KPower[1].eff);
             }
             if (player.value.achievements.includes(15)) {
                 i = i.mul(1.02);
@@ -382,10 +382,10 @@ function updateStart(type) {
                 i = i.max(c.d0).div(tmp.value.praiReq).pow(tmp.value.praiExp).sub(c.d1).mul(tmp.value.praiExp).add(c.d1);
                 i = i.mul(player.value.generators.pr2.effect);
                 if (player.value.achievements.includes(23)) {
-                    i = i.mul(ACHIEVEMENT_DATA[23].eff());
+                    i = i.mul(ACHIEVEMENT_DATA[23].eff);
                 }
                 if (player.value.kua.kshards.upgrades >= 8) {
-                    i = i.mul(KUA_UPGRADES.KShards[7].eff());
+                    i = i.mul(KUA_UPGRADES.KShards[7].eff);
                 }
                 if (i.gte(c.maxNum)) { 
                     i = scale(i, 2.1, false, c.maxNum, c.d1, c.d0_9);
@@ -413,10 +413,10 @@ function updateStart(type) {
                 i = i.mul(c.d3);
             }
             if (player.value.kua.kpower.upgrades >= 2) {
-                i = i.mul(KUA_UPGRADES.KShards[1].eff());
+                i = i.mul(KUA_UPGRADES.KShards[1].eff);
             } 
             if (player.value.kua.kpower.upgrades >= 5) {
-                i = i.pow(KUA_UPGRADES.KPower[4].eff());
+                i = i.pow(KUA_UPGRADES.KPower[4].eff);
             }
             if (i.gte(c.e80)) {
                 i = scale(i, 2.1, false, c.e80, c.d1, c.d0_5);
@@ -429,10 +429,10 @@ function updateStart(type) {
                 i = i.mul(c.d3);
             }
             if (player.value.kua.kpower.upgrades >= 2) {
-                i = i.mul(KUA_UPGRADES.KShards[1].eff());
+                i = i.mul(KUA_UPGRADES.KShards[1].eff);
             } 
             if (player.value.kua.kpower.upgrades >= 5) {
-                i = i.pow(KUA_UPGRADES.KPower[4].eff());
+                i = i.pow(KUA_UPGRADES.KPower[4].eff);
             }
             if (i.gte(c.e80)) {
                 i = scale(i, 2.1, false, c.e80, c.d1, c.d0_5);

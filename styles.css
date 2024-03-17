@@ -107,9 +107,24 @@ body {
 
 .colButton {
   transition-duration: 0.2s;
-  background-color: #521400;
   border: 5px solid #ff4000;
+  background-color: #631900;
   box-shadow: 0 0 10px 3px rgb(66, 17, 0);
+}
+
+.colButtonHeader {
+  transition-duration: 0.2s;
+  background-color: #521400;
+}
+
+.colButtonDesc {
+  transition-duration: 0.2s;
+  background-color: #631900;
+}
+
+.colButtonRew {
+  transition-duration: 0.2s;
+  background-color: #8d2300;
 }
 
 .colButton:hover {

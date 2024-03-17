@@ -2,21 +2,21 @@
 const KUA_UPGRADES = {
     KShards: [
         { // 1
-            desc() {
+            get desc() {
                 return `Gain ${format(c.em2, 3)}% of your pending PRai per second, and Kuaraniai Gain is multiplied by ${format(c.d1_5, 2)}x`;
             },
-            cost() {
+            get cost() {
                 return c.d0_1;
             },
-            show() {
+            get show() {
                 return true;
             }
         },
         { // 2
-            desc() {
-                return `KShards boost PRai's effect. Currently: ${format(this.eff(), 2)}x`;
+            get desc() {
+                return `KShards boost PRai's effect. Currently: ${format(this.eff, 2)}x`;
             },
-            eff() {
+            get eff() {
                 let i = player.value.kua.kshards.amount.max(c.d0);
                 i = i.add(i.mul(c.d4)).add(i.pow(c.d2).mul(c.d4)).add(c.d1)
                 if (i.gte(c.d1)) { i = i.log10().pow(c.d0_85).pow10() }
@@ -25,198 +25,198 @@ const KUA_UPGRADES = {
                 }
                 return i;
             },
-            cost() {
+            get cost() {
                 return c.d1;
             },
-            show() {
+            get show() {
                 return true;
             }
         },
         { // 3
-            desc() {
-                return `UP1's effect reduces UP2's scaling strength. Currently: ${formatPerc(this.eff())}`;
+            get desc() {
+                return `UP1's effect reduces UP2's scaling strength. Currently: ${formatPerc(this.eff)}`;
             },
-            eff() {
+            get eff() {
                 let i = c.d1;
                     i = player.value.generators.upg1.effect.max(c.e10).log10().div(c.d10).sqrt().sub(c.d1).div(c.d5).add(c.d1);
                 return i;
             },
-            cost() {
+            get cost() {
                 return c.d4;
             },
-            show() {
+            get show() {
                 return true;
             }
         },
         { // 4
-            desc() {
+            get desc() {
                 return `UP1's scaling starts ${format(c.d5)} later and is ${format(c.d10, 3)}% weaker, and superscaling starts ${format(c.d2)} later and is ${format(c.d5, 3)}% weaker.`;
             },
-            cost() {
+            get cost() {
                 return c.d10;
             },
-            show() {
+            get show() {
                 return true;
             }
         },
         { // 5
-            desc() {
+            get desc() {
                 return `PR2's effect exponent increases twice as fast, and UP2's base is increased from ${format(c.d4div3, 3)} to ${format(c.d1_5, 3)}.`;
             },
-            cost() {
+            get cost() {
                 return c.d400;
             },
-            show() {
+            get show() {
                 return true;
             }
         },
         { // 6
-            desc() {
+            get desc() {
                 return `UP2's superscaling and softcap are ${format(c.d1div3.mul(c.e2), 3)}% weaker.`;
             },
-            cost() {
+            get cost() {
                 return c.d2500;
             },
-            show() {
+            get show() {
                 return true;
             }
         },
         { // 7
-            desc() {
+            get desc() {
                 return `Upgrade 1's cost base is decreased by -${format(c.d0_05, 2)}, and unlock Upgrade 3's autobuyer.`;
             },
-            cost() {
+            get cost() {
                 return c.e5;
             },
-            show() {
+            get show() {
                 return true;
             }
         },
         { // 8
-            desc() {
-                return `KPower's PRai effect has a better formula, and KShards increase PRai gain. Currently: ${format(this.eff(), 2)}x`;
+            get desc() {
+                return `KPower's PRai effect has a better formula, and KShards increase PRai gain. Currently: ${format(this.eff, 2)}x`;
             },
-            eff() {
+            get eff() {
                 let i = player.value.kua.kshards.amount.max(c.d1);
                 i = i.pow(c.d0_75).log10().pow(c.d0_95).pow10();
                 return i;
             },
-            cost() {
+            get cost() {
                 return c.e6;
             },
-            show() {
+            get show() {
                 return true;
             },
         },
         { // 9
-            desc() {
-                return `KShards delay Upgrade 2's scaling. Currently: +${format(this.eff(), 2)} purchases`;
+            get desc() {
+                return `KShards delay Upgrade 2's scaling. Currently: +${format(this.eff, 2)} purchases`;
             },
-            eff() {
+            get eff() {
                 let i = player.value.kua.kshards.amount.max(c.d10);
                 i = i.log10().add(c.d1).pow(c.d5).div(c.d32).ln().div(c.d20).add(c.d1).pow(c.d20);
                 return i;
             },
-            cost() {
+            get cost() {
                 return c.d2e7;
             },
-            show() {
+            get show() {
                 return true;
             },
         },
         { // 10
-            desc() {
+            get desc() {
                 return `Kuaraniai buffs KShard's PRai effect and increases KPower gain.`;
             },
-            cost() {
+            get cost() {
                 return c.e9;
             },
-            show() {
+            get show() {
                 return true;
             },
         },
         { // 11
-            desc() {
-                return `PR2 above ${format(c.d30)} boosts Kuaraniai effects. Currently: ^${format(this.eff(), 4)}`;
+            get desc() {
+                return `PR2 above ${format(c.d30)} boosts Kuaraniai effects. Currently: ^${format(this.eff, 4)}`;
             },
-            eff() {
+            get eff() {
                 let i = player.value.generators.pr2.amount.max(c.d30).sub(c.d30);
                 i = i.mul(c.d0_025).add(c.d1).ln().add(c.d1);
                 return i;
             },
-            cost() {
+            get cost() {
                 return c.e10;
             },
-            show() {
+            get show() {
                 return true;
             },
         },
     ],
     KPower: [
         { // 1
-            desc() {
-                return `Multiply KShard gain by ${format(c.d2_5)}x, and KPower buffs Upgrade 2's base. Currently: +${format(this.eff(), 4)}`;
+            get desc() {
+                return `Multiply KShard gain by ${format(c.d2_5)}x, and KPower buffs Upgrade 2's base. Currently: +${format(this.eff, 4)}`;
             },
-            eff() {
+            get eff() {
                 let i = c.d0;
                     i = player.value.kua.kpower.amount.max(c.d0).add(c.d1).log10().add(c.d1).log10().add(c.d1).pow(c.d2).sub(c.d1).div(c.d20);
                 return i;
             },
-            cost() {
+            get cost() {
                 return c.d1;
             },
-            show() {
+            get show() {
                 return true;
             }
         },
         { // 2
-            desc() {
-                return `Be able to unlock a new feature at ${format(c.e2)} Kuaraniai, and KPower increases UP3's effectiveness. Currently: +${format(this.eff().sub(1).mul(100), 3)}%`;
+            get desc() {
+                return `Be able to unlock a new feature at ${format(c.e2)} Kuaraniai, and KPower increases UP3's effectiveness. Currently: +${format(this.eff.sub(1).mul(100), 3)}%`;
             },
-            eff() {
+            get eff() {
                 let i = c.d1;
                     i = player.value.kua.kpower.amount.max(c.d0).add(c.d1).log10().add(c.d1).root(c.d4).sub(c.d1).div(c.d20).add(c.d1);
                 return i;
             },
-            cost() {
+            get cost() {
                 return c.d10;
             },
-            show() {
+            get show() {
                 return true;
             }
         },
         { // 3
-            desc() {
+            get desc() {
                 return `Kuaraniai's effect on UP1's scaling uses a better formula, and add another effect.`;
             },
-            cost() {
+            get cost() {
                 return c.e3;
             },
-            show() {
+            get show() {
                 return true;
             }
         },
         { // 4
-            desc() {
-                return `UP2's softcap is ${format(c.d40, 3)}% weaker and starts later based off of your KPower. Currently: ${format(this.eff(), 2)}x`;
+            get desc() {
+                return `UP2's softcap is ${format(c.d40, 3)}% weaker and starts later based off of your KPower. Currently: ${format(this.eff, 2)}x`;
             },
-            eff() {
+            get eff() {
                 let i = c.d1;
                     i = player.value.kua.kpower.amount.max(c.d0).add(c.d1).log10().pow(c.d1_05).pow10().pow(c.d0_75);
                 return i;
             },
-            cost() {
+            get cost() {
                 return c.d8500;
             },
-            show() {
+            get show() {
                 return true;
             }
         },
         { // 5
-            desc() {
-                return `PRai's effect is more powerful based off of your KPower. Currently: ^${format(this.eff(), 4)}`;
+            get desc() {
+                return `PRai's effect is more powerful based off of your KPower. Currently: ^${format(this.eff, 4)}`;
             },
-            eff() {
+            get eff() {
                 let i = player.value.kua.kpower.amount.max(c.d1);
                 let res = i.log10().add(c.d1).log2().div(c.d20).add(c.d1); // 1 = ^1, 10 = ^1.05, 1,000 = ^1.1, 1e7 = ^1.15, 1e15 = ^1.2, 1e31 = ^1.25
                 if (player.value.kua.kshards.upgrades >= 8) {
@@ -224,76 +224,76 @@ const KUA_UPGRADES = {
                 }
                 return res;
             },
-            cost() {
+            get cost() {
                 return c.d5e4;
             },
-            show() {
+            get show() {
                 return true;
             }
         },
         { // 6
-            desc() {
+            get desc() {
                 return `Kuaraniai also delays Upgrade 2's softcap, and it's effect of Upgrade 1's scaling also apply to superscaling at a reduced rate.`;
             },
-            cost() {
+            get cost() {
                 return c.e6;
             },
-            show() {
+            get show() {
                 return true;
             },
         },
         { // 7
-            desc() {
+            get desc() {
                 return `Upgrade 2's effect is cubed, but it's other effects are not boosted.`;
             },
-            cost() {
+            get cost() {
                 return c.e8;
             },
-            show() {
+            get show() {
                 return true;
             },
         },
         { // 8
-            desc() {
+            get desc() {
                 return `Upgrade 1 is dilated by ^${format(c.d1_01, 2)}, and PR2's effect uses a better formula.`;
             },
-            cost() {
+            get cost() {
                 return c.e10;
             },
-            show() {
+            get show() {
                 return true;
             },
         },
         { // 9
-            desc() {
-                return `PR2 slightly weakens UP1 and UP2's hyper scaling. Currently: ${formatPerc(this.eff())}`;
+            get desc() {
+                return `PR2 slightly weakens UP1 and UP2's hyper scaling. Currently: ${formatPerc(this.eff)}`;
             },
-            eff() {
+            get eff() {
                 if (player.value.generators.pr2.amount.lt(c.d25)) { return c.d1 }
                 let eff = player.value.generators.pr2.amount.sub(c.d25);
                 eff = eff.div(eff.add(c.d20)).mul(c.d0_25).add(c.d1);
                 return eff;
             },
-            cost() {
+            get cost() {
                 return c.e12;
             },
-            show() {
+            get show() {
                 return true;
             },
         },
         { // 10
-            desc() {
-                return `UP1 and UP2's cost scaling is overall reduced based off of your points. Currently: ${formatPerc(this.eff())}`;
+            get desc() {
+                return `UP1 and UP2's cost scaling is overall reduced based off of your points. Currently: ${formatPerc(this.eff)}`;
             },
-            eff() {
+            get eff() {
                 let eff = player.value.points.max(c.e10);
                 eff = eff.log10().div(c.d10).sqrt().sub(c.d1).div(c.d4).add(c.d1);
                 return eff;
             },
-            cost() {
+            get cost() {
                 return c.e15;
             },
-            show() {
+            get show() {
                 return true;
             },
         },
@@ -337,7 +337,7 @@ function updateKua(type) {
 
             k = player.value.kua.amount;
             if (player.value.kua.kshards.upgrades >= 11) {
-                k = k.max(c.d1).pow(KUA_UPGRADES.KShards[10].eff());
+                k = k.max(c.d1).pow(KUA_UPGRADES.KShards[10].eff);
             }
 
             if (player.value.nerf.kuaActive.effects) {
@@ -419,18 +419,18 @@ function updateKua(type) {
 
 function buyKShardUpg(id) {
     if (id === player.value.kua.kshards.upgrades) {
-        if (player.value.kua.kshards.amount.gte(KUA_UPGRADES.KShards[id].cost())) {
+        if (player.value.kua.kshards.amount.gte(KUA_UPGRADES.KShards[id].cost)) {
             player.value.kua.kshards.upgrades++;
-            player.value.kua.kshards.amount = player.value.kua.kshards.amount.sub(KUA_UPGRADES.KShards[id].cost());
+            player.value.kua.kshards.amount = player.value.kua.kshards.amount.sub(KUA_UPGRADES.KShards[id].cost);
         }
     }
 }
 
 function buyKPowerUpg(id) {
     if (id === player.value.kua.kpower.upgrades) {
-        if (player.value.kua.kpower.amount.gte(KUA_UPGRADES.KPower[id].cost())) {
+        if (player.value.kua.kpower.amount.gte(KUA_UPGRADES.KPower[id].cost)) {
             player.value.kua.kpower.upgrades++;
-            player.value.kua.kpower.amount = player.value.kua.kpower.amount.sub(KUA_UPGRADES.KPower[id].cost());
+            player.value.kua.kpower.amount = player.value.kua.kpower.amount.sub(KUA_UPGRADES.KPower[id].cost);
         }
     }
 }
