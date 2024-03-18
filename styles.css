@@ -107,7 +107,7 @@ body {
 
 .colButton {
   transition-duration: 0.2s;
-  border: 5px solid #ff4000;
+  border: 6px solid #ff4000;
   background-color: #631900;
   box-shadow: 0 0 10px 3px rgb(66, 17, 0);
 }
@@ -127,9 +127,32 @@ body {
   background-color: #8d2300;
 }
 
+.main-container {
+  width: 240px; 
+  height: 360px; 
+}
+
+.first-cont, .second-cont, .third-cont {
+  position: relative;
+  width: 100%;
+  color: white
+}
+
+.generic-text {
+  position: absolute; 
+}
+
+.centered-text {
+  position: absolute; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  width: 100%;
+}
+
 .colButton:hover {
   background-color: #7a1f00;
-  border: 5px solid #ff9775;
+  border: 6px solid #ff9775;
   box-shadow: 0 0 15px 5px #8f2400;
 }
 

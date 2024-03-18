@@ -8,9 +8,11 @@
 const COL_CHALLENGES = {
     sd: {
         type: 0,
+        num: 1,
         get name() { return `No Kuaraniai`; },
         get goal() { return c.e25; },
-        get desc() { return `Reach ${format(this.goal)} Points.`; },
+        get goalDesc() { return `Reach ${format(this.goal)} Points.`; },
+        get desc() { return `All Kuaraniai resources and upgrades are disabled.`; },
         get reward() { return `Unlock another tab in this, and every KPower Upgrade above 10 unlocks a new challenge.`; },
         get cap() { return c.d1; },
         get show() { return true; }

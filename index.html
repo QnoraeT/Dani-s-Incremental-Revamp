@@ -263,11 +263,19 @@
             </div>
             <div class="flex-container" style="flex-direction: row; justify-content: center; margin-top: 40px;">
                 <div v-for="(item, index) in COL_CHALLENGES" class="flex-container">
-                    <button v-if="item.show" class="colButton whiteText fontVerdana" style="flex-direction: column; justify-content: center; margin-left: 2px; margin-right: 2px; width: 250px; height: 400px; font-size: 12px">
-                        <div class="colButtonHeader">
-                            <span style="font-size: 14px">{{['One-Time', 'Multiple (' + 'format(player.col.completed[index] ?? new Decimal(0))' + '/' + 'format(item.cap)' + ')', 'Continuous'][item.type]}}</span>
-                            <br>
-                            <span style="font-size: 26px">{{item.name}}</span>
+                    <button v-if="item.show" class="colButton whiteText fontVerdana main-container" style="padding: 0%;">
+                        <div class="colButtonHeader first-cont" style="width: 100%; height: 16.67%;">
+                            <span class="generic-text" style="left: 5px; top: 5px; font-size: 14px">{{['One-Time', 'Multiple (' + 'format(player.col.completed[index] ?? new Decimal(0))' + '/' + 'format(item.cap)' + ')', 'Continuous'][item.type]}}</span> 
+                            <span class="generic-text" style="right: 5px; top: 5px; font-size: 14px">#{{item.num}}</span>
+                            <span class="centered-text" style="bottom: 5px; font-size: 26px"><b>{{item.name}}</b></span>
+                        </div>
+                        <div class="colButtonDesc second-cont" style="width: 100%; height: 33.33%;">
+                            <span class="centered-text" style="top: 10px">{{item.goalDesc}}</span>
+                            <span class="centered-text" style="top: 40px">{{item.desc}}</span>
+                        </div>
+                        <div class="colButtonRew third-cont" style="width: 100%; height: 50%;">
+                            <span class="centered-text" style="top: 25px"> - REWARD - </span>
+                            <span class="centered-text" style="top: 55px">{{item.reward}}</span>
                         </div>
                     </button>
                 </div>
