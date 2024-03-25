@@ -120,12 +120,12 @@ const ACHIEVEMENT_DATA = {
         get desc() { return `Convert all of your PRai to Kuaraniai.`; },
         get type() { return `kua`; },
         get reward() { return `Your number generation is increased by ${format(c.d200)}%, and you start at ${format(c.d10)} PRai every Kuaraniai reset, but the starting PRai doesn't count for Kuaraniai gain.`; },
-        get show() { return player.value.generators.pr2.best.gte(c.d10); },
+        get show() { return player.value.kua.unlocked; },
         get status() { return true }
     },
     12: {
         get name() { return `Stockpiler`; },
-        get desc() { return `Save up ${format(c.e25)} PRai on a Kuaraniai run.`; },
+        get desc() { return `Save up ${format(c.e13)} PRai on a Kuaraniai run.`; },
         get type() { return `kua`; },
         get reward() { return `UP2 also boosts number gain at a reduced rate. Currently: ${format(this.eff, 2)}x`; },
         get eff() { 
@@ -137,22 +137,22 @@ const ACHIEVEMENT_DATA = {
                 pow = pow.add(c.d0_05);
             }
             let eff = player.value.generators.upg2.effect.max(c.d1);
-            if (player.value.kua.kpower.upgrades >= 7) {
+            if (getKuaUpgrade("p", 7)) {
                 eff = eff.root(c.d3);
             }
             eff = eff.pow(pow);
             return eff;
         },
-        get show() { return player.value.generators.pr2.best.gte(c.d10); },
+        get show() { return player.value.kua.unlocked; },
         get status() { return true }
     },
     13: {
         get name() { return `You like making progress, don't you?`; },
-        get desc() { return `Have ${format(c.d25)} Kuaraniai.`; },
+        get desc() { return `Have ${format(c.d0_1, 2)} Kuaraniai.`; },
         get type() { return `kua`; },
         get reward() { return `Kuaraniai gain is increased by ${format(c.d50)}%, and KShards boost number generation. Currently: ${format(this.eff, 2)}x`; },
-        get eff() { return player.value.kua.kshards.amount.root(c.d3).max(c.d1); },
-        get show() { return player.value.generators.pr2.best.gte(c.d10); },
+        get eff() { return player.value.kua.kshards.total.max(c.d0).add(c.d1).mul(c.d8).sqrt().sub(c.d1).div(c.d2); },
+        get show() { return player.value.kua.unlocked; },
         get status() { return true }
     },
     14: { // ! Unable 
@@ -160,7 +160,7 @@ const ACHIEVEMENT_DATA = {
         get desc() { return `Complete Colosseum Challenge 'No Kuaraniai.'`; },
         get type() { return `col`; },
         get reward() { return ``; },
-        get show() { return player.value.kua.kpower.upgrades >= 2 && player.value.kua.amount.gte(c.e2); },
+        get show() { return player.value.col.unlocked; },
         get status() { return true }
     },
     15: { 
@@ -168,7 +168,7 @@ const ACHIEVEMENT_DATA = {
         get desc() { return `Have ${format(c.e80)} points without Upgrade 3.`; },
         get type() { return `points`; },
         get reward() { return `Upgrade 3 gets a slight ${format(c.d2, 2)}% boost to effectiveness.`; },
-        get show() { return player.value.generators.pr2.best.gte(c.d10); },
+        get show() { return player.value.kua.unlocked; },
         get status() { return true }
     },
     16: { 
@@ -181,7 +181,7 @@ const ACHIEVEMENT_DATA = {
             eff = eff.max(c.d10).log10().cbrt().sub(c.d1).div(c.d200).add(c.d1)
             return eff;
         },
-        get show() { return player.value.generators.pr2.best.gte(c.d10); },
+        get show() { return player.value.kua.unlocked; },
         get status() { return true }
     },
     17: { 
@@ -194,7 +194,7 @@ const ACHIEVEMENT_DATA = {
             eff = eff.div(eff.mul(c.d9).add(c.d1)).add(c.d1)
             return eff;
         },
-        get show() { return player.value.generators.pr2.best.gte(c.d10); },
+        get show() { return player.value.kua.unlocked; },
         get status() { return true }
     },
     18: { 
@@ -202,15 +202,15 @@ const ACHIEVEMENT_DATA = {
         get desc() { return `Upgrade 2's effect must reach /${format(c.e50)}.`; },
         get type() { return `points`; },
         get reward() { return `Upgrade 2's softcap is ${format(c.d5)}% weaker.`; },
-        get show() { return player.value.generators.pr2.best.gte(c.d10); },
+        get show() { return player.value.kua.unlocked; },
         get status() { return true }
     },
     19: {
         get name() { return `Make this obsolete, I dare you. >:3`; },
         get desc() { return `Gain ${format(c.d2_5, 2)} Kuaraniai without doing a single PRai reset.`; },
         get type() { return `kua`; },
-        get reward() { return `Increase PRai's gain exponent from ^${format(c.d0_25, 3)} to ^${format(c.d0_26, 3)}`; },
-        get show() { return player.value.generators.pr2.best.gte(c.d10); },
+        get reward() { return `Increase PRai's gain exponent from ^${format(c.d0_25, 3)} to ^${format(c.d0_255, 3)}`; },
+        get show() { return player.value.kua.unlocked; },
         get status() { return true }
     },
     20: { // ! Unable
@@ -218,7 +218,7 @@ const ACHIEVEMENT_DATA = {
         get desc() { return `Buy a total of 20 Kuaraniai upgrades while having no Colosseum Power and no completed challenges.`; },
         get type() { return `col`; },
         get reward() { return `PRai gain is multiplied by ${format(c.d10)}x.`; },
-        get show() { return player.value.kua.kpower.upgrades >= 2 && player.value.kua.amount.gte(c.e2); },
+        get show() { return player.value.col.unlocked; },
         get status() { return true }
     },
     21: { 
@@ -226,15 +226,15 @@ const ACHIEVEMENT_DATA = {
         get desc() { return `Have ${format(c.d300)} Upgrade 1 without any PRai.`; },
         get type() { return `points`; },
         get reward() { return ``; },
-        get show() { return player.value.generators.pr2.best.gte(c.d10); },
+        get show() { return player.value.kua.unlocked; },
         get status() { return true }
     },
     22: {
         get name() { return `\"End-game\" pass filter`; },
         get desc() { return `Reach ${format(c.e80)} points without buying any upgrade.`; },
         get type() { return `points`; },
-        get reward() { return `Every upgrades' base is increased by ${format(c.d2_5, 2)}%.`; },
-        get show() { return player.value.generators.pr2.best.gte(c.d10); },
+        get reward() { return `Every upgrades' base is increased by ${format(c.d1, 2)}%.`; },
+        get show() { return player.value.kua.unlocked; },
         get status() { return true }
     },
     23: { 
@@ -244,13 +244,13 @@ const ACHIEVEMENT_DATA = {
         get reward() { return `Upgrade 2 also boosts PRai gain at a drastically reduced rate. Currently: ${format(this.eff, 2)}x`; },
         get eff() {
             let eff = player.value.generators.upg2.effect.max(c.e10);
-            if (player.value.kua.kpower.upgrades >= 7) {
+            if (getKuaUpgrade("p", 7)) {
                 eff = eff.root(c.d3).max(c.e10);
             }
-            eff = eff.div(c.e10).pow(c.d0_03);
+            eff = eff.div(c.e10).pow(c.d0_02);
             return eff;
         },
-        get show() { return player.value.generators.pr2.best.gte(c.d10); },
+        get show() { return player.value.kua.unlocked; },
         get status() { return true }
     },
     24: { 
@@ -258,7 +258,7 @@ const ACHIEVEMENT_DATA = {
         get desc() { return `Get ${format(c.e90)} points without Upgrades 1 and 2.`; },
         get type() { return `points`; },
         get reward() { return `Achievement \"Stockpiler\" is boosted.`; },
-        get show() { return player.value.generators.pr2.best.gte(c.d10); },
+        get show() { return player.value.kua.unlocked; },
         get status() { return true }
     },
     25: { // TODO: Get, Effect
@@ -271,7 +271,7 @@ const ACHIEVEMENT_DATA = {
             eff = Decimal.pow(c.e5, c.d55.sub(eff.sub(c.d5)).div(c.d0_55).div(c.e2).pow(c.d2)).mul(c.e2);
             return eff;
         },
-        get show() { return player.value.generators.pr2.best.gte(c.d10); },
+        get show() { return player.value.kua.unlocked; },
         get status() { return true }
     },
     26: { 
@@ -279,7 +279,7 @@ const ACHIEVEMENT_DATA = {
         get desc() { return `Reach ${format(c.d25)} PR2.`; },
         get type() { return `points`; },
         get reward() { return ``; },
-        get show() { return player.value.generators.pr2.best.gte(c.d10); },
+        get show() { return player.value.kua.unlocked; },
         get status() { return true }
     },
     27: { // ! Unable
@@ -287,7 +287,7 @@ const ACHIEVEMENT_DATA = {
         get desc() { return `Complete \"Sabotaged Upgrades\" 5 times.`; },
         get type() { return `col`; },
         get reward() { return ``; },
-        get show() { return player.value.kua.kpower.upgrades >= 2 && player.value.kua.amount.gte(c.e2); },
+        get show() { return player.value.col.unlocked; },
         get status() { return true }
     },
     28: { // TODO: Get, Effect, Eff
@@ -299,7 +299,7 @@ const ACHIEVEMENT_DATA = {
             let eff = c.d1;
             return eff;
         },
-        get show() { return player.value.kua.kpower.upgrades >= 2 && player.value.kua.amount.gte(c.e2); },
+        get show() { return player.value.col.unlocked; },
         get status() { return true }
     },
     29: { 
@@ -307,7 +307,7 @@ const ACHIEVEMENT_DATA = {
         get desc() { return `Get ${format(c.e7)} Kuaraniai.`; },
         get type() { return `kua`; },
         get reward() { return ``; },
-        get show() { return player.value.generators.pr2.best.gte(c.d10); },
+        get show() { return player.value.kua.unlocked; },
         get status() { return true }
     },
     30: { 
@@ -315,7 +315,7 @@ const ACHIEVEMENT_DATA = {
         get desc() { return `Save up ${format(c.e85)} PRai on a Kuaraniai run.`; },
         get type() { return `points`; },
         get reward() { return `Achievement \"Stockpiler\" is boosted again.`; },
-        get show() { return player.value.generators.pr2.best.gte(c.d10); },
+        get show() { return player.value.kua.unlocked; },
         get status() { return true }
     },
     31: { // ! Unable
@@ -323,7 +323,7 @@ const ACHIEVEMENT_DATA = {
         get desc() { return `Unlock Kuaraniai Blessings.`; },
         get type() { return `kb`; },
         get reward() { return ``; },
-        get show() { return player.value.kua.kpower.upgrades >= 2 && player.value.kua.amount.gte(c.e2); },
+        get show() { return player.value.col.unlocked; },
         get status() { return true }
     },
 }

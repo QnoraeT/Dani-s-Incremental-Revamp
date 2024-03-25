@@ -26,7 +26,7 @@ function updateScaling(type) {
                 tmp.value.scaling.upg1[1].start = tmp.value.scaling.upg1[1].start.add(c.d15);
             }
 
-            if (player.value.kua.kshards.upgrades >= 4) {
+            if (getKuaUpgrade("s", 4)) {
                 tmp.value.scaling.upg1[0].start = tmp.value.scaling.upg1[0].start.add(c.d5);
                 tmp.value.scaling.upg1[0].strength = tmp.value.scaling.upg1[0].strength.mul(c.d0_9);
                 tmp.value.scaling.upg1[1].start = tmp.value.scaling.upg1[1].start.add(c.d2);
@@ -35,7 +35,7 @@ function updateScaling(type) {
 
             tmp.value.scaling.upg1[1].strength = tmp.value.scaling.upg1[1].strength.div(tmp.value.kuaEffects.upg1SuperScaling);
 
-            if (player.value.kua.kpower.upgrades >= 9) {
+            if (getKuaUpgrade("p", 9)) {
                 tmp.value.scaling.upg1[2].strength = tmp.value.scaling.upg1[2].strength.div(KUA_UPGRADES.KPower[8].eff);
             }
             break;
@@ -54,7 +54,7 @@ function updateScaling(type) {
                 tmp.value.scaling.upg2[1].start = tmp.value.scaling.upg2[1].start.add(c.d15);
             }
 
-            if (player.value.kua.kshards.upgrades >= 3) {
+            if (getKuaUpgrade("s", 3)) {
                 tmp.value.scaling.upg2[0].strength = tmp.value.scaling.upg2[0].strength.div(KUA_UPGRADES.KShards[2].eff)
             }
 
@@ -62,11 +62,11 @@ function updateScaling(type) {
                 tmp.value.scaling.upg2[1].strength = tmp.value.scaling.upg2[1].strength.mul(c.d0_875);
             }
 
-            if (player.value.kua.kshards.upgrades >= 6) {
+            if (getKuaUpgrade("s", 6)) {
                 tmp.value.scaling.upg2[1].strength = tmp.value.scaling.upg2[1].strength.div(c.d1_5);
             }
 
-            if (player.value.kua.kpower.upgrades >= 9) {
+            if (getKuaUpgrade("p", 9)) {
                 tmp.value.scaling.upg2[2].strength = tmp.value.scaling.upg2[2].strength.div(KUA_UPGRADES.KPower[8].eff);
             }
             break;
@@ -92,12 +92,12 @@ function updateSoftcap(type) {
             if (tmp.value.softcap.upg2 === undefined) { tmp.value.softcap.upg2 = [] };
             tmp.value.softcap.upg2[0] = { start: c.d10, strength: c.d1 };
 
-            if (player.value.kua.kpower.upgrades >= 4) {
+            if (getKuaUpgrade("p", 4)) {
                 tmp.value.softcap.upg2[0].start = tmp.value.softcap.upg2[0].start.mul(KUA_UPGRADES.KPower[3].eff);
                 tmp.value.softcap.upg2[0].strength = tmp.value.softcap.upg2[0].strength.mul(c.d0_6);
             }
 
-            if (player.value.kua.kshards.upgrades >= 6) {
+            if (getKuaUpgrade("s", 6)) {
                 tmp.value.softcap.upg2[0].strength = tmp.value.softcap.upg2[0].strength.div(c.d1_5);
             }
 

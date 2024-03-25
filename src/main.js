@@ -2,58 +2,58 @@
 const saveID = "danidanijr_save_revamp";
 const TABS_LIST = [
     {
-        name() { return "Generators" },
-        staticName() { return "gen" },
-        backgroundColor() { return "#999999" },
-        textColor() { return "#000000" },
-        outlineColor() { return "#00000000" },
-        highlightColor() { return "#FFFFFF" },
-        if() { return true }
+        get name() { return "Generators" },
+        get staticName() { return "gen" },
+        get backgroundColor() { return "#999999" },
+        get textColor() { return "#000000" },
+        get outlineColor() { return "#00000000" },
+        get highlightColor() { return "#FFFFFF" },
+        if: true
     },
     {
-        name() { return "Options" },
-        staticName() { return "opt" },
-        backgroundColor() { return "#999999" },
-        textColor() { return "#000000" },
-        outlineColor() { return "#00000000" },
-        highlightColor() { return "#FFFFFF" },
-        if() { return true }
+        get name() { return "Options" },
+        get staticName() { return "opt" },
+        get backgroundColor() { return "#999999" },
+        get textColor() { return "#000000" },
+        get outlineColor() { return "#00000000" },
+        get highlightColor() { return "#FFFFFF" },
+        if: true
     },
     {
-        name() { return "Stats" },
-        staticName() { return "stat" },
-        backgroundColor() { return "#999999" },
-        textColor() { return "#000000" },
-        outlineColor() { return "#00000000" },
-        highlightColor() { return "#FFFFFF" },
-        if() { return true }
+        get name() { return "Stats" },
+        get staticName() { return "stat" },
+        get backgroundColor() { return "#999999" },
+        get textColor() { return "#000000" },
+        get outlineColor() { return "#00000000" },
+        get highlightColor() { return "#FFFFFF" },
+        if: true
     },
     {
-        name() { return "Achievements" },
-        staticName() { return "ach" },
-        backgroundColor() { return "#999999" },
-        textColor() { return "#000000" },
-        outlineColor() { return "#00000000" },
-        highlightColor() { return "#FFFFFF" },
-        if() { return true }
+        get name() { return "Achievements" },
+        get staticName() { return "ach" },
+        get backgroundColor() { return "#999999" },
+        get textColor() { return "#000000" },
+        get outlineColor() { return "#00000000" },
+        get highlightColor() { return "#FFFFFF" },
+        if: true
     },
     {
-        name() { return "Kuaraniai" },
-        staticName() { return "kua" },
-        backgroundColor() { return "#3100ff" },
-        textColor() { return "#ffffff" },
-        outlineColor() { return "#7958ff" },
-        highlightColor() { return "#ff81cb" },
-        if() { return player.value.generators.pr2.best.gte(c.d10) }
+        get name() { return "Kuaraniai" },
+        get staticName() { return "kua" },
+        get backgroundColor() { return "#3100ff" },
+        get textColor() { return "#ffffff" },
+        get outlineColor() { return "#7958ff" },
+        get highlightColor() { return "#ff81cb" },
+        get if() { return player.value.kua.unlocked }
     },
     {
-        name() { return "Colosseum" },
-        staticName() { return "col" },
-        backgroundColor() { return "#af1a00" },
-        textColor() { return "#ffffff" },
-        outlineColor() { return "#ff3600" },
-        highlightColor() { return "#ff9b7f" },
-        if() { return player.value.kua.kpower.upgrades >= 2 && player.value.kua.amount.gte(c.e2) }
+        get name() { return "Colosseum" },
+        get staticName() { return "col" },
+        get backgroundColor() { return "#af1a00" },
+        get textColor() { return "#ffffff" },
+        get outlineColor() { return "#ff3600" },
+        get highlightColor() { return "#ff9b7f" },
+        get if() { return player.value.col.unlocked }
     },
 ]
 
@@ -114,7 +114,8 @@ function resetPlayer() {
                     effects: true,
                     gain: true
                 },
-                upgrades: true,
+                onlyUpgrades: true,
+                spUpgrades: true,
                 effects: true,
                 gain: true
             },
@@ -184,6 +185,7 @@ function resetPlayer() {
             },
         },
         kua: {
+            unlocked: false,
             amount: c.d0,
             total: c.d0,
             best: c.d0,
@@ -203,6 +205,8 @@ function resetPlayer() {
             }
         },
         col: {
+            unlocked: false,
+            inAChallenge: false,
             completed: {},
             saved: {},
             power: c.d0,
@@ -214,13 +218,13 @@ function resetPlayer() {
         settings: {
             notation: "Mixed Scientific",
             scalingNames: "DistInc",
-            showCharacterImgs: true,
-            nameChanges: false,
+            showCharacterImgs: true, // likely will not be used
+            nameChanges: false, // likely will not be used
             theme: 0,
             background: [],
             // available: "Parallax" "Dots" "ChapterBased" "TabBased" "CharacterBased"
-            musicVolume: 0.00,
-            sfxVolume: 0.00,
+            musicVolume: 0.00, // likely will not be used
+            sfxVolume: 0.00, // likely will not be used
         }
     }
 }
@@ -346,6 +350,16 @@ function updatePlayerData(player) {
         player.value.inChallenge = {};
         player.value.version = 8;
     }
+    if (player.value.version === 8) {
+        delete player.value.nerf.kuaActive.upgrades;
+        player.value.nerf.kuaActive.onlyUpgrades = true;
+        player.value.nerf.kuaActive.spUpgrades = true;
+        player.value.version = 9;
+    }
+    if (player.value.version === 9) {
+        player.value.col.inAChallenge = false;
+        player.value.version = 10;
+    }
 }
 
 function resetTheFrickingGame() {
@@ -431,6 +445,29 @@ function reset(layer, override) {
                 reset("pr2", true);
             }
             break;
+        case "col":
+            if (tmp.value.kuaCanDo || override) {
+                player.value.kua.amount = c.d0;
+                player.value.kua.best = c.d0;
+                player.value.kua.total = c.d0;
+                player.value.kua.times = c.d0;
+                player.value.kua.timeInKua = c.d0;
+                player.value.kua.kshards.amount = c.d0;
+                player.value.kua.kshards.best = c.d0;
+                player.value.kua.kshards.total = c.d0;
+                player.value.kua.kshards.upgrades = 0;
+                player.value.kua.kpower.amount = c.d0;
+                player.value.kua.kpower.best = c.d0;
+                player.value.kua.kpower.total = c.d0;
+                player.value.kua.kpower.upgrades = 0;
+                player.value.auto.upg1 = false;
+                player.value.auto.upg2 = false;
+                player.value.auto.upg3 = false;
+                player.value.auto.prai = false;
+                updateKua("kua");
+                reset("kua", true);
+            }
+            break;
         default:
             throw new Error(`uhh i don't think ${what} is resettable`)
     }
@@ -453,8 +490,11 @@ function calcPointsPerSecond() {
     if (player.value.achievements.includes(13)) {
         i = i.mul(ACHIEVEMENT_DATA[13].eff);
     }
-    if (player.value.kua.kpower.upgrades >= 3) {
+    if (getKuaUpgrade("p", 3)) {
         i = i.pow(tmp.value.kuaEffects.ptPower);
+    } 
+    if (getKuaUpgrade("s", 7)) {
+        i = i.mul(tmp.value.kuaEffects.pts);
     } 
     return i;
 }
@@ -512,6 +552,8 @@ function loadGame() {
                 player.value.totalTime += otherGameStuffIg.delta;
                 otherGameStuffIg.sessionTime += otherGameStuffIg.delta;
 
+                updateNerf();
+
                 updateAllCol();
                 generate = tmp.value.colosseumPowerGeneration.mul(gameDelta);
                 player.value.col.power = player.value.col.power.add(generate)
@@ -528,7 +570,7 @@ function loadGame() {
 
                 player.value.generators.prai.timeInPRai = player.value.generators.prai.timeInPRai.add(gameDelta);
                 updateAllStart();
-                if (player.value.kua.kshards.upgrades >= 1 && player.value.auto.prai) {
+                if (getKuaUpgrade("s", 1) && player.value.auto.prai) {
                     generate = tmp.value.praiPending.mul(gameDelta).mul(c.em4);
                     player.value.generators.prai.amount = player.value.generators.prai.amount.add(generate);
                     player.value.generators.prai.total = player.value.generators.prai.total.add(generate);
@@ -544,6 +586,20 @@ function loadGame() {
                 setAchievement(17, player.value.points.gte(c.e24) && player.value.generators.upg1.bought.eq(c.d0) && player.value.generators.upg2.bought.eq(c.d0) && player.value.generators.upg3.bought.eq(c.d0));
                 setAchievement(22, player.value.points.gte(c.e80) && player.value.generators.upg1.bought.eq(c.d0) && player.value.generators.upg2.bought.eq(c.d0) && player.value.generators.upg3.bought.eq(c.d0));
                 setAchievement(24, player.value.points.gte(c.e90) && player.value.generators.upg1.bought.eq(c.d0) && player.value.generators.upg2.bought.eq(c.d0));
+
+                if (player.value.generators.pr2.best.gte(c.d10)) {
+                    player.value.kua.unlocked = true;
+                }
+
+                if (player.value.kua.kpower.upgrades >= 2 && player.value.kua.amount.gte(c.e2)) {
+                    player.value.col.unlocked = true;
+                }
+
+                if (player.value.col.inAChallenge) {
+                    player.value.col.time = player.value.col.time.sub(gameDelta)
+                } else {
+                    player.value.col.time = player.value.col.maxTime
+                }
 
                 if (timeStamp > lastSave + saveTime) {
                     console.log(saveTheFrickingGame());

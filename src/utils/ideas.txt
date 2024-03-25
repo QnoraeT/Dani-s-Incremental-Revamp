@@ -46,3 +46,33 @@ function doAllScaling(x, scalList, inv, customScaling = []) {
 }
 
 You have {x} Kuaraniai Shards, which produce {y} Kuaraniai Power (KPower) per second.
+
+let score = []
+let buttonpresses = 5
+let amountOfButtons = 3
+
+for (let buttons = 0; buttons < amountOfButtons ** buttonpresses; buttons++) {
+    let i = 0
+    for (let j = 0; j < 5; j++) {
+        let selected = Math.floor(buttons / (amountOfButtons ** j)) % amountOfButtons
+        if (selected === 0) {i++}
+        if (selected === 1) {i *= 1.5}
+        if (selected === 2) {i = Math.sqrt(i) * 3}
+    }
+    score.push(i)
+}
+let k = [0, 0]
+for (let i = 0; i < score.length; i++) {
+    if (score[i] > k[0]) {
+        k[0] = score[i]
+        k[1] = i
+    }
+}
+console.log(k)
+let i = 0
+for (let j = 0; j < 5; j++) {
+    let selected = Math.floor(k[1] / (amountOfButtons ** j)) % amountOfButtons
+        if (selected === 0) {i++; console.log("button 1")}
+        if (selected === 1) {i *= 1.5; console.log("button 2")}
+        if (selected === 2) {i = Math.sqrt(i) * 3; console.log("button 3")}
+}

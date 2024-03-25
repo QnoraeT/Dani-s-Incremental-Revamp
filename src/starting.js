@@ -4,54 +4,59 @@
 
 const PR2_EFF = [
     {
-        shown() { return true; },
-        when() { return c.d1 },
-        text() { return `you gain a new upgrade and make PRai resets unforced.` }
+        show: true,
+        get when() { return c.d1 },
+        get text() { return `you gain a new upgrade and make PRai resets unforced.` }
     },
     {
-        shown() { return true; },
-        when() { return c.d2 },
-        text() { return `unlock the Upgrade 1 Autobuyer.` }
+        show: true,
+        get when() { return c.d2 },
+        get text() { return `unlock the Upgrade 1 Autobuyer.` }
     },
     {
-        shown() { return true; },
-        when() { return c.d4 },
-        text() { return `unlock the Upgrade 2 Autobuyer and increase the Upgrade 2 base from ${format(1.2, 3)}x -> ${format(c.d4div3, 3)}x.`}
+        show: true,
+        get when() { return c.d4 },
+        get text() { return `unlock the Upgrade 2 Autobuyer and increase the Upgrade 2 base from ${format(c.d1_2, 3)}x -> ${format(c.d4div3, 3)}x.`}
     },
     {
-        shown() { return true; },
-        when() { return c.d5 },
-        text() { return `unlock Upgrade 3.`}
+        show: true,
+        get when() { return c.d5 },
+        get text() { return `unlock Upgrade 3.`}
     },
     {
-        shown() { return true; },
-        when() { return c.d7 },
-        text() { return `weaken the Upgrade 1 scaling by ${formatPerc(c.d10div9, 3)}`}
+        show: true,
+        get when() { return c.d7 },
+        get text() { return `weaken the Upgrade 1 scaling by ${formatPerc(c.d10div9, 3)}`}
     },
     {
-        shown() { return true; },
-        when() { return c.d10 },
-        text() { return `unlock a new layer`}
+        show: true,
+        get when() { return c.d10 },
+        get text() { return `unlock a new layer`}
     },
     {
-        shown() { return true; },
-        when() { return c.d11 },
-        text() { return `slow down Upgrade 3 cost by ${formatPerc(c.d10div9, 3)}`}
+        show: true,
+        get when() { return c.d11 },
+        get text() { return `slow down Upgrade 3 cost by ${formatPerc(c.d10div9, 3)}`}
     },
     {
-        shown() { return true; },
-        when() { return c.d15 },
-        text() { return `decrease Upgrade 2's superscaling strength by ${formatPerc(c.d8div7, 3)}`}
+        show: true,
+        get when() { return c.d15 },
+        get text() { return `decrease Upgrade 2's superscaling strength by ${formatPerc(c.d8div7, 3)}`}
     },
     {
-        shown() { return true; },
-        when() { return c.d20 },
-        text() { return `weaken Upgrade 1's cost scaling by ${format(10, 3)}%`}
+        show: true,
+        get when() { return c.d20 },
+        get text() { return `weaken Upgrade 1's cost scaling by ${format(c.d10, 3)}%`}
     },
     {
-        shown() { return player.value.kua.amount.gte(c.d10); },
-        when() { return c.d25 },
-        text() { return `makes upgrade 1 and 2's scaling and super scaling start ${format(15, 1)} later`}
+        get show() { return player.value.kua.amount.gte(c.d10); },
+        get when() { return c.d25 },
+        get text() { return `makes upgrade 1 and 2's scaling and super scaling start ${format(c.d15, 1)} later`}
+    },
+    {
+        get show() { return getKuaUpgrade("s", 11) },
+        get when() { return c.d31 },
+        get text() { return `boosts Kuaraniai effects based on how much PR2 you have`}
     },
 ]
 
@@ -98,7 +103,7 @@ function updateStart(type) {
             updateScaling("upg1");
 
             player.value.generators.upg1.costBase = c.d1_55;
-            if (player.value.kua.kshards.upgrades >= 7) {
+            if (getKuaUpgrade("s", 7)) {
                 player.value.generators.upg1.costBase = player.value.generators.upg1.costBase.sub(c.d0_05);
             }
 
@@ -111,14 +116,14 @@ function updateStart(type) {
             if (player.value.achievements.includes(17)) {
                 scal = scal.div(ACHIEVEMENT_DATA[17].eff);
             }
-            if (player.value.kua.kpower.upgrades >= 10) {
+            if (getKuaUpgrade("p", 10)) {
                 scal = scal.div(KUA_UPGRADES.KPower[9].eff)
             }
             player.value.generators.upg1.cost = Decimal.pow(player.value.generators.upg1.costBase, scal).div(tmp.value.upg1CostDiv).mul(c.d5);
 
             if (player.value.points.mul(tmp.value.upg1CostDiv).gte(c.d5)) {
                 scal = player.value.points.div(c.d5).mul(tmp.value.upg1CostDiv).log(player.value.generators.upg1.costBase);
-                if (player.value.kua.kpower.upgrades >= 10) {
+                if (getKuaUpgrade("p", 10)) {
                     scal = scal.mul(KUA_UPGRADES.KPower[9].eff)
                 }
                 if (player.value.achievements.includes(17)) {
@@ -133,7 +138,7 @@ function updateStart(type) {
             i = c.d1_5
             i = i.add(player.value.generators.upg3.effect);
             if (player.value.achievements.includes(22)) {
-                i = i.mul(c.d1_025);
+                i = i.mul(c.d1_01);
             }
             player.value.generators.upg1.effectBase = i;
 
@@ -148,7 +153,7 @@ function updateStart(type) {
             player.value.generators.upg1.effective = i;
 
             i = Decimal.pow(player.value.generators.upg1.effectBase, player.value.generators.upg1.effective);
-            if (player.value.kua.kpower.upgrades >= 8) {
+            if (getKuaUpgrade("p", 8)) {
                 i = i.max(c.d1).log10().pow(c.d1_01).pow10();
             }
             if (i.gte(c.e100)) {
@@ -160,7 +165,7 @@ function updateStart(type) {
                 player.value.generators.upg1.calculatedEB = player.value.generators.upg1.effectBase;
             } else {
                 i = Decimal.pow(player.value.generators.upg1.effectBase, player.value.generators.upg1.effective.add(c.d1));
-                if (player.value.kua.kpower.upgrades >= 8) {
+                if (getKuaUpgrade("p", 8)) {
                     i = i.max(c.d1).log10().pow(c.d1_01).pow10();
                 }
                 if (i.gte(c.e100)) {
@@ -203,20 +208,20 @@ function updateStart(type) {
             if (player.value.achievements.includes(17)) {
                 scal = scal.div(ACHIEVEMENT_DATA[17].eff);
             }
-            if (player.value.kua.kshards.upgrades >= 9) {
+            if (getKuaUpgrade("s", 9)) {
                 scal = scal.sub(KUA_UPGRADES.KShards[8].eff);
             }
-            if (player.value.kua.kpower.upgrades >= 10) {
+            if (getKuaUpgrade("p", 10)) {
                 scal = scal.div(KUA_UPGRADES.KPower[9].eff)
             }
             player.value.generators.upg2.cost = Decimal.pow(player.value.generators.upg2.costBase, scal).div(tmp.value.upg2CostDiv).mul(c.e3);
 
             if (player.value.points.mul(tmp.value.upg2CostDiv).gte(c.e3)) {
                 scal = player.value.points.div(c.e3).mul(tmp.value.upg2CostDiv).log(player.value.generators.upg2.costBase);
-                if (player.value.kua.kpower.upgrades >= 10) {
+                if (getKuaUpgrade("p", 10)) {
                     scal = scal.mul(KUA_UPGRADES.KPower[9].eff)
                 }
-                if (player.value.kua.kshards.upgrades >= 9) {
+                if (getKuaUpgrade("s", 9)) {
                     scal = scal.add(KUA_UPGRADES.KShards[8].eff);
                 }
                 if (player.value.achievements.includes(17)) {
@@ -232,14 +237,14 @@ function updateStart(type) {
             if (player.value.generators.pr2.amount.gte(c.d4)) {
                 i = i.mul(c.d10div9);
             }
-            if (player.value.kua.kshards.upgrades >= 5) {
+            if (getKuaUpgrade("s", 5)) {
                 i = i.mul(c.d1_125);
             }
-            if (player.value.kua.kpower.upgrades >= 1) {
+            if (getKuaUpgrade("p", 1)) {
                 i = i.add(KUA_UPGRADES.KPower[0].eff);
             }
             if (player.value.achievements.includes(22)) {
-                i = i.mul(c.d1_025);
+                i = i.mul(c.d1_01);
             }
             player.value.generators.upg2.effectBase = i;
 
@@ -251,25 +256,25 @@ function updateStart(type) {
             player.value.generators.upg2.effective = i;
 
             i = Decimal.pow(player.value.generators.upg2.effectBase, player.value.generators.upg2.effective);
-            if (player.value.kua.kpower.upgrades >= 7) {
-                i = i.pow(c.d3);
-            }
             setAchievement(5, i.gte(tmp.value.softcap.upg2[0].start));
             sta = tmp.value.softcap.upg2[0].start;
             pow = tmp.value.softcap.upg2[0].strength;
             i = scale(i, 0, false, sta, pow, c.d0_5);
             player.value.generators.upg2.effect = i;
+            if (getKuaUpgrade("p", 7)) {
+                i = i.pow(c.d3);
+            }
 
             if (player.value.generators.upg2.effective.gte(c.e10)) {
                 player.value.generators.upg2.calculatedEB = player.value.generators.upg2.effectBase;
             } else {
                 i = Decimal.pow(player.value.generators.upg2.effectBase, player.value.generators.upg2.effective.add(c.d1));
-                if (player.value.kua.kpower.upgrades >= 7) {
-                    i = i.pow(c.d3);
-                }
                 sta = tmp.value.softcap.upg2[0].start;
                 pow = tmp.value.softcap.upg2[0].strength;
                 i = scale(i, 0, false, sta, pow, c.d0_5);
+                if (getKuaUpgrade("p", 7)) {
+                    i = i.pow(c.d3);
+                }
                 player.value.generators.upg2.calculatedEB = i.div(player.value.generators.upg2.effect);
             }
 
@@ -321,7 +326,7 @@ function updateStart(type) {
 
             i = c.em2;
             if (player.value.achievements.includes(22)) {
-                i = i.mul(c.d1_025);
+                i = i.mul(c.d1_01);
             }
             player.value.generators.upg3.effectBase = i;
 
@@ -330,11 +335,11 @@ function updateStart(type) {
 
             i = player.value.generators.upg3.bought;
             i = i.add(player.value.generators.upg3.freeExtra);
-            if (player.value.kua.kpower.upgrades >= 2) {
+            if (getKuaUpgrade("p", 2)) {
                 i = i.mul(KUA_UPGRADES.KPower[1].eff);
             }
             if (player.value.achievements.includes(15)) {
-                i = i.mul(1.02);
+                i = i.mul(c.d1_02);
             }
             player.value.generators.upg3.effective = i;
 
@@ -374,7 +379,7 @@ function updateStart(type) {
             tmp.value.praiReq = c.e6;
             tmp.value.praiExp = c.d0_25;
             if (player.value.achievements.includes(19)) {
-                tmp.value.praiExp = c.d0_26;
+                tmp.value.praiExp = c.d0_255;
             }
 
             if (player.value.generators.pr2.amount.gte(c.d1) && player.value.totalPointsInPRai.gte(tmp.value.praiReq)) {
@@ -384,7 +389,7 @@ function updateStart(type) {
                 if (player.value.achievements.includes(23)) {
                     i = i.mul(ACHIEVEMENT_DATA[23].eff);
                 }
-                if (player.value.kua.kshards.upgrades >= 8) {
+                if (getKuaUpgrade("s", 8)) {
                     i = i.mul(KUA_UPGRADES.KShards[7].eff);
                 }
                 if (i.gte(c.maxNum)) { 
@@ -412,10 +417,10 @@ function updateStart(type) {
             if (player.value.achievements.includes(10)) {
                 i = i.mul(c.d3);
             }
-            if (player.value.kua.kpower.upgrades >= 2) {
+            if (getKuaUpgrade("p", 2)) {
                 i = i.mul(KUA_UPGRADES.KShards[1].eff);
             } 
-            if (player.value.kua.kpower.upgrades >= 5) {
+            if (getKuaUpgrade("p", 5)) {
                 i = i.pow(KUA_UPGRADES.KPower[4].eff);
             }
             if (i.gte(c.e80)) {
@@ -428,10 +433,10 @@ function updateStart(type) {
             if (player.value.achievements.includes(10)) {
                 i = i.mul(c.d3);
             }
-            if (player.value.kua.kpower.upgrades >= 2) {
+            if (getKuaUpgrade("p", 2)) {
                 i = i.mul(KUA_UPGRADES.KShards[1].eff);
             } 
-            if (player.value.kua.kpower.upgrades >= 5) {
+            if (getKuaUpgrade("p", 5)) {
                 i = i.pow(KUA_UPGRADES.KPower[4].eff);
             }
             if (i.gte(c.e80)) {
@@ -457,13 +462,13 @@ function updateStart(type) {
             tmp.value.pr2Effective = i
 
             j = D(c.d0_05);
-            if (player.value.kua.kshards.upgrades >= 5) {
+            if (getKuaUpgrade("s", 5)) {
                 j = j.mul(c.d2);
             }
 
             i = tmp.value.pr2Effective.max(c.d0).add(c.d1).pow(tmp.value.pr2Effective.mul(j).add(c.d1).ln().add(c.d1));
-            if (player.value.kua.kpower.upgrades >= 8) {
-                i = Decimal.pow(j.add(c.d1).pow(c.d10), tmp.value.pr2Effective).max(i)
+            if (getKuaUpgrade("p", 8)) {
+                i = Decimal.pow(j.add(c.d1).pow(c.d7), tmp.value.pr2Effective).max(i)
             }
             player.value.generators.pr2.effect = i;
 
@@ -497,11 +502,11 @@ function updateStart(type) {
             }
 
             tmp.value.pr2Text = "";
-            if (player.value.generators.pr2.amount.lte(PR2_EFF[PR2_EFF.length - 1].when())) {
+            if (player.value.generators.pr2.amount.lte(PR2_EFF[PR2_EFF.length - 1].when)) {
                 for (i in PR2_EFF) {
-                    // console.log(`${format(player.value.generators.pr2.amount)} / ${PR2_EFF[i].when()}`)
-                    if (player.value.generators.pr2.amount.lt(PR2_EFF[i].when()) && PR2_EFF[i].shown()) {
-                        tmp.value.pr2Text = {info: PR2_EFF[i].when(), txt: PR2_EFF[i].text()};
+                    // console.log(`${format(player.value.generators.pr2.amount)} < ${PR2_EFF[i].when} & ${PR2_EFF[i].show}`)
+                    if (player.value.generators.pr2.amount.lt(PR2_EFF[i].when) && PR2_EFF[i].show) {
+                        tmp.value.pr2Text = {info: PR2_EFF[i].when, txt: PR2_EFF[i].text};
                         break;
                     }
                 }
