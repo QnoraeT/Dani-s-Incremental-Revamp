@@ -13,7 +13,7 @@ const COL_CHALLENGES = {
         layer: 'kua',
         name: `No Kuaraniai`,
         goal: c.e25,
-        goalDesc: `Reach ${format(this.goal)} Points.`,
+        get goalDesc() { return `Reach ${format(this.goal)} Points.`},
         desc: `All Kuaraniai resources and upgrades are disabled.`,
         reward: `Unlock another tab in this tab, and every KPower Upgrade above 10 unlocks a new challenge.`,
         cap: c.d1,

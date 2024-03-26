@@ -479,3 +479,22 @@ function lerp(t, s, e, type, p) {
     }
     return (s * (1 - t)) + (e * t);
 }
+
+/**
+ * e ^ (((x + s) ^ p / (p * s ^ (p - 1))) - s / p)
+ * @param {Decimal} x 
+ * @param {Decimal} exp 
+ * @param {Decimal} poly 
+ * @param {Decimal} start 
+ * @param {Boolean} inverse
+ */
+function expPoly(x, exp, poly, start, inverse) {
+    x = D(x);
+    exp = D(exp);
+    poly = D(poly);
+    start = D(start);
+
+    return inverse
+        ? x.log(exp).add(start.div(poly)).mul(poly.mul(start.pow(poly.sub(1)))).root(poly).sub(start)
+        : exp.pow(x.add(start).pow(poly).div(poly.mul(start.pow(poly.sub(1)))).sub(start.div(poly)))
+}
