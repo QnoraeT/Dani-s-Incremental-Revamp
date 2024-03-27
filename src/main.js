@@ -208,6 +208,7 @@ function resetPlayer() {
             unlocked: false,
             inAChallenge: false,
             completed: {},
+            challengeOrder: [],
             saved: {},
             power: c.d0,
             totalPower: c.d0,
@@ -359,6 +360,10 @@ function updatePlayerData(player) {
     if (player.value.version === 9) {
         player.value.col.inAChallenge = false;
         player.value.version = 10;
+    }
+    if (player.value.version === 10) {
+        player.value.col.challengeOrder = [];
+        player.value.version = 11;
     }
 }
 
@@ -608,11 +613,19 @@ function loadGame() {
 
                 // misc unimportant stuff
 
-                let k = { upg1: "Upgrade 1", upg2: "Upgrade 2", upg3: "Upgrade 3", pr2: "PR2" }
+                let k = { upg1: "Upgrade 1", upg2: "Upgrade 2", upg3: "Upgrade 3", praiGain: "PRai Gain", praiEffect: "PRai Effect", pr2: "PR2" }
                 for (let i in tmp.value.scaling) {
                     for (let j in tmp.value.scaling[i]) {
                         if (tmp.value.scaling[i][j].res.gte(tmp.value.scaling[i][j].start)) {
                             tmp.value.scaleList[j].push(`${k[i]} - ${format(tmp.value.scaling[i][j].strength.mul(c.e2), 3)}% starting at ${format(tmp.value.scaling[i][j].start, 3)}`)
+                        }
+                    }
+                }
+                
+                for (let i in tmp.value.softcap) {
+                    for (let j in tmp.value.softcap[i]) {
+                        if (tmp.value.softcap[i][j].res.gte(tmp.value.softcap[i][j].start)) {
+                            tmp.value.softList[j].push(`${k[i]} - ${format(tmp.value.softcap[i][j].strength.mul(c.e2), 3)}% starting at ${format(tmp.value.softcap[i][j].start, 3)}`)
                         }
                     }
                 }

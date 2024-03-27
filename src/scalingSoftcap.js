@@ -1,7 +1,27 @@
 "use strict";
 
+const SCALE_ATTR = [
+    { name: "Scaled",        color: `#0060FF` },
+    { name: "Superscaled",   color: `#dfb600` },
+    { name: "Hyper",         color: `#FF0060` },
+    { name: "Atomic",        color: `#20BF3A` },
+    { name: "Supercritical", color: `#8636FF` },
+    { name: "Meta",          color: `#00C7F3` },
+    { name: "Exotic",        color: `#FF8000` },
+    { name: "Instant",       color: `#D0D0D0` },
+    { name: "WTF",           get color() { return colorChange("#ffffff", Math.sin(otherGameStuffIg.sessionTime) ** 2, 1) } },
+    { name: "Ultimate",      get color() { return gRC(otherGameStuffIg.sessionTime, 1, 1) } }
+]
+
+const SOFT_ATTR = [
+    { name: "Softcap",         color: `#FF0000` },
+    { name: "Super Softcap",   color: `#efc600` },
+    { name: "Hyper Softcap",   color: `#6040FF` },
+]
+
 function updateScaling(type) {
     tmp.value.scaleList = [[], [], [], []];
+    tmp.value.softList = [[], [], [], []];
     if (tmp.value.scaling === undefined) { tmp.value.scaling = {}; };
     switch (type) {
         case "upg1":
@@ -88,9 +108,13 @@ function updateScaling(type) {
 function updateSoftcap(type) {
     if (tmp.value.softcap === undefined) { tmp.value.softcap = {}; };
     switch (type) {
+        case "upg1":
+            if (tmp.value.softcap.upg1 === undefined) { tmp.value.softcap.upg1 = [] };
+            tmp.value.softcap.upg1[0] = { res: player.value.generators.upg1.effect, start: c.e100, strength: c.d1 };
+            break;
         case "upg2":
             if (tmp.value.softcap.upg2 === undefined) { tmp.value.softcap.upg2 = [] };
-            tmp.value.softcap.upg2[0] = { start: c.d10, strength: c.d1 };
+            tmp.value.softcap.upg2[0] = { res: player.value.generators.upg2.effect, start: c.d10, strength: c.d1 };
 
             if (getKuaUpgrade("p", 4)) {
                 tmp.value.softcap.upg2[0].start = tmp.value.softcap.upg2[0].start.mul(KUA_UPGRADES.KPower[3].eff);
@@ -109,7 +133,15 @@ function updateSoftcap(type) {
             break;
         case "upg3":
             if (tmp.value.softcap.upg3 === undefined) { tmp.value.softcap.upg3 = [] };
-            tmp.value.softcap.upg3[0] = { start: c.d8_5, strength: c.d1 };
+            tmp.value.softcap.upg3[0] = { res: player.value.generators.upg3.effect, start: c.d8_5, strength: c.d1 };
+            break;
+        case "prai":
+            if (tmp.value.softcap.praiGain === undefined) { tmp.value.softcap.praiGain = [] };
+            tmp.value.softcap.praiGain[0] = { res: player.value.generators.prai.effect, start: c.maxNum, strength: c.d1 };
+            tmp.value.softcap.praiGain[1] = { res: player.value.generators.prai.effect, start: c.maxNum, strength: c.d1 };
+
+            if (tmp.value.softcap.praiEffect === undefined) { tmp.value.softcap.praiEffect = [] };
+            tmp.value.softcap.praiEffect[0] = { res: tmp.value.praiPending ?? c.d0, start: c.e80, strength: c.d1 };
             break;
         default:
             throw new Error(`updateSoftcap ${type} does not exist`);

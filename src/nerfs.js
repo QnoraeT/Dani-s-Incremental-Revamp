@@ -41,5 +41,4 @@ function updateNerf() {
     
     i = true
     player.value.nerf.kuaActive.kshards.upgrades = i
-    
 }

@@ -371,7 +371,7 @@ function updateKua(type) {
 
                 i = c.d1;
                 if (getKuaUpgrade("s", 7)) {
-                    j = k.max(c.d1).mul(c.e3).cbrt().log10().pow(c.d1_1).mul(player.value.generators.prai.timeInPRai.max(c.d0).add(c.d1).ln().div(c.d2).add(c.d1).sqrt()).pow10();
+                    j = k.max(c.d1).mul(c.e3).cbrt().log10().pow(c.d1_1).mul(player.value.generators.prai.timeInPRai.max(c.d0).add(c.d1).ln().mul(c.d2).add(c.d1).sqrt()).pow10();
     
                     i = i.mul(j);
                 }

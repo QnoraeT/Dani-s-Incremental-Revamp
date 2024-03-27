@@ -1,4 +1,5 @@
 "use strict";
+
 /**
  * type
  * 0 = One-Time only
@@ -6,10 +7,10 @@
  * 2 = Continouous (Decimal, best)
  */
 const COL_CHALLENGES = {
-    sd: {
+    nk: {
         type: 0,
         num: 1,
-        id: 'sd',
+        id: 'nk',
         layer: 'kua',
         name: `No Kuaraniai`,
         goal: c.e25,
@@ -66,46 +67,76 @@ function challengeToggle(id) {
             goal: COL_CHALLENGES[id].goalDesc,
             entered: true
         }
-        let obj = {
-            kua: {
-                amount: player.value.kua.amount,
-                best: player.value.kua.best,
-                timeInKua: player.value.kua.timeInKua,
-                times: player.value.kua.times,
-                total: player.value.kua.total,
-                kshards: {
-                    amount: player.value.kua.kshards.amount,
-                    best: player.value.kua.kshards.best,
-                    total: player.value.kua.kshards.total,
-                    upgrades: player.value.kua.kshards.upgrades
+
+        // unsure of the order to do resave the data
+        // ideas
+        // saveID = 0 for the first in challenge
+        // pushes the challenge id to "player.value.col.challengeOrder"
+        // ['sg']
+        // being in a nested challenge increases saveID by 1
+        // Scaled Generation (Blessing layer, 0) -> No Kua (Kua layer, 1)
+        // ['sg', 'nk']
+        // if exit Scaled Generation, exit No Kua and load the save (but maybe don't do this as it'll get replaced instantly), then Scaled Generation then load that data
+        // ['sg', 'nk'] -> ['sg'] -> []
+        // if exit No Kua, exit No Kua and load the save
+        // ['sg', 'nk'] -> ['sg'] 
+        /**
+         * example 2:
+         * Eternity (l3) + Infinity (l3) + Scaled Gen (l2) + Nerfed PRai (l2) + No Kua (l1)
+         * ['etrn', 'inf', 'sg', 'npr', 'nk']
+         * toggle 'hf' (l1)
+         * cannot find hf, so you're not in that challenge, maybe add it and save the data to 'nk'?
+         * ['etrn', 'inf', 'sg', 'npr', 'nk', 'hf']
+         * toggle npr
+         * exit hf, nk, and npr
+         * load npr's save data
+         * ['etrn', 'inf', 'sg']
+         * toggle nf and nk
+         */
+        if (!player.value.col.inAChallenge) {
+            // i couldn't find a good way to do this, also structuredClone() didn't work for some reason
+            let obj = {
+                kua: {
+                    amount: player.value.kua.amount,
+                    best: player.value.kua.best,
+                    timeInKua: player.value.kua.timeInKua,
+                    times: player.value.kua.times,
+                    total: player.value.kua.total,
+                    kshards: {
+                        amount: player.value.kua.kshards.amount,
+                        best: player.value.kua.kshards.best,
+                        total: player.value.kua.kshards.total,
+                        upgrades: player.value.kua.kshards.upgrades
+                    },
+                    kpower: {
+                        amount: player.value.kua.kpower.amount,
+                        best: player.value.kua.kpower.best,
+                        total: player.value.kua.kpower.total,
+                        upgrades: player.value.kua.kpower.upgrades
+                    }
                 },
-                kpower: {
-                    amount: player.value.kua.kpower.amount,
-                    best: player.value.kua.kpower.best,
-                    total: player.value.kua.kpower.total,
-                    upgrades: player.value.kua.kpower.upgrades
+                pr2: {
+                    amount: player.value.generators.pr2.amount,
+                    best: player.value.generators.pr2.best,
+                    cost: player.value.generators.pr2.cost,
+                    effect: player.value.generators.pr2.effect,
+                    freeExtra: player.value.generators.pr2.freeExtra,
+                    target: player.value.generators.pr2.target
+                },
+                auto: {
+                    prai: player.value.auto.prai,
+                    upg3: player.value.auto.upg3,
+                    upg2: player.value.auto.upg2,
+                    upg1: player.value.auto.upg1
                 }
-            },
-            pr2: {
-                amount: player.value.generators.pr2.amount,
-                best: player.value.generators.pr2.best,
-                cost: player.value.generators.pr2.cost,
-                effect: player.value.generators.pr2.effect,
-                freeExtra: player.value.generators.pr2.freeExtra,
-                target: player.value.generators.pr2.target
-            },
-            auto: {
-                prai: player.value.auto.prai,
-                upg3: player.value.auto.upg3,
-                upg2: player.value.auto.upg2,
-                upg1: player.value.auto.upg1
             }
+            player.value.col.saved[id] = obj;
         }
-        player.value.col.saved[id] = obj;
+
         reset("col", true)
     } else {
         console.log(`exited challenge ${id}`);
-        player.value.inChallenge[id].entered = false;
+        player.value.inChallenge.entered = false;
         player.value.generators.pr2 = player.value.col.saved[id].pr2;
         player.value.kua = player.value.col.saved[id].kua;
         player.value.auto.upg1 = player.value.col.saved[id].auto.upg1;

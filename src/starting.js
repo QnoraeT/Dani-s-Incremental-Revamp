@@ -101,6 +101,7 @@ function updateStart(type) {
     switch (type) {
         case "upg1":
             updateScaling("upg1");
+            updateSoftcap("upg1");
 
             player.value.generators.upg1.costBase = c.d1_55;
             if (getKuaUpgrade("s", 7)) {
@@ -156,9 +157,9 @@ function updateStart(type) {
             if (getKuaUpgrade("p", 8)) {
                 i = i.max(c.d1).log10().pow(c.d1_01).pow10();
             }
-            if (i.gte(c.e100)) {
-                i = scale(i, 2.1, false, c.e100, c.d1, c.d0_5);
-            }
+            sta = tmp.value.softcap.upg1[0].start;
+            pow = tmp.value.softcap.upg1[0].strength;
+            i = scale(i, 2.1, false, sta, pow, c.d0_5);
             player.value.generators.upg1.effect = i;
 
             if (player.value.generators.upg1.effective.gte(c.e10)) {
@@ -168,9 +169,9 @@ function updateStart(type) {
                 if (getKuaUpgrade("p", 8)) {
                     i = i.max(c.d1).log10().pow(c.d1_01).pow10();
                 }
-                if (i.gte(c.e100)) {
-                    i = scale(i, 2.1, false, c.e100, c.d1, c.d0_5);
-                }
+                sta = tmp.value.softcap.upg1[0].start;
+                pow = tmp.value.softcap.upg1[0].strength;
+                i = scale(i, 2.1, false, sta, pow, c.d0_5);
                 player.value.generators.upg1.calculatedEB = i.div(player.value.generators.upg1.effect);
             }
 
@@ -180,7 +181,7 @@ function updateStart(type) {
             tmp.value.up1ScalingColor = `#FFFFFF`
             for (let i = tmp.value.scaling.upg1.length - 1; i >= 0; i--) {
                 if (player.value.generators.upg1.bought.gte(tmp.value.scaling.upg1[i].start)) {
-                    tmp.value.up1ScalingColor = DEFAULT_SCALE[i].color();
+                    tmp.value.up1ScalingColor = SCALE_ATTR[i].color;
                     break;
                 }
             }
@@ -260,10 +261,10 @@ function updateStart(type) {
             sta = tmp.value.softcap.upg2[0].start;
             pow = tmp.value.softcap.upg2[0].strength;
             i = scale(i, 0, false, sta, pow, c.d0_5);
-            player.value.generators.upg2.effect = i;
             if (getKuaUpgrade("p", 7)) {
                 i = i.pow(c.d3);
             }
+            player.value.generators.upg2.effect = i;
 
             if (player.value.generators.upg2.effective.gte(c.e10)) {
                 player.value.generators.upg2.calculatedEB = player.value.generators.upg2.effectBase;
@@ -283,7 +284,7 @@ function updateStart(type) {
             tmp.value.up2ScalingColor = `#FFFFFF`
             for (let i = tmp.value.scaling.upg2.length - 1; i >= 0; i--) {
                 if (player.value.generators.upg2.bought.gte(tmp.value.scaling.upg2[i].start)) {
-                    tmp.value.up2ScalingColor = DEFAULT_SCALE[i].color();
+                    tmp.value.up2ScalingColor = SCALE_ATTR[i].color;
                     break;
                 }
             }
@@ -364,7 +365,7 @@ function updateStart(type) {
             tmp.value.up3ScalingColor = `#FFFFFF`
             for (let i = tmp.value.scaling.upg3.length - 1; i >= 0; i--) {
                 if (player.value.generators.upg3.bought.gte(tmp.value.scaling.upg3[i].start)) {
-                    tmp.value.up3ScalingColor = DEFAULT_SCALE[i].color();
+                    tmp.value.up3ScalingColor = SCALE_ATTR[i].color;
                     break;
                 }
             }
@@ -376,6 +377,8 @@ function updateStart(type) {
             setAchievement(15, player.value.points.gte(c.e80) && player.value.generators.upg3.bought.eq(c.d0));
             break;
         case "prai":
+            updateSoftcap("prai");
+
             tmp.value.praiReq = c.e6;
             tmp.value.praiExp = c.d0_25;
             if (player.value.achievements.includes(19)) {
@@ -392,10 +395,12 @@ function updateStart(type) {
                 if (getKuaUpgrade("s", 8)) {
                     i = i.mul(KUA_UPGRADES.KShards[7].eff);
                 }
-                if (i.gte(c.maxNum)) { 
-                    i = scale(i, 2.1, false, c.maxNum, c.d1, c.d0_9);
-                    i = scale(i.log10(), 2.1, false, c.logMaxNum, c.d1, c.d0_9).pow10(); // lmao siltation/trilation
-                }
+                sta = tmp.value.softcap.praiGain[0].start;
+                pow = tmp.value.softcap.praiGain[0].strength;
+                i = scale(i, 2.1, false, sta, pow, c.d0_9);
+                sta = tmp.value.softcap.praiGain[1].start;
+                pow = tmp.value.softcap.praiGain[1].strength;
+                i = scale(i.log10(), 2.1, false, c.logMaxNum, c.d1, c.d0_9).pow10();
                 tmp.value.praiPending = i.floor();
 
                 i = tmp.value.praiPending.add(c.d1).floor();
@@ -423,9 +428,9 @@ function updateStart(type) {
             if (getKuaUpgrade("p", 5)) {
                 i = i.pow(KUA_UPGRADES.KPower[4].eff);
             }
-            if (i.gte(c.e80)) {
-                i = scale(i, 2.1, false, c.e80, c.d1, c.d0_5);
-            }
+            sta = tmp.value.softcap.praiEffect[0].start;
+            pow = tmp.value.softcap.praiEffect[0].strength;
+            i = scale(i, 2.1, false, sta, pow, c.d0_5);
             player.value.generators.prai.effect = i;
 
             i = player.value.generators.prai.amount.add(tmp.value.praiPending);
@@ -439,9 +444,9 @@ function updateStart(type) {
             if (getKuaUpgrade("p", 5)) {
                 i = i.pow(KUA_UPGRADES.KPower[4].eff);
             }
-            if (i.gte(c.e80)) {
-                i = scale(i, 2.1, false, c.e80, c.d1, c.d0_5);
-            }
+            sta = tmp.value.softcap.praiEffect[0].start;
+            pow = tmp.value.softcap.praiEffect[0].strength;
+            i = scale(i, 2.1, false, sta, pow, c.d0_5);
             tmp.value.praiNextEffect = i;
 
             player.value.generators.prai.best = Decimal.max(player.value.generators.prai.best, player.value.generators.prai.amount);
@@ -496,7 +501,7 @@ function updateStart(type) {
             tmp.value.pr2ScalingColor = `#FFFFFF`
             for (let i = tmp.value.scaling.pr2.length - 1; i >= 0; i--) {
                 if (player.value.generators.pr2.amount.gte(tmp.value.scaling.pr2[i].start)) {
-                    tmp.value.pr2ScalingColor = DEFAULT_SCALE[i].color();
+                    tmp.value.pr2ScalingColor = SCALE_ATTR[i].color;
                     break;
                 }
             }

@@ -124,16 +124,16 @@ const c = {
 }
 
 const DEFAULT_SCALE = [
-    { name: "scaled",        pow: c.d2,  type: 0, color() { return `#0060FF` } },
-    { name: "superscaled",   pow: c.d3,  type: 0, color() { return `#dfb600` } },
-    { name: "hyper",         pow: c.d4,  type: 1, color() { return `#FF0060` } },
-    { name: "atomic",        pow: c.d4,  type: 0, color() { return `#20BF3A` } },
-    { name: "supercritical", pow: c.d5,  type: 1, color() { return `#8636FF` } },
-    { name: "meta",          pow: c.d6,  type: 2, color() { return `#00C7F3` } },
-    { name: "exotic",        pow: c.d15, type: 0, color() { return `#FF8000` } },
-    { name: "instant",       pow: c.d75, type: 0, color() { return `#D0D0D0` } },
-    { name: "wtf",           pow: c.e2,  type: 1, color() { return colorChange("#ffffff", Math.sin(otherGameStuffIg.sessionTime) ** 2, 1) } },
-    { name: "ultimate",      pow: c.d60, type: 2, color() { return gRC(otherGameStuffIg.sessionTime, 1, 1) } }
+    { pow: c.d2,  type: 0, },
+    { pow: c.d3,  type: 0, },
+    { pow: c.d4,  type: 1, },
+    { pow: c.d4,  type: 0, },
+    { pow: c.d5,  type: 1, },
+    { pow: c.d6,  type: 2, },
+    { pow: c.d15, type: 0, },
+    { pow: c.d75, type: 0, },
+    { pow: c.e2,  type: 1, },
+    { pow: c.d60, type: 2, }
 ]
 
 function doAllScaling(x, scalList, inv) {
