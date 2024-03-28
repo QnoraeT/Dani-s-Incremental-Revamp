@@ -5,13 +5,16 @@
  * 0 = One-Time only
  * 1 = Can complete multiple times (Decimal)
  * 2 = Continouous (Decimal, best)
+ * 
+ * layer
+ * 0 = kua
  */
 const COL_CHALLENGES = {
     nk: {
         type: 0,
         num: 1,
         id: 'nk',
-        layer: 'kua',
+        layer: 0,
         name: `No Kuaraniai`,
         goal: c.e25,
         get goalDesc() { return `Reach ${format(this.goal)} Points.`},
@@ -92,46 +95,47 @@ function challengeToggle(id) {
          * load npr's save data
          * ['etrn', 'inf', 'sg']
          * toggle nf and nk
+         * 
          */
-        if (!player.value.col.inAChallenge) {
-            // i couldn't find a good way to do this, also structuredClone() didn't work for some reason
-            let obj = {
-                kua: {
-                    amount: player.value.kua.amount,
-                    best: player.value.kua.best,
-                    timeInKua: player.value.kua.timeInKua,
-                    times: player.value.kua.times,
-                    total: player.value.kua.total,
-                    kshards: {
-                        amount: player.value.kua.kshards.amount,
-                        best: player.value.kua.kshards.best,
-                        total: player.value.kua.kshards.total,
-                        upgrades: player.value.kua.kshards.upgrades
-                    },
-                    kpower: {
-                        amount: player.value.kua.kpower.amount,
-                        best: player.value.kua.kpower.best,
-                        total: player.value.kua.kpower.total,
-                        upgrades: player.value.kua.kpower.upgrades
-                    }
+
+        // i couldn't find a good way to do this, also structuredClone() didn't work for some reason
+        let obj = {
+            kua: {
+                amount: player.value.kua.amount,
+                best: player.value.kua.best,
+                timeInKua: player.value.kua.timeInKua,
+                times: player.value.kua.times,
+                total: player.value.kua.total,
+                kshards: {
+                    amount: player.value.kua.kshards.amount,
+                    best: player.value.kua.kshards.best,
+                    total: player.value.kua.kshards.total,
+                    upgrades: player.value.kua.kshards.upgrades
                 },
-                pr2: {
-                    amount: player.value.generators.pr2.amount,
-                    best: player.value.generators.pr2.best,
-                    cost: player.value.generators.pr2.cost,
-                    effect: player.value.generators.pr2.effect,
-                    freeExtra: player.value.generators.pr2.freeExtra,
-                    target: player.value.generators.pr2.target
-                },
-                auto: {
-                    prai: player.value.auto.prai,
-                    upg3: player.value.auto.upg3,
-                    upg2: player.value.auto.upg2,
-                    upg1: player.value.auto.upg1
+                kpower: {
+                    amount: player.value.kua.kpower.amount,
+                    best: player.value.kua.kpower.best,
+                    total: player.value.kua.kpower.total,
+                    upgrades: player.value.kua.kpower.upgrades
                 }
+            },
+            pr2: {
+                amount: player.value.generators.pr2.amount,
+                best: player.value.generators.pr2.best,
+                cost: player.value.generators.pr2.cost,
+                effect: player.value.generators.pr2.effect,
+                freeExtra: player.value.generators.pr2.freeExtra,
+                target: player.value.generators.pr2.target
+            },
+            auto: {
+                prai: player.value.auto.prai,
+                upg3: player.value.auto.upg3,
+                upg2: player.value.auto.upg2,
+                upg1: player.value.auto.upg1
             }
-            player.value.col.saved[id] = obj;
         }
+        player.value.col.saved[id] = obj;
+        player.value.col.challengeOrder.push({name: COL_CHALLENGES[id].id, layer: COL_CHALLENGES[id].layer})
 
         reset("col", true)
     } else {
