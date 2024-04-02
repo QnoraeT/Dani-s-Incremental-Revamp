@@ -365,6 +365,10 @@ function updatePlayerData(player) {
         player.value.col.challengeOrder = [];
         player.value.version = 11;
     }
+    if (player.value.version === 11) {
+        player.value.col.challengeOrder = {chalID: [], layer: []};
+        player.value.version = 12;
+    }
 }
 
 function resetTheFrickingGame() {
@@ -469,6 +473,8 @@ function reset(layer, override) {
                 player.value.auto.upg2 = false;
                 player.value.auto.upg3 = false;
                 player.value.auto.prai = false;
+                player.value.generators.pr2.best = c.d0;
+                player.value.generators.pr2.amount = c.d0;
                 updateKua("kua");
                 reset("kua", true);
             }

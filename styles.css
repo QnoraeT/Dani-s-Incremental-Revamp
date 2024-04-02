@@ -127,6 +127,50 @@ body {
   background-color: #8d2300;
 }
 
+.colButtonProg {
+  transition-duration: 0.2s;
+  border: 0.48vw solid #fffb00;
+  background-color: #616300;
+  box-shadow: 0 0 0.8vw 0.24vw rgb(66, 54, 0);
+}
+
+.colButtonHeaderProg {
+  transition-duration: 0.2s;
+  background-color: #524300;
+}
+
+.colButtonDescProg {
+  transition-duration: 0.2s;
+  background-color: #634900;
+}
+
+.colButtonRewProg {
+  transition-duration: 0.2s;
+  background-color: #8d7800;
+}
+
+.colButtonComp {
+  transition-duration: 0.2s;
+  border: 0.48vw solid #00ff0d;
+  background-color: #006319;
+  box-shadow: 0 0 0.8vw 0.24vw rgb(0, 66, 6);
+}
+
+.colButtonHeaderComp {
+  transition-duration: 0.2s;
+  background-color: #005204;
+}
+
+.colButtonDescComp {
+  transition-duration: 0.2s;
+  background-color: #006300;
+}
+
+.colButtonRewComp {
+  transition-duration: 0.2s;
+  background-color: #108d00;
+}
+
 .main-container {
   width: 19.2vw; 
   height: 28.8vw; 
@@ -154,6 +198,18 @@ body {
   background-color: #7a1f00;
   border: 0.48vw solid #ff9775;
   box-shadow: 0 0 1.2vw 0.4vw #8f2400;
+}
+
+.colButtonProg:hover {
+  background-color: #7a6e00;
+  border: 0.48vw solid #fffd75;
+  box-shadow: 0 0 1.2vw 0.4vw #8f6e00;
+}
+
+.colButtonComp:hover {
+  background-color: #187a00;
+  border: 0.48vw solid #8cff75;
+  box-shadow: 0 0 1.2vw 0.4vw #188f00;
 }
 
 .kuaButton:hover {

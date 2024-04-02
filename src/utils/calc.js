@@ -23,7 +23,8 @@ const c = {
     d0_4:        Decimal.fromComponents_noNormalize(1, 0, 0.4),
     d5div12:     Decimal.fromComponents_noNormalize(1, 0, 5/12), // 0.416667
     d0_5:        Decimal.fromComponents_noNormalize(1, 0, 0.5),
-    d0_55:       Decimal.fromComponents_noNormalize(1, 0, 0.55),
+    d0_55:       Decimal.fromComponents_noNormalize(1, 0, 0.55), 
+    dGamma:      Decimal.fromComponents_noNormalize(1, 0, 0.5772156649015329),
     d0_6:        Decimal.fromComponents_noNormalize(1, 0, 0.6),
     d2div3:      Decimal.fromComponents_noNormalize(1, 0, 2/3), // 0.666667
     d0_75:       Decimal.fromComponents_noNormalize(1, 0, 0.75),
@@ -497,4 +498,9 @@ function expPoly(x, exp, poly, start, inverse) {
     return inverse
         ? x.log(exp).add(start.div(poly)).mul(poly.mul(start.pow(poly.sub(1)))).root(poly).sub(start)
         : exp.pow(x.add(start).pow(poly).div(poly.mul(start.pow(poly.sub(1)))).sub(start.div(poly)))
+}
+
+function sumHarmonicSeries(x) {
+    x = D(x)
+    return x.ln().add(0.5772156649015329).add(Decimal.div(0.5, x)).sub(Decimal.div(1, (x.pow(2).mul(12)))).add(Decimal.div(1, (x.pow(4).mul(120))))
 }

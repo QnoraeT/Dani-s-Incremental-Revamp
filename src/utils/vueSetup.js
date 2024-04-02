@@ -28,7 +28,9 @@ function loadVue() {
                 buyKShardUpg,
                 buyKPowerUpg,
                 COL_CHALLENGES,
-                challengeToggle
+                challengeToggle,
+                completedChallenge,
+                inChallenge
             }
     }}).mount('#app')
 }
