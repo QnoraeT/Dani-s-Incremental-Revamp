@@ -24,6 +24,7 @@ function exitChallenge(id) {
     player.value.col.challengeOrder.layer.pop();
     player.value.inChallenge[id].entered = false;
     player.value.generators.pr2 = player.value.col.saved[id].pr2;
+    player.value.generators.prai = player.value.col.saved[id].prai;
     player.value.kua = player.value.col.saved[id].kua;
     player.value.auto.upg1 = player.value.col.saved[id].auto.upg1;
     player.value.auto.upg2 = player.value.col.saved[id].auto.upg2;
@@ -53,32 +54,6 @@ const COL_CHALLENGES = {
         reward: `Unlock another tab in this tab, and every KPower Upgrade above 10 unlocks a new challenge.`,
         cap: c.d1,
         show: true
-    },
-    te: {
-        type: 0,
-        num: 2,
-        id: 'te',
-        layer: 1,
-        name: `Test`,
-        goal: c.maxNum,
-        get goalDesc() { return `Reach ${format(this.goal)} Points.`},
-        desc: `All Kuaraniai resources and upgrades are disabled.`,
-        reward: `Unlock another tab in this tab, and every KPower Upgrade above 10 unlocks a new challenge.`,
-        cap: c.d1,
-        show: true
-    },
-    mf: {
-        type: 0,
-        num: 3,
-        id: 'mf',
-        layer: 2,
-        name: `Motherfricker`,
-        goal: c.maxNum,
-        get goalDesc() { return `Reach ${format(this.goal)} Points.`},
-        desc: `All Kuaraniai resources and upgrades are disabled.`,
-        reward: `Unlock another tab in this tab, and every KPower Upgrade above 10 unlocks a new challenge.`,
-        cap: c.d1,
-        show: true
     }
 }
 
@@ -90,6 +65,12 @@ function updateCol(type) {
     let scal, pow, sta, i, j;
     switch (type) {
         case "col":
+            if (player.value.col.time.lte(0) && player.value.col.inAChallenge) {
+                for (let i = player.value.col.challengeOrder.chalID.length - 1; i >= 0; i--) {
+                    exitChallenge(player.value.col.challengeOrder.chalID[i]);
+                }
+            }
+
             tmp.value.colPow = c.d0_4;
 
             i = player.value.kua.best.max(c.e2).div(c.e2).pow(tmp.value.colPow);
@@ -158,6 +139,17 @@ function challengeToggle(id) {
                 effect: player.value.generators.pr2.effect,
                 freeExtra: player.value.generators.pr2.freeExtra,
                 target: player.value.generators.pr2.target
+            },
+            prai: {
+                amount: player.value.generators.prai.amount,
+                best: player.value.generators.prai.best,
+                bestInPR2: player.value.generators.prai.bestInPR2,
+                effect: player.value.generators.prai.effect,
+                timeInPRai: player.value.generators.prai.timeInPRai,
+                times: player.value.generators.prai.times,
+                total: player.value.generators.prai.total,
+                totalInKua: player.value.generators.prai.totalInKua,
+                totalInPR2: player.value.generators.prai.totalInPR2,
             },
             auto: {
                 prai: player.value.auto.prai,

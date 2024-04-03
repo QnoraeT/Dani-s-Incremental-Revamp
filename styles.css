@@ -281,7 +281,7 @@ body {
 /* Tooltip text */
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 32vw;
+  width: 40vw;
   background-color: #222;
   color: #fff;
   text-align: center;
@@ -293,7 +293,7 @@ body {
   z-index: 1;
   bottom: 125%;
   left: 50%;
-  margin-left: -16vw;
+  margin-left: -20vw;
 
   /* Fade in tooltip */
   opacity: 0;

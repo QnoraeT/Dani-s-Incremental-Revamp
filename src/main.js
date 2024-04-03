@@ -269,105 +269,8 @@ function updatePlayerData(player) {
         player.value.version = 0;
     }
     if (player.value.version === 0) {
-        player.value.generators.upg3 = {
-            cost: c.e10,
-            target: c.d0,
-            effectBase: c.d0_02,
-            calculatedEB: c.d0_02,
-            bought: c.d0,
-            freeExtra: c.d0,
-            effective: c.d0,
-            effect: c.d0,
-            best: c.d0
-        };
-        player.value.auto.upg3 = false;
-        player.value.nerf.up3Active = true;
-        player.value.version = 1;
-    }
-    if (player.value.version === 1) {
-        player.value.kua.total = c.d0;
-        player.value.kua.best = c.d0;
-        player.value.kua.kshards.total = c.d0;
-        player.value.kua.kshards.best = c.d0;
-        player.value.kua.kpower.total = c.d0;
-        player.value.kua.kpower.best = c.d0;
-        player.value.kua.effects = { upg1Scaling: c.d1 };
-        player.value.kua.kshards.effects = {};
-        player.value.kua.kpower.effects = {};
-        player.value.nerf.kuaActive = {
-            kpower: {
-                upgrades: true,
-                effects: true,
-                gain: true
-            },
-            kshards: {
-                upgrades: true,
-                effects: true,
-                gain: true
-            },
-            upgrades: true,
-            effects: true,
-            gain: true
-        }
-        player.value.auto.prai = false;
-        player.value.auto.kua = false;
-        player.value.auto.kuaUpgrades = false;
-        player.value.version = 2;
-    }
-    if (player.value.version === 2) {
-        delete player.value.kua.effect;
-        delete player.value.kua.effects;
-        delete player.value.kua.kshards.effects;
-        delete player.value.kua.kpower.effects;
-        player.value.version = 3;
-    }
-    if (player.value.version === 3) {
-        player.value.generators.prai.timeInPrai = c.d0;
-        player.value.kua.timeInKua = c.d0;
-        player.value.version = 4;
-    }
-    if (player.value.version === 4) {
-        player.value.generators.prai.times = c.d0;
-        player.value.kua.times = c.d0;
-        player.value.version = 5;
-    }
-    if (player.value.version === 5) {
-        player.value.col.maxTime = c.d0;
-        player.value.version = 6;
-    }
-    if (player.value.version === 6) {
-        player.value.col.saved = {};
-        player.value.col.totalPower = c.d0;
-        player.value.col.bestPower = c.d0;
-        player.value.version = 7;
-    }
-    if (player.value.version === 6) {
-        player.value.col.saved = {};
-        player.value.col.totalPower = c.d0;
-        player.value.col.bestPower = c.d0;
-        player.value.version = 7;
-    }
-    if (player.value.version === 7) {
-        player.value.inChallenge = {};
-        player.value.version = 8;
-    }
-    if (player.value.version === 8) {
-        delete player.value.nerf.kuaActive.upgrades;
-        player.value.nerf.kuaActive.onlyUpgrades = true;
-        player.value.nerf.kuaActive.spUpgrades = true;
-        player.value.version = 9;
-    }
-    if (player.value.version === 9) {
-        player.value.col.inAChallenge = false;
-        player.value.version = 10;
-    }
-    if (player.value.version === 10) {
-        player.value.col.challengeOrder = [];
-        player.value.version = 11;
-    }
-    if (player.value.version === 11) {
-        player.value.col.challengeOrder = {chalID: [], layer: []};
-        player.value.version = 12;
+
+        // player.value.version = 1;
     }
 }
 
@@ -565,6 +468,11 @@ function loadGame() {
 
                 updateNerf();
 
+                if (player.value.col.inAChallenge) {
+                    player.value.col.time = player.value.col.time.sub(gameDelta)
+                } else {
+                    player.value.col.time = player.value.col.maxTime
+                }
                 updateAllCol();
                 generate = tmp.value.colosseumPowerGeneration.mul(gameDelta);
                 player.value.col.power = player.value.col.power.add(generate)
@@ -604,12 +512,6 @@ function loadGame() {
 
                 if (player.value.kua.kpower.upgrades >= 2 && player.value.kua.amount.gte(c.e2)) {
                     player.value.col.unlocked = true;
-                }
-
-                if (player.value.col.inAChallenge) {
-                    player.value.col.time = player.value.col.time.sub(gameDelta)
-                } else {
-                    player.value.col.time = player.value.col.maxTime
                 }
 
                 if (timeStamp > lastSave + saveTime) {

@@ -372,7 +372,7 @@
                             height: `4vw`,
                         }" class="tooltip">
                         <span class="tooltiptext">
-                            {{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].name}}
+                            <span style="font-size: 1vw">#{{((n - 1) * ACHIEVEMENT_DATA.cols) + m}}</span> {{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].name}}
                             <br>{{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].desc}}
                             <br>{{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward===''?'':`Reward: ${ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward}`}}
                             <br>{{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status === true
