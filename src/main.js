@@ -101,6 +101,9 @@ function resetPlayer() {
             up1Active: true,
             up2Active: true,
             up3Active: true,
+            up1BActive: true,
+            up2BActive: true,
+            up3BActive: true,
             praiActive: true,
             pr2Active: true,
             kuaActive: {
@@ -124,6 +127,9 @@ function resetPlayer() {
             upg1: false,
             upg2: false,
             upg3: false,
+            upg1B: false,
+            upg2B: false,
+            upg3B: false,
             prai: false,
             pr2: false,
             kua: false,
@@ -140,7 +146,19 @@ function resetPlayer() {
                 freeExtra: c.d0,
                 effective: c.d0,
                 effect: c.d1,
-                best: c.d0
+                best: c.d0,
+                partB: {
+                    cost: c.d5,
+                    target: c.d0,
+                    effectBase: c.d1_5,
+                    calculatedEB: c.d1_5,
+                    costBase: c.d1_55,
+                    bought: c.d0,
+                    freeExtra: c.d0,
+                    effective: c.d0,
+                    effect: c.d1,
+                    best: c.d0
+                },
             },
             upg2: {
                 cost: c.e3,
@@ -152,7 +170,19 @@ function resetPlayer() {
                 freeExtra: c.d0,
                 effective: c.d0,
                 effect: c.d1,
-                best: c.d0
+                best: c.d0,
+                partB: {
+                    cost: c.e3,
+                    target: c.d0,
+                    effectBase: c.d1_2,
+                    calculatedEB: c.d1_2,
+                    costBase: c.d1_25,
+                    bought: c.d0,
+                    freeExtra: c.d0,
+                    effective: c.d0,
+                    effect: c.d1,
+                    best: c.d0,
+                },
             },
             upg3: {
                 cost: c.e10,
@@ -163,7 +193,18 @@ function resetPlayer() {
                 freeExtra: c.d0,
                 effective: c.d0,
                 effect: c.d0,
-                best: c.d0
+                best: c.d0,
+                partB: {
+                    cost: c.e10,
+                    target: c.d0,
+                    effectBase: c.d0_02,
+                    calculatedEB: c.d0_02,
+                    bought: c.d0,
+                    freeExtra: c.d0,
+                    effective: c.d0,
+                    effect: c.d0,
+                    best: c.d0,
+                },
             },
             prai: {
                 amount: c.d0,
@@ -208,7 +249,7 @@ function resetPlayer() {
             unlocked: false,
             inAChallenge: false,
             completed: {},
-            challengeOrder: [],
+            challengeOrder: {chalID: [], layer: []},
             saved: {},
             power: c.d0,
             totalPower: c.d0,
@@ -376,6 +417,9 @@ function reset(layer, override) {
                 player.value.auto.upg2 = false;
                 player.value.auto.upg3 = false;
                 player.value.auto.prai = false;
+                player.value.generators.upg3.partB.bought = c.d0;
+                player.value.generators.upg2.partB.bought = c.d0;
+                player.value.generators.upg1.partB.bought = c.d0;
                 player.value.generators.pr2.best = c.d0;
                 player.value.generators.pr2.amount = c.d0;
                 updateKua("kua");
@@ -390,6 +434,7 @@ function reset(layer, override) {
 function calcPointsPerSecond() {
     let i = c.d1;
     i = i.mul(player.value.generators.upg1.effect);
+    i = i.mul(player.value.generators.upg1.partB.effect);
     i = i.mul(player.value.generators.prai.effect);
     i = i.mul(player.value.generators.pr2.effect);
     if (player.value.achievements.includes(4)) {

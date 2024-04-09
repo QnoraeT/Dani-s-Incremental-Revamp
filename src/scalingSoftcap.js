@@ -59,6 +59,9 @@ function updateScaling(type) {
                 tmp.value.scaling.upg1[2].strength = tmp.value.scaling.upg1[2].strength.div(KUA_UPGRADES.KPower[8].eff);
             }
             break;
+        case "upg1B":
+            if (tmp.value.scaling.upg1B === undefined) { tmp.value.scaling.upg1B = [] };
+            break;
         case "upg2":
             if (tmp.value.scaling.upg2 === undefined) { tmp.value.scaling.upg2 = [] };
             tmp.value.scaling.upg2[0] = { res: player.value.generators.upg2.bought, start: c.d15,  strength: c.d1, bp: c.d2, type: 0 };
@@ -90,14 +93,20 @@ function updateScaling(type) {
                 tmp.value.scaling.upg2[2].strength = tmp.value.scaling.upg2[2].strength.div(KUA_UPGRADES.KPower[8].eff);
             }
             break;
+        case "upg2B":
+            if (tmp.value.scaling.upg2B === undefined) { tmp.value.scaling.upg2B = [] };
+            break;
         case "upg3":
             if (tmp.value.scaling.upg3 === undefined) { tmp.value.scaling.upg3 = [] };
             tmp.value.scaling.upg3[0] = { res: player.value.generators.upg3.bought, start: c.d50, strength: c.d1, bp: c.d2, type: 0 };
             break;
+        case "upg3B":
+            if (tmp.value.scaling.upg3B === undefined) { tmp.value.scaling.upg3B = [] };
+            break;
         case "pr2":
             if (tmp.value.scaling.pr2 === undefined) { tmp.value.scaling.pr2 = [] };
-            tmp.value.scaling.pr2[0] = { res: player.value.generators.pr2.amount, start: c.d10, strength: c.d1, bp: c.d2, type: 0 };
-            tmp.value.scaling.pr2[1] = { res: player.value.generators.pr2.amount, start: c.d25, strength: c.d1, bp: c.d3, type: 0 };
+            tmp.value.scaling.pr2[0] = { res: player.value.generators.pr2.amount, start: c.d10, strength: c.d1, bp: c.d1_5, type: 0 };
+            tmp.value.scaling.pr2[1] = { res: player.value.generators.pr2.amount, start: c.d20, strength: c.d1, bp: c.d3,   type: 0 };
             // tmp.value.scaling.pr2[2] = { res: player.value.generators.pr2.amount, start: D(45), strength: c.d1, bp: c.d4, type: 1 };
             break;
         default:
@@ -111,6 +120,9 @@ function updateSoftcap(type) {
         case "upg1":
             if (tmp.value.softcap.upg1 === undefined) { tmp.value.softcap.upg1 = [] };
             tmp.value.softcap.upg1[0] = { res: player.value.generators.upg1.effect, start: c.e100, strength: c.d1 };
+            break;
+        case "upg1B":
+            if (tmp.value.softcap.upg1B === undefined) { tmp.value.softcap.upg1B = [] };
             break;
         case "upg2":
             if (tmp.value.softcap.upg2 === undefined) { tmp.value.softcap.upg2 = [] };
@@ -131,9 +143,15 @@ function updateSoftcap(type) {
 
             tmp.value.softcap.upg2[0].start = tmp.value.softcap.upg2[0].start.mul(tmp.value.kuaEffects.upg2Softcap);
             break;
+        case "upg2B":
+            if (tmp.value.softcap.upg2B === undefined) { tmp.value.softcap.upg2B = [] };
+            break;
         case "upg3":
             if (tmp.value.softcap.upg3 === undefined) { tmp.value.softcap.upg3 = [] };
             tmp.value.softcap.upg3[0] = { res: player.value.generators.upg3.effect, start: c.d8_5, strength: c.d1 };
+            break;
+        case "upg3B":
+            if (tmp.value.softcap.upg3B === undefined) { tmp.value.softcap.upg3B = [] };
             break;
         case "prai":
             if (tmp.value.softcap.praiGain === undefined) { tmp.value.softcap.praiGain = [] };

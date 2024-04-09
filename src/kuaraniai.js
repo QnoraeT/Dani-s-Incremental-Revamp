@@ -89,7 +89,7 @@ const KUA_UPGRADES = {
                 return `Upgrade 1's cost base is decreased by -${format(c.d0_05, 2)}, and Point gain is boosted by Kuaraniai, which increases over time in PRai.`;
             },
             get cost() {
-                return c.e5;
+                return c.e7;
             },
             show: true
         },
@@ -106,7 +106,7 @@ const KUA_UPGRADES = {
                 return i;
             },
             get cost() {
-                return c.e6;
+                return c.e9;
             },
             show: true,
         },
@@ -120,7 +120,7 @@ const KUA_UPGRADES = {
                 return i;
             },
             get cost() {
-                return c.d2e7;
+                return c.d2e11;
             },
             show: true,
         },
@@ -129,7 +129,7 @@ const KUA_UPGRADES = {
                 return `Kuaraniai buffs KShard's PRai effect and increases KPower gain.`;
             },
             get cost() {
-                return c.e9;
+                return c.e13;
             },
             show: true,
         },
@@ -143,7 +143,7 @@ const KUA_UPGRADES = {
                 return i;
             },
             get cost() {
-                return c.e10;
+                return c.e15;
             },
             show: true,
         },
@@ -177,7 +177,7 @@ const KUA_UPGRADES = {
                 return i;
             },
             get cost() {
-                return c.d10;
+                return c.e2;
             },
             show: true
         },
@@ -249,7 +249,7 @@ const KUA_UPGRADES = {
                 return `Upgrade 1 is dilated by ^${format(c.d1_01, 2)}, and PR2's effect uses a better formula.`;
             },
             get cost() {
-                return c.e10;
+                return c.e12;
             },
             show: true,
         },
@@ -264,7 +264,7 @@ const KUA_UPGRADES = {
                 return eff;
             },
             get cost() {
-                return c.e12;
+                return c.e15;
             },
             show: true,
         },
@@ -278,7 +278,7 @@ const KUA_UPGRADES = {
                 return eff;
             },
             get cost() {
-                return c.e15;
+                return c.e18;
             },
             show: true,
         },
@@ -313,7 +313,7 @@ function updateKua(type) {
             tmp.value.kuaCanDo = tmp.value.effectivePrai.gte(tmp.value.kuaReq) && player.value.nerf.kuaActive.gain;
             tmp.value.kuaPending = tmp.value.kuaCanDo ? tmp.value.effectivePrai.log(tmp.value.kuaReq).ln().div(tmp.value.kuaExp.div(tmp.value.kuaDiv)).add(c.d1).pow(tmp.value.kuaExp).sub(c.d1).pow10().mul(tmp.value.kuaMul) : c.d0;
 
-            tmp.value.kuaEffects = { upg1Scaling: c.d1, upg1SuperScaling: c.d1, ptPower: c.d1, upg2Softcap: c.d1, kshardPrai: c.d1, kpower: c.d1, pts: c.d1 };
+            tmp.value.kuaEffects = { up1b: c.d1, up2b: c.d1, up3b: c.d0, upg1Scaling: c.d1, upg1SuperScaling: c.d1, ptPower: c.d1, upg2Softcap: c.d1, kshardPrai: c.d1, kpower: c.d1, pts: c.d1 };
 
             player.value.kua.best = Decimal.max(player.value.kua.best, player.value.kua.amount);
 
@@ -323,6 +323,53 @@ function updateKua(type) {
             }
 
             if (player.value.nerf.kuaActive.effects) {
+                /**
+                 * TODO: PART B, ALL AUTOBUYERS SHOULD BE EASY TO OBTAIN, AT UP1B WHEN KUA > 0, UP2B WHEN KSHARDS > 0, UP3B WHEN KPOWER > 0, AND PR2 >= 12
+                 * Upgrade 1 Part B:
+                 * Base Effect Per Bought (if Kuaraniai === 0, set it to 1): Kuaraniai.log10().add(4).div(13).mul(3).add(1).sqrt().sub(4).pow10().add(1)
+                 * 1.001x at 0.0001 Kuaraniai, 1.01x at 1.00 B Kuaraniai
+                 * Cost Base: 10.00 T, x1.05, x1.001^2
+                 * 
+                 * Upgrade 2 Part B:
+                 * Base Effect Per Bought (if Kuaraniai === 0, set it to 1): Decimal.pow(4, Kuaraniai.log10().add(4).div(13)).div(200).add(1)
+                 * 1.001x at 0.01 Kuaraniai, 1.02x at 1.00 B Kuaraniai
+                 * Cost Base: 100.0 Qi, x1.075, x1.0009^2
+                 * 
+                 * Upgrade 3 Part B:
+                 * Base Effect Per Bought (if Kuaraniai === 0, set it to 0): Kuaraniai.log10().add(4).div(13).mul(7).add(1).cbrt().sub(5).pow10()
+                 * +0.0001 at 1 Kuaraniai, +0.001 at 1.00 B Kuaraniai
+                 * Cost Base: 1.000 Dc, x2, x1.025^2
+                 */
+
+                i = c.d1;
+
+                if (k.neq(c.d0)) {
+                    j = k.log10().add(c.d4).div(c.d13).mul(c.d3).add(c.d1).sqrt().sub(c.d4).pow10().add(c.d1)
+                }
+
+                i = i.mul(j);
+                tmp.value.kuaEffects.up1b = i;
+
+                
+                i = c.d1;
+
+                if (player.value.kua.kshards.amount.neq(c.d0)) {
+                    j = Decimal.pow(c.d20, player.value.kua.kshards.amount.log10().add(c.d2).div(c.d11)).div(c.e3).add(c.d1)
+                }
+
+                i = i.mul(j);
+                tmp.value.kuaEffects.up2b = i;
+
+                
+                i = c.d0;
+
+                if (player.value.kua.kpower.amount.neq(c.d0)) {
+                    j = player.value.kua.kpower.amount.log10().div(c.d9).mul(c.d7).add(c.d1).cbrt().sub(c.d5).pow10()
+                }
+
+                i = i.add(j);
+                tmp.value.kuaEffects.up3b = i;
+
                 i = c.d1;
 
                 j = player.value.points.max(c.d0).add(c.d1).log10().pow(c.d0_6).div(c.d200).mul(k.max(c.d0).mul(c.e4).add(c.d1).pow(c.d2div3).sub(c.d1)).add(c.d1).log10().add(c.d1);

@@ -1,5 +1,22 @@
 // NOTE: ALL INFORMATION USED BY OTHER EFFECTS MUST BE STORED IN THE PLAYER VARIABLE!! LEAVING IT IN TMP WILL BREAK THINGS BECAUSE THEY OULD BE LEFT UNDEFINED!
 // NOTE: Do not test updateProgression(x) because sometimes that could cause infinite loops
+/**
+ * TODO: PART B, ALL AUTOBUYERS SHOULD BE EASY TO OBTAIN, AT UP1B WHEN KUA > 0, UP2B WHEN KSHARDS > 0, UP3B WHEN KPOWER > 0, AND PR2 >= 12
+ * Upgrade 1 Part B:
+ * Base Effect Per Bought (if Kuaraniai === 0, set it to 1): Kuaraniai.log10().add(4).div(13).mul(3).add(1).sqrt().sub(4).pow10().add(1)
+ * 1.001x at 0.0001 Kuaraniai, 1.01x at 1.00 B Kuaraniai
+ * Cost Base: 10.00 T, x1.05, x1.001^2
+ * 
+ * Upgrade 2 Part B:
+ * Base Effect Per Bought (if Kuaraniai === 0, set it to 1): Decimal.pow(4, Kuaraniai.log10().add(4).div(13)).div(200).add(1)
+ * 1.005x at 0.0001 Kuaraniai, 1.02x at 1.00 B Kuaraniai
+ * Cost Base: 100.0 Qi, x1.075, x1.0009^2
+ * 
+ * Upgrade 3 Part B:
+ * Base Effect Per Bought (if Kuaraniai === 0, set it to 0): Kuaraniai.log10().add(4).div(13).mul(7).add(1).cbrt().sub(5).pow10()
+ * +0.0001 at 0.0001 Kuaraniai, +0.001 at 1.00 B Kuaraniai
+ * Cost Base: 1.000 Dc, x2, x1.025^2
+ */
 "use strict";
 
 const PR2_EFF = [
@@ -40,8 +57,23 @@ const PR2_EFF = [
     },
     {
         show: true,
+        get when() { return c.d12 },
+        get text() { return `unlock the Upgrade 1 B-Side autobuyer.`}
+    },
+    {
+        show: true,
+        get when() { return c.d14 },
+        get text() { return `unlock the Upgrade 2 B-Side autobuyer.`}
+    },
+    {
+        show: true,
         get when() { return c.d15 },
         get text() { return `decrease Upgrade 2's superscaling strength by ${formatPerc(c.d8div7, 3)}`}
+    },
+    {
+        show: true,
+        get when() { return c.d18 },
+        get text() { return `unlock the Upgrade 3 B-Side autobuyer.`}
     },
     {
         show: true,
@@ -83,6 +115,27 @@ function buyGenUPG(id){
                 updateStart("upg3");
             }
             break;
+        case 4:
+            if (player.value.points.gte(player.value.generators.upg1.partB.cost)) {
+                player.value.points = player.value.points.sub(player.value.generators.upg1.partB.cost);
+                player.value.generators.upg1.partB.bought = player.value.generators.upg1.partB.bought.add(c.d1);
+                updateStart("upg1B");
+            }
+            break;
+        case 5:
+            if (player.value.points.gte(player.value.generators.upg2.partB.cost)) {
+                player.value.points = player.value.points.sub(player.value.generators.upg2.partB.cost);
+                player.value.generators.upg2.partB.bought = player.value.generators.upg2.partB.bought.add(c.d1);
+                updateStart("upg2B");
+            }
+            break;
+        case 6:
+            if (player.value.points.gte(player.value.generators.upg3.partB.cost)) {
+                player.value.points = player.value.points.sub(player.value.generators.upg3.partB.cost);
+                player.value.generators.upg3.partB.bought = player.value.generators.upg3.partB.bought.add(c.d1);
+                updateStart("upg3B");
+            }
+            break;
         default:
             throw new Error(`Generator upgrade ${id} is not something you can buy... >_>`);
     }
@@ -91,6 +144,9 @@ function buyGenUPG(id){
 function updateAllStart() {
     updateStart("pr2");
     updateStart("prai");
+    updateStart("upg3B");
+    updateStart("upg2B");
+    updateStart("upg1B");
     updateStart("upg3");
     updateStart("upg2");
     updateStart("upg1");
@@ -111,6 +167,7 @@ function updateStart(type) {
             tmp.value.upg1CostDiv = c.d1;
             
             tmp.value.upg1CostDiv = tmp.value.upg1CostDiv.mul(player.value.generators.upg2.effect);
+            tmp.value.upg1CostDiv = tmp.value.upg1CostDiv.mul(player.value.generators.upg2.partB.effect);
 
             scal = player.value.generators.upg1.bought;
             scal = doAllScaling(scal, tmp.value.scaling.upg1, false);
@@ -138,6 +195,7 @@ function updateStart(type) {
 
             i = c.d1_5
             i = i.add(player.value.generators.upg3.effect);
+            i = i.add(player.value.generators.upg3.partB.effect);
             if (player.value.achievements.includes(22)) {
                 i = i.mul(c.d1_01);
             }
@@ -178,10 +236,10 @@ function updateStart(type) {
             tmp.value.upg1CanBuy = player.value.points.gte(player.value.generators.upg1.cost);
             player.value.generators.upg1.best = player.value.generators.upg1.best.max(player.value.generators.upg1.bought);
 
-            tmp.value.up1ScalingColor = `#FFFFFF`
+            tmp.value.upg1ScalingColor = `#FFFFFF`
             for (let i = tmp.value.scaling.upg1.length - 1; i >= 0; i--) {
                 if (player.value.generators.upg1.bought.gte(tmp.value.scaling.upg1[i].start)) {
-                    tmp.value.up1ScalingColor = SCALE_ATTR[i].color;
+                    tmp.value.upg1ScalingColor = SCALE_ATTR[i].color;
                     break;
                 }
             }
@@ -281,10 +339,10 @@ function updateStart(type) {
 
             tmp.value.upg2CanBuy = player.value.points.gte(player.value.generators.upg2.cost);
 
-            tmp.value.up2ScalingColor = `#FFFFFF`
+            tmp.value.upg2ScalingColor = `#FFFFFF`
             for (let i = tmp.value.scaling.upg2.length - 1; i >= 0; i--) {
                 if (player.value.generators.upg2.bought.gte(tmp.value.scaling.upg2[i].start)) {
-                    tmp.value.up2ScalingColor = SCALE_ATTR[i].color;
+                    tmp.value.upg2ScalingColor = SCALE_ATTR[i].color;
                     break;
                 }
             }
@@ -362,10 +420,10 @@ function updateStart(type) {
 
             tmp.value.upg3CanBuy = player.value.points.gte(player.value.generators.upg3.cost);
 
-            tmp.value.up3ScalingColor = `#FFFFFF`
+            tmp.value.upg3ScalingColor = `#FFFFFF`
             for (let i = tmp.value.scaling.upg3.length - 1; i >= 0; i--) {
                 if (player.value.generators.upg3.bought.gte(tmp.value.scaling.upg3[i].start)) {
-                    tmp.value.up3ScalingColor = SCALE_ATTR[i].color;
+                    tmp.value.upg3ScalingColor = SCALE_ATTR[i].color;
                     break;
                 }
             }
@@ -375,6 +433,156 @@ function updateStart(type) {
             }
 
             setAchievement(15, player.value.points.gte(c.e80) && player.value.generators.upg3.bought.eq(c.d0));
+            break;
+        case "upg1B":
+            updateScaling("upg1B");
+            updateSoftcap("upg1B");
+
+            tmp.value.upg1BCostDiv = c.d1;
+
+            scal = player.value.generators.upg1.partB.bought;
+            scal = doAllScaling(scal, tmp.value.scaling.upg1B, false);
+            player.value.generators.upg1.partB.cost = Decimal.pow(c.d1_001, scal.pow(c.d2)).mul(Decimal.pow(c.d1_05, scal)).mul(c.e13).div(tmp.value.upg1BCostDiv);
+
+            if (player.value.points.mul(tmp.value.upg1BCostDiv).gte(c.e10)) {
+                scal = inverseQuad(player.value.points.mul(tmp.value.upg1BCostDiv).log10(), c.d1_001.log10(), c.d1_05.log10(), c.d13)
+                player.value.generators.upg1.partB.target = scal;
+            } else {
+                player.value.generators.upg1.partB.target = c.d0;
+            }
+
+            player.value.generators.upg1.partB.effectBase = tmp.value.kuaEffects.up1b;
+
+            i = c.d0;
+            player.value.generators.upg1.partB.freeExtra = i;
+
+            i = player.value.generators.upg1.partB.bought;
+            i = i.add(player.value.generators.upg1.partB.freeExtra);
+            player.value.generators.upg1.partB.effective = i;
+
+            i = player.value.generators.upg1.partB.effectBase.pow(player.value.generators.upg1.partB.effective);
+            player.value.generators.upg1.partB.effect = i;
+
+            if (player.value.generators.upg1.partB.effective.gte(c.e10)) {
+                player.value.generators.upg1.partB.calculatedEB = player.value.generators.upg1.partB.effectBase;
+            } else {
+                i = player.value.generators.upg1.partB.effectBase.pow(player.value.generators.upg1.partB.effective.add(c.d1));
+                player.value.generators.upg1.partB.calculatedEB = i.div(player.value.generators.upg1.partB.effect);
+            }
+
+            tmp.value.upg1BCanBuy = player.value.points.gte(player.value.generators.upg1.partB.cost);
+
+            tmp.value.upg1BScalingColor = `#FFFFFF`
+            for (let i = tmp.value.scaling.upg1B.length - 1; i >= 0; i--) {
+                if (player.value.generators.upg1B.bought.gte(tmp.value.scaling.upg1B[i].start)) {
+                    tmp.value.upg1BScalingColor = SCALE_ATTR[i].color;
+                    break;
+                }
+            }
+
+            if (player.value.auto.upg1B) {
+                player.value.generators.upg1.partB.bought = Decimal.max(player.value.generators.upg1.partB.bought, player.value.generators.upg1.partB.target.add(c.d1).floor())
+            }
+            break;
+        case "upg2B":
+            updateScaling("upg2B");
+            updateSoftcap("upg2B");
+
+            tmp.value.upg2BCostDiv = c.d1;
+
+            scal = player.value.generators.upg2.partB.bought;
+            scal = doAllScaling(scal, tmp.value.scaling.upg2B, false);
+            player.value.generators.upg2.partB.cost = Decimal.pow(c.d1_0009, scal.pow(c.d2)).mul(Decimal.pow(c.d1_075, scal)).mul(c.e20).div(tmp.value.upg2BCostDiv);
+
+            if (player.value.points.mul(tmp.value.upg2BCostDiv).gte(c.e10)) {
+                scal = inverseQuad(player.value.points.mul(tmp.value.upg2BCostDiv).log10(), c.d1_0009.log10(), c.d1_075.log10(), c.d20)
+                player.value.generators.upg2.partB.target = scal;
+            } else {
+                player.value.generators.upg2.partB.target = c.d0;
+            }
+
+            player.value.generators.upg2.partB.effectBase = tmp.value.kuaEffects.up2b;
+
+            i = c.d0;
+            player.value.generators.upg2.partB.freeExtra = i;
+
+            i = player.value.generators.upg2.partB.bought;
+            i = i.add(player.value.generators.upg2.partB.freeExtra);
+            player.value.generators.upg2.partB.effective = i;
+
+            i = player.value.generators.upg2.partB.effectBase.pow(player.value.generators.upg2.partB.effective);
+            player.value.generators.upg2.partB.effect = i;
+
+            if (player.value.generators.upg2.partB.effective.gte(c.e10)) {
+                player.value.generators.upg2.partB.calculatedEB = player.value.generators.upg2.partB.effectBase;
+            } else {
+                i = player.value.generators.upg2.partB.effectBase.pow(player.value.generators.upg2.partB.effective.add(c.d1));
+                player.value.generators.upg2.partB.calculatedEB = i.div(player.value.generators.upg2.partB.effect);
+            }
+
+            tmp.value.upg2BCanBuy = player.value.points.gte(player.value.generators.upg2.partB.cost);
+
+            tmp.value.upg2BScalingColor = `#FFFFFF`
+            for (let i = tmp.value.scaling.upg2B.length - 1; i >= 0; i--) {
+                if (player.value.generators.upg2B.bought.gte(tmp.value.scaling.upg2B[i].start)) {
+                    tmp.value.upg2BScalingColor = SCALE_ATTR[i].color;
+                    break;
+                }
+            }
+
+            if (player.value.auto.upg2B) {
+                player.value.generators.upg2.partB.bought = Decimal.max(player.value.generators.upg2.partB.bought, player.value.generators.upg2.partB.target.add(c.d1).floor())
+            }
+            break;
+        case "upg3B":
+            updateScaling("upg3B");
+            updateSoftcap("upg3B");
+
+            tmp.value.upg3BCostDiv = c.d1;
+
+            scal = player.value.generators.upg3.partB.bought;
+            scal = doAllScaling(scal, tmp.value.scaling.upg3B, false);
+            player.value.generators.upg3.partB.cost = Decimal.pow(c.d1_025, scal.pow(c.d2)).mul(Decimal.pow(c.d2, scal)).mul(c.e33).div(tmp.value.upg3BCostDiv);
+
+            if (player.value.points.mul(tmp.value.upg3BCostDiv).gte(c.e10)) {
+                scal = inverseQuad(player.value.points.mul(tmp.value.upg3BCostDiv).log10(), c.d1_025.log10(), c.d2.log10(), c.d33)
+                player.value.generators.upg3.partB.target = scal;
+            } else {
+                player.value.generators.upg3.partB.target = c.d0;
+            }
+
+            player.value.generators.upg3.partB.effectBase = tmp.value.kuaEffects.up3b;
+
+            i = c.d0;
+            player.value.generators.upg3.partB.freeExtra = i;
+
+            i = player.value.generators.upg3.partB.bought;
+            i = i.add(player.value.generators.upg3.partB.freeExtra);
+            player.value.generators.upg3.partB.effective = i;
+
+            i = player.value.generators.upg3.partB.effectBase.mul(player.value.generators.upg3.partB.effective);
+            player.value.generators.upg3.partB.effect = i;
+
+            if (player.value.generators.upg3.partB.effective.gte(c.e10)) {
+                player.value.generators.upg3.partB.calculatedEB = player.value.generators.upg3.partB.effectBase;
+            } else {
+                i = player.value.generators.upg3.partB.effectBase.mul(player.value.generators.upg3.partB.effective.add(c.d1));
+                player.value.generators.upg3.partB.calculatedEB = i.sub(player.value.generators.upg3.partB.effect);
+            }
+
+            tmp.value.upg3BCanBuy = player.value.points.gte(player.value.generators.upg3.partB.cost);
+
+            tmp.value.upg3BScalingColor = `#FFFFFF`
+            for (let i = tmp.value.scaling.upg3B.length - 1; i >= 0; i--) {
+                if (player.value.generators.upg3B.bought.gte(tmp.value.scaling.upg3B[i].start)) {
+                    tmp.value.upg3BScalingColor = SCALE_ATTR[i].color;
+                    break;
+                }
+            }
+
+            if (player.value.auto.upg3B) {
+                player.value.generators.upg3.partB.bought = Decimal.max(player.value.generators.upg3.partB.bought, player.value.generators.upg3.partB.target.add(c.d1).floor())
+            }
             break;
         case "prai":
             updateSoftcap("prai");

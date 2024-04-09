@@ -11,6 +11,15 @@ function updateNerf() {
     player.value.nerf.up3Active = i;
     
     i = true;
+    player.value.nerf.up1BActive = i;
+
+    i = true;
+    player.value.nerf.up2BActive = i;
+    
+    i = true;
+    player.value.nerf.up3BActive = i;
+
+    i = true;
     player.value.nerf.praiActive = i;
     
     i = true;

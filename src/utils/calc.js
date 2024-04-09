@@ -35,10 +35,13 @@ const c = {
     d0_9:        Decimal.fromComponents_noNormalize(1, 0, 0.9),
     d0_95:       Decimal.fromComponents_noNormalize(1, 0, 0.95),
     d1:          Decimal.dOne,
+    d1_0009:     Decimal.fromComponents_noNormalize(1, 0, 1.0009),
+    d1_001:      Decimal.fromComponents_noNormalize(1, 0, 1.001),
     d1_01:       Decimal.fromComponents_noNormalize(1, 0, 1.01),
     d1_02:       Decimal.fromComponents_noNormalize(1, 0, 1.02),
     d1_025:      Decimal.fromComponents_noNormalize(1, 0, 1.025),
     d1_05:       Decimal.fromComponents_noNormalize(1, 0, 1.05),
+    d1_075:      Decimal.fromComponents_noNormalize(1, 0, 1.075),
     d1_1:        Decimal.fromComponents_noNormalize(1, 0, 1.1),
     d10div9:     Decimal.fromComponents_noNormalize(1, 0, 10/9), // 1.111111
     d1_125:      Decimal.fromComponents_noNormalize(1, 0, 1.125),
@@ -66,14 +69,18 @@ const c = {
     d10:         Decimal.fromComponents_noNormalize(1, 0, 10),
     d11:         Decimal.fromComponents_noNormalize(1, 0, 11),
     d12:         Decimal.fromComponents_noNormalize(1, 0, 12),
+    d13:         Decimal.fromComponents_noNormalize(1, 0, 13),
+    d14:         Decimal.fromComponents_noNormalize(1, 0, 14),
     d15:         Decimal.fromComponents_noNormalize(1, 0, 15),
     d15_5:       Decimal.fromComponents_noNormalize(1, 0, 15.5),
     d16:         Decimal.fromComponents_noNormalize(1, 0, 16),
+    d18:         Decimal.fromComponents_noNormalize(1, 0, 18),
     d20:         Decimal.fromComponents_noNormalize(1, 0, 20),
     d25:         Decimal.fromComponents_noNormalize(1, 0, 25),
     d30:         Decimal.fromComponents_noNormalize(1, 0, 30),
     d31:         Decimal.fromComponents_noNormalize(1, 0, 31),
     d32:         Decimal.fromComponents_noNormalize(1, 0, 32),
+    d33:         Decimal.fromComponents_noNormalize(1, 0, 33),
     d40:         Decimal.fromComponents_noNormalize(1, 0, 40),
     d50:         Decimal.fromComponents_noNormalize(1, 0, 50),
     d55:         Decimal.fromComponents_noNormalize(1, 0, 55),
@@ -101,15 +108,18 @@ const c = {
     d3e8:        Decimal.fromComponents_noNormalize(1, 0, 300000000), 
     e9:          Decimal.fromComponents_noNormalize(1, 0, 1000000000), 
     e10:         Decimal.fromComponents_noNormalize(1, 0, 10000000000), 
+    d2e11:       Decimal.fromComponents_noNormalize(1, 0, 200000000000), 
     e12:         Decimal.fromComponents_noNormalize(1, 0, 1000000000000), 
     e13:         Decimal.fromComponents_noNormalize(1, 0, 10000000000000), 
     e15:         Decimal.fromComponents_noNormalize(1, 0, 1000000000000000), 
     maxSafe:     Decimal.fromComponents_noNormalize(1, 0, 9007199254740991), // e15.954589770191003
     e16:         Decimal.fromComponents_noNormalize(1, 1, 16),
     e18:         Decimal.fromComponents_noNormalize(1, 1, 18),
+    e20:         Decimal.fromComponents_noNormalize(1, 1, 20),
     e24:         Decimal.fromComponents_noNormalize(1, 1, 24),
     e25:         Decimal.fromComponents_noNormalize(1, 1, 25),
     e30:         Decimal.fromComponents_noNormalize(1, 1, 30),
+    e33:         Decimal.fromComponents_noNormalize(1, 1, 33),
     e35:         Decimal.fromComponents_noNormalize(1, 1, 35),
     e50:         Decimal.fromComponents_noNormalize(1, 1, 50),
     e55:         Decimal.fromComponents_noNormalize(1, 1, 55),
@@ -370,10 +380,10 @@ function intRand(min, max) {
  * @param {Decimal} c + c
  * @returns {Decimal}
  */
-function inverseQuad(x, a, b, c) { // inverse of ax^2+bx+c, only
+function inverseQuad(x, a, b, c) {
     return c.eq(0)
-            ? x.sub(a).div(b)
-            : x.sub(a).mul(c).mul(4).add(b.pow(2)).sqrt().sub(b).div(c.mul(2))
+            ? x.sub(c).div(b)
+            : x.sub(c).mul(a).mul(4).add(b.pow(2)).sqrt().sub(b).div(a.mul(2))
 }
 
 /**
@@ -391,7 +401,7 @@ function inverseCube(x, a, b, c, d, tol = 1e-10) { // inverse of ax^3+bx^2+cx+d
     b = new Decimal(b);
     c = new Decimal(c);
     d = new Decimal(d);
-    let res = x.root(3);
+    let res = x.cbrt();
     let r;
 
     // newton's method 
