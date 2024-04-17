@@ -72,12 +72,14 @@ function formatTime(number, dec = 0, expdec = 3, limit = 2) {
     if (Number.isNaN(n.mag)) return "I don't know?";
     let lim = 0;
     let str = "";
+    let end = false;
     for (let i = timeList.length - 1; i >= 0; i--) {
         if (lim >= limit) {
             break;
         }
         if (n.gte(timeList[i].amt)) {
-            str = str + " " + format(n.div(timeList[i].amt), (lim + 1 >= limit || timeList[i].stop) ? dec : 0, expdec) + " " + timeList[i].name;
+            end = lim + 1 >= limit || timeList[i].stop;
+            str = str + " " + format(n.div(timeList[i].amt).sub(end ? 0 : 0.5), end ? dec : 0, expdec) + " " + timeList[i].name;
             n = n.sub(n.div(timeList[i].amt).floor().mul(timeList[i].amt));
             lim++;
             if (timeList[i].stop) {
@@ -85,7 +87,7 @@ function formatTime(number, dec = 0, expdec = 3, limit = 2) {
             }
         } else {
             if (i === 0) {
-                return format(n, dec, expdec) + " s";
+                return (str + " " + format(n, dec, expdec) + " s").slice(1);
             }
         }
     }

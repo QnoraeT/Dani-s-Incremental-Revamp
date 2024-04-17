@@ -201,11 +201,11 @@ function scale(num, type, inverse = false, start, str, powScale) {
             return inverse
                     ? num.mul(str).mul(str.ln()).div(start).lambertw().mul(start).div(str.ln())
                     : Decimal.pow(str, num.div(start).sub(1)).mul(num)
-        case 1.3: // i gotta say, i have to give props to alemaninc for coming up with this cuz i never figured out a way to make a log cap smooth without an extreme growth difference lol cuz i wasn't able to figure it out myself
+        case 1.3:  // alemaninc
         case "E3":
             return inverse
-                    ? num.div(start).root(str).sub(1).mul(str).exp().mul(start)
-                    : num.div(start).ln().div(str).add(1).pow(str).mul(start)
+                    ? num.div(start).ln().mul(str).add(1).root(str).mul(start)
+                    : num.div(start).pow(str).sub(1).div(str).exp().mul(start)
         // Semi-exponential
         case 2:
         case 2.1:
@@ -217,8 +217,16 @@ function scale(num, type, inverse = false, start, str, powScale) {
         case 2.2:
         case "SE2":
             return inverse
-                    ? Decimal.pow(start, num).root(str).add(1).mul(str).sub(1).log(start)
+                    ? Decimal.pow(start, num.log(start).sub(1).mul(str).add(1).root(str))
                     : Decimal.pow(start, num.log(start).pow(str).sub(1).div(str).add(1))
+        // convergent
+        case 3: // alemaninc
+        case 3.1:
+        case "C":
+        case "C1":
+            return inverse
+                    ? str.mul(num).add(start.pow(2)).sub(start.mul(num).mul(2)).div(str.sub(num))
+                    : str.mul(num).sub(start.pow(2)).div(p.sub(start.mul(2)).add(num));
         default:
             throw new Error(`Scaling type ${type} doesn't exist`);
     }

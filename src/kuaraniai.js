@@ -293,6 +293,24 @@ function updateKua(type) {
     let scal, pow, sta, i, j, k;
     switch (type) {
         case "kua":
+            tmp.value.kuaValid = {
+                amount: D(player.value.kua.amount),
+                total: D(player.value.kua.total),
+                best: D(player.value.kua.best),
+                timeInKua: D(player.value.kua.timeInKua),
+                times: D(player.value.kua.times),
+                kshards: {
+                    amount: c.d0,
+                    total: c.d0,
+                    best: c.d0
+                },
+                kpower: {
+                    amount: c.d0,
+                    total: c.d0,
+                    best: c.d0
+                }
+            }
+
             player.value.kua.best = Decimal.max(player.value.kua.amount, player.value.kua.best);
             player.value.kua.kshards.best = Decimal.max(player.value.kua.kshards.amount, player.value.kua.kshards.best);
             player.value.kua.kpower.best = Decimal.max(player.value.kua.kpower.amount, player.value.kua.kpower.best);

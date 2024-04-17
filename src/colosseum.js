@@ -11,7 +11,7 @@ function inChallenge(id) {
 }
 
 function challengeDepth(id) {
-    if (!inChallenge(id)) { return D(0) }
+    if (!inChallenge(id)) { return c.d0; }
     return player.value.inChallenge[id].depth;
 }
 
@@ -163,6 +163,10 @@ function challengeToggle(id) {
         player.value.col.challengeOrder.layer.push(COL_CHALLENGES[id].layer);
         reset("col", true)
     } else {
+        if (player.value.points.gte(COL_CHALLENGES[id].goal)) {
+            player.value.col.completed[id].add(c.d1);
+        }
+
         let layerExited = player.value.col.challengeOrder.layer[player.value.col.challengeOrder.chalID.indexOf(id)];
         for (let i = player.value.col.challengeOrder.chalID.length - 1; i >= 0; i--) {
             if (player.value.col.challengeOrder.layer[i] > layerExited) {

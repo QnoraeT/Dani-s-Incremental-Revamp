@@ -250,7 +250,9 @@ function resetPlayer() {
             inAChallenge: false,
             completed: {},
             challengeOrder: {chalID: [], layer: []},
-            saved: {},
+            saved: {
+                nk: {kua: {kpower: {}, kshards: {}}, pr2: {}, prai: {}, auto: {}}
+            },
             power: c.d0,
             totalPower: c.d0,
             bestPower: c.d0,
@@ -272,35 +274,57 @@ function resetPlayer() {
 }
 
 function fixData(defaultData, newData) {
+    console.log('fixData called, default data:')
+    console.log(defaultData)
+    console.log('newData:')
+    console.log(newData)
     let item;
     for (item in defaultData) {
+        console.log('defaultData item:')
+        console.log(item)
         if (defaultData[item] == null) {
-            if (newData[item] === undefined);
-            newData[item] = null;
-        } else if (Array.isArray(defaultData[item])) {
+            console.log('item of default is null!')
             if (newData[item] === undefined) {
+                console.log('item of new is also undefined, therefore set to null')
+                newData[item] = null;
+            }
+        } else if (Array.isArray(defaultData[item])) {
+            console.log('item of default is array!')
+            if (newData[item] === undefined) {
+                console.log('item of new is undefined, therefore set to item of default')
                 newData[item] = defaultData[item];
             } else {
+                console.log('item of new is not undefined, therefore recurse!')
                 fixData(defaultData[item], newData[item]);
             }
         } else if (defaultData[item] instanceof Decimal) { // Convert to Decimal
+            console.log('item of default is a decimal!')
             if (newData[item] === undefined) {
+                console.log('item of new is undefined, therefore set to item of default')
                 newData[item] = defaultData[item];
             } else {
+                console.log('item of new is not undefined, therefore decimalize!')
                 newData[item] = new Decimal(newData[item]);
             }
         } else if ((!!defaultData[item]) && (typeof defaultData[item] === "object")) {
+            console.log('item of default is object!')
             if (newData[item] === undefined || (typeof defaultData[item] !== "object")) {
+                console.log('item of new is undefined or item of default is not an object, therefore set to item of default')
                 newData[item] = defaultData[item];
             } else {
+                console.log('item of new is not undefined, therefore recurse!')
                 fixData(defaultData[item], newData[item]);
             }
         } else {
+            console.log('item of default is valid...')
             if (newData[item] === undefined) {
+                console.log('item of new is undefined... set it to item of default')
                 newData[item] = defaultData[item];
             }
         }
     }
+    console.warn('return newData:')
+    console.log(newData)
     return newData;
 }
 

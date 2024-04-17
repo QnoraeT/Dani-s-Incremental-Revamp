@@ -119,14 +119,14 @@ function updateSoftcap(type) {
     switch (type) {
         case "upg1":
             if (tmp.value.softcap.upg1 === undefined) { tmp.value.softcap.upg1 = [] };
-            tmp.value.softcap.upg1[0] = { res: player.value.generators.upg1.effect, start: c.e100, strength: c.d1 };
+            tmp.value.softcap.upg1[0] = { res: player.value.generators.upg1.effect.pow(c.d2), start: c.e100, strength: c.d1 };
             break;
         case "upg1B":
             if (tmp.value.softcap.upg1B === undefined) { tmp.value.softcap.upg1B = [] };
             break;
         case "upg2":
             if (tmp.value.softcap.upg2 === undefined) { tmp.value.softcap.upg2 = [] };
-            tmp.value.softcap.upg2[0] = { res: player.value.generators.upg2.effect, start: c.d10, strength: c.d1 };
+            tmp.value.softcap.upg2[0] = { res: player.value.generators.upg2.effect.pow(c.d2), start: c.d10, strength: c.d1 };
 
             if (getKuaUpgrade("p", 4)) {
                 tmp.value.softcap.upg2[0].start = tmp.value.softcap.upg2[0].start.mul(KUA_UPGRADES.KPower[3].eff);
@@ -148,18 +148,18 @@ function updateSoftcap(type) {
             break;
         case "upg3":
             if (tmp.value.softcap.upg3 === undefined) { tmp.value.softcap.upg3 = [] };
-            tmp.value.softcap.upg3[0] = { res: player.value.generators.upg3.effect, start: c.d8_5, strength: c.d1 };
+            tmp.value.softcap.upg3[0] = { res: player.value.generators.upg3.effect.mul(c.d2), start: c.d8_5, strength: c.d1 };
             break;
         case "upg3B":
             if (tmp.value.softcap.upg3B === undefined) { tmp.value.softcap.upg3B = [] };
             break;
         case "prai":
             if (tmp.value.softcap.praiGain === undefined) { tmp.value.softcap.praiGain = [] };
-            tmp.value.softcap.praiGain[0] = { res: player.value.generators.prai.effect, start: c.maxNum, strength: c.d1 };
-            tmp.value.softcap.praiGain[1] = { res: player.value.generators.prai.effect, start: c.maxNum, strength: c.d1 };
+            tmp.value.softcap.praiGain[0] = { res: player.value.generators.prai.effect.pow(c.d2), start: c.maxNum, strength: c.d1 };
+            tmp.value.softcap.praiGain[1] = { res: player.value.generators.prai.effect.pow(c.d2), start: c.maxNum, strength: c.d1 };
 
             if (tmp.value.softcap.praiEffect === undefined) { tmp.value.softcap.praiEffect = [] };
-            tmp.value.softcap.praiEffect[0] = { res: tmp.value.praiPending ?? c.d0, start: c.e80, strength: c.d1 };
+            tmp.value.softcap.praiEffect[0] = { res: (tmp.value.praiPending ?? c.d0).pow(c.d2), start: c.e80, strength: c.d1 };
             break;
         default:
             throw new Error(`updateSoftcap ${type} does not exist`);
