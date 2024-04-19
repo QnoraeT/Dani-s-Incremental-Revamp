@@ -53,7 +53,9 @@ const COL_CHALLENGES = {
         desc: `All Kuaraniai resources and upgrades are disabled.`,
         reward: `Unlock another tab in this tab, and every KPower Upgrade above 10 unlocks a new challenge.`,
         cap: c.d1,
-        show: true
+        show: true,
+        get progress() { return Decimal.min(1, player.value.points.max(c.d1).log10().div(this.goal.log10())) },
+        get progDisplay() { return `${format(player.value.points)} / ${format(this.goal)} (${format(this.progress.mul(c.e2), 3)}%)` }
     }
 }
 
@@ -164,7 +166,10 @@ function challengeToggle(id) {
         reset("col", true)
     } else {
         if (player.value.points.gte(COL_CHALLENGES[id].goal)) {
-            player.value.col.completed[id].add(c.d1);
+            if (player.value.col.completed[id] === undefined) {
+                player.value.col.completed[id] = c.d0;
+            }
+            player.value.col.completed[id] = player.value.col.completed[id].add(c.d1);
         }
 
         let layerExited = player.value.col.challengeOrder.layer[player.value.col.challengeOrder.chalID.indexOf(id)];
@@ -175,5 +180,4 @@ function challengeToggle(id) {
             exitChallenge(player.value.col.challengeOrder.chalID[i]);
         }
     }
-    updateAllCol();
 }

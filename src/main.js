@@ -250,9 +250,7 @@ function resetPlayer() {
             inAChallenge: false,
             completed: {},
             challengeOrder: {chalID: [], layer: []},
-            saved: {
-                nk: {kua: {kpower: {}, kshards: {}}, pr2: {}, prai: {}, auto: {}}
-            },
+            saved: {},
             power: c.d0,
             totalPower: c.d0,
             bestPower: c.d0,
@@ -273,58 +271,66 @@ function resetPlayer() {
     }
 }
 
+function fixGame2() {
+    player.value.generators.prai.amount     = D(player.value.generators.prai.amount);
+    player.value.generators.prai.best       = D(player.value.generators.prai.best);
+    player.value.generators.prai.bestInPR2  = D(player.value.generators.prai.bestInPR2);
+    player.value.generators.prai.effect     = D(player.value.generators.prai.effect);
+    player.value.generators.prai.timeInPRai = D(player.value.generators.prai.timeInPRai);
+    player.value.generators.prai.times      = D(player.value.generators.prai.times);
+    player.value.generators.prai.total      = D(player.value.generators.prai.total);
+    player.value.generators.prai.totalInKua = D(player.value.generators.prai.totalInKua);
+    player.value.generators.prai.totalInPR2 = D(player.value.generators.prai.totalInPR2);
+    player.value.generators.pr2.amount      = D(player.value.generators.pr2.amount);
+    player.value.generators.pr2.best        = D(player.value.generators.pr2.best);
+    player.value.generators.pr2.cost        = D(player.value.generators.pr2.cost);
+    player.value.generators.pr2.effect      = D(player.value.generators.pr2.effect);
+    player.value.generators.pr2.freeExtra   = D(player.value.generators.pr2.freeExtra);
+    player.value.generators.pr2.target      = D(player.value.generators.pr2.target);
+    player.value.kua.amount                 = D(player.value.kua.amount);
+    player.value.kua.total                  = D(player.value.kua.total);
+    player.value.kua.best                   = D(player.value.kua.best);
+    player.value.kua.timeInKua              = D(player.value.kua.timeInKua);
+    player.value.kua.times                  = D(player.value.kua.times);
+    player.value.kua.kshards.amount         = D(player.value.kua.kshards.amount);
+    player.value.kua.kshards.total          = D(player.value.kua.kshards.total);
+    player.value.kua.kshards.best           = D(player.value.kua.kshards.best);
+    player.value.kua.kpower.amount          = D(player.value.kua.kpower.amount);
+    player.value.kua.kpower.total           = D(player.value.kua.kpower.total);
+    player.value.kua.kpower.best            = D(player.value.kua.kpower.best);
+}
+
 function fixData(defaultData, newData) {
-    console.log('fixData called, default data:')
-    console.log(defaultData)
-    console.log('newData:')
-    console.log(newData)
     let item;
     for (item in defaultData) {
-        console.log('defaultData item:')
-        console.log(item)
         if (defaultData[item] == null) {
-            console.log('item of default is null!')
             if (newData[item] === undefined) {
-                console.log('item of new is also undefined, therefore set to null')
                 newData[item] = null;
             }
         } else if (Array.isArray(defaultData[item])) {
-            console.log('item of default is array!')
             if (newData[item] === undefined) {
-                console.log('item of new is undefined, therefore set to item of default')
                 newData[item] = defaultData[item];
             } else {
-                console.log('item of new is not undefined, therefore recurse!')
                 fixData(defaultData[item], newData[item]);
             }
         } else if (defaultData[item] instanceof Decimal) { // Convert to Decimal
-            console.log('item of default is a decimal!')
             if (newData[item] === undefined) {
-                console.log('item of new is undefined, therefore set to item of default')
                 newData[item] = defaultData[item];
             } else {
-                console.log('item of new is not undefined, therefore decimalize!')
                 newData[item] = new Decimal(newData[item]);
             }
         } else if ((!!defaultData[item]) && (typeof defaultData[item] === "object")) {
-            console.log('item of default is object!')
             if (newData[item] === undefined || (typeof defaultData[item] !== "object")) {
-                console.log('item of new is undefined or item of default is not an object, therefore set to item of default')
                 newData[item] = defaultData[item];
             } else {
-                console.log('item of new is not undefined, therefore recurse!')
                 fixData(defaultData[item], newData[item]);
             }
         } else {
-            console.log('item of default is valid...')
             if (newData[item] === undefined) {
-                console.log('item of new is undefined... set it to item of default')
                 newData[item] = defaultData[item];
             }
         }
     }
-    console.warn('return newData:')
-    console.log(newData)
     return newData;
 }
 
@@ -534,6 +540,10 @@ function loadGame() {
                 player.value.gameTime = player.value.gameTime.add(gameDelta);
                 player.value.totalTime += otherGameStuffIg.delta;
                 otherGameStuffIg.sessionTime += otherGameStuffIg.delta;
+
+                // too important because i do not know what's causing this but challenges fuck up the save and i don't know why
+                // TODO: find a reason why player.value.col.saved[challengeID] is not getting Decimal'd for Kua, PRai, and PR2 so fix it so i don't have to do this garbage
+                // fixGame2();
 
                 updateNerf();
 

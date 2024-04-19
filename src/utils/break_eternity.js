@@ -288,42 +288,53 @@
       var np = n;
       l = l + 1 / (12 * np);
       np = np * n2;
-      l = l + 1 / (360 * np);
+      l = l - 1 / (360 * np);
       np = np * n2;
       l = l + 1 / (1260 * np);
       np = np * n2;
-      l = l + 1 / (1680 * np);
+      l = l - 1 / (1680 * np);
       np = np * n2;
       l = l + 1 / (1188 * np);
       np = np * n2;
-      l = l + 691 / (360360 * np);
+      l = l - 691 / (360360 * np);
       np = np * n2;
       l = l + 7 / (1092 * np);
       np = np * n2;
-      l = l + 3617 / (122400 * np);
+      l = l - 3617 / (122400 * np);
       return Math.exp(l) / scal1;
     };
     var _EXPN1 = 0.36787944117144232159553; // exp(-1)
     var OMEGA = 0.56714329040978387299997; // W(1, 0)
     //from https://math.stackexchange.com/a/465183
     // The evaluation can become inaccurate very close to the branch point
+    // Evaluates W(x, 0) if principal is true, W(x, -1) if principal is false
     var f_lambertw = function f_lambertw(z) {
       var tol = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1e-10;
+      var principal = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
       var w;
       var wn;
       if (!Number.isFinite(z)) {
         return z;
       }
-      if (z === 0) {
-        return z;
-      }
-      if (z === 1) {
-        return OMEGA;
-      }
-      if (z < 10) {
-        w = 0;
+      if (principal) {
+        if (z === 0) {
+          return z;
+        }
+        if (z === 1) {
+          return OMEGA;
+        }
+        if (z < 10) {
+          w = 0;
+        } else {
+          w = Math.log(z) - Math.log(Math.log(z));
+        }
       } else {
-        w = Math.log(z) - Math.log(Math.log(z));
+        if (z === 0) return -Infinity;
+        if (z <= -0.1) {
+          w = -2;
+        } else {
+          w = Math.log(-z) - Math.log(-Math.log(-z));
+        }
       }
       for (var i = 0; i < 100; ++i) {
         wn = (z * Math.exp(-w) + w * w) / (w + 1);
@@ -340,19 +351,31 @@
     // The evaluation can become inaccurate very close to the branch point
     // at ``-1/e``. In some corner cases, `lambertw` might currently
     // fail to converge, or can end up on the wrong branch.
+    // Evaluates W(x, 0) if principal is true, W(x, -1) if principal is false
     function d_lambertw(z) {
       var tol = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1e-10;
+      var principal = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
       var w;
       var ew, wewz, wn;
       if (!Number.isFinite(z.mag)) {
-        return z;
+        return new Decimal(z);
       }
-      if (z.eq(Decimal.dZero)) {
-        return z;
-      }
-      if (z.eq(Decimal.dOne)) {
-        //Split out this case because the asymptotic series blows up
-        return Decimal.fromNumber(OMEGA);
+      if (principal) {
+        if (z.eq(Decimal.dZero)) {
+          return FC_NN(0, 0, 0);
+        }
+        if (z.eq(Decimal.dOne)) {
+          //Split out this case because the asymptotic series blows up
+          return Decimal.fromNumber(OMEGA);
+        }
+        //Get an initial guess for Halley's method
+        w = Decimal.ln(z);
+      } else {
+        if (z.eq(Decimal.dZero)) {
+          return FC_NN(-1, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+        }
+        //Get an initial guess for Halley's method
+        w = Decimal.ln(z.neg());
       }
       //Get an initial guess for Halley's method
       w = Decimal.ln(z);
@@ -1019,7 +1042,7 @@
           if (this.layer === 0) {
             return FC(this.sign, 0, Math.round(this.mag));
           }
-          return this;
+          return new Decimal(this);
         }
       }, {
         key: "floor",
@@ -1804,17 +1827,23 @@
             var this_num = this.toNumber();
             //within the convergence range?
             if (this_num <= 1.44466786100976613366 && this_num >= 0.06598803584531253708) {
+              var negln = Decimal.ln(this).neg();
+              //For bases above 1, b^x = x has two solutions. The lower solution is a stable equilibrium, the upper solution is an unstable equilibrium.
+              var lower = negln.lambertw().div(negln);
+              // However, if the base is below 1, there's only the stable equilibrium solution.
+              if (this_num < 1) return lower;
+              var upper = negln.lambertw(false).div(negln);
               //hotfix for the very edge of the number range not being handled properly
               if (this_num > 1.444667861009099) {
-                return Decimal.fromNumber(Math.E);
+                lower = upper = Decimal.fromNumber(Math.E);
               }
               //Formula for infinite height power tower.
-              var negln = Decimal.ln(this).neg();
-              return negln.lambertw().div(negln);
+              payload = D(payload);
+              if (payload.eq(upper)) return upper;else if (payload.lt(upper)) return lower;else return FC_NN(1, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
             } else if (this_num > 1.44466786100976613366) {
               //explodes to infinity
               // TODO: replace this with Decimal.dInf
-              return Decimal.fromNumber(Number.POSITIVE_INFINITY);
+              return FC_NN(1, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
             } else {
               //0.06598803584531253708 > this_num >= 0: never converges
               //this_num < 0: quickly becomes a complex number
@@ -1837,10 +1866,11 @@
           var oldheight = height;
           height = Math.trunc(height);
           var fracheight = oldheight - height;
-          if (this.gt(Decimal.dZero) && this.lte(1.44466786100976613366) && (oldheight > 10000 || !linear)) {
-            //similar to 0^^n, flip-flops between two values, converging slowly (or if it's below 0.06598803584531253708, never. so once again, the fractional part at the end will be a linear approximation (TODO: again pending knowledge of how to approximate better, although tbh I think it should in reality just be NaN)
-            height = Math.min(10000, height);
-            for (var i = 0; i < height; ++i) {
+          if (this.gt(Decimal.dZero) && (this.lt(1) || this.lte(1.44466786100976613366) && payload.lte(Decimal.ln(this).neg().lambertw(false).div(Decimal.ln(this).neg()))) && (oldheight > 10000 || !linear)) {
+            //similar to 0^^n, flip-flops between two values, converging slowly (or if it's below 0.06598803584531253708, never). So once again, the fractional part at the beginning will be a linear approximation (TODO: again pending knowledge of how to approximate better, although tbh I think it should in reality just be NaN)
+            var limitheight = Math.min(10000, height);
+            if (payload.eq(Decimal.dOne)) payload = this.pow(fracheight);else if (this.lt(1)) payload = payload.pow(1 - fracheight).mul(this.pow(payload).pow(fracheight));else payload = payload.layeradd(fracheight, this);
+            for (var i = 0; i < limitheight; ++i) {
               var old_payload = payload;
               payload = this.pow(payload);
               //stop early if we converge
@@ -1848,13 +1878,8 @@
                 return payload;
               }
             }
-            if (fracheight != 0 || oldheight > 10000) {
-              var next_payload = this.pow(payload);
-              if (oldheight <= 10000 || Math.ceil(oldheight) % 2 == 0) {
-                return payload.mul(1 - fracheight).add(next_payload.mul(fracheight));
-              } else {
-                return payload.mul(fracheight).add(next_payload.mul(1 - fracheight));
-              }
+            if (oldheight > 10000 && Math.ceil(oldheight) % 2 == 1) {
+              return this.pow(payload);
             }
             return payload;
           }
@@ -1876,6 +1901,8 @@
             } else {
               if (this.eq(10)) {
                 payload = payload.layeradd10(fracheight, linear);
+              } else if (this.lt(1)) {
+                payload = payload.pow(1 - fracheight).mul(this.pow(payload).pow(fracheight));
               } else {
                 payload = payload.layeradd(fracheight, this, linear);
               }
@@ -1944,6 +1971,7 @@
             if (base.eq(10)) {
               result = result.layeradd10(-fraction, linear);
             } else {
+              //I have no clue what a fractional times on a base below 1 should even mean, so I'm not going to bother - just let it be NaN (TODO: come up with what the answer actually should be)
               result = result.layeradd(-fraction, base, linear);
             }
           }
@@ -2014,7 +2042,13 @@
           }
           //slog_n(0) is -1
           if (this.mag < 0 || this.eq(Decimal.dZero)) {
-            return Decimal.dNegOne;
+            return FC_NN(-1, 0, 1);
+          }
+          if (base.lt(1.44466786100976613366)) {
+            var negln = Decimal.ln(base).neg();
+            var infTower = negln.lambertw().div(negln);
+            if (this.eq(infTower)) return FC_NN(1, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
+            if (this.gt(infTower)) return FC_NN(Number.NaN, Number.NaN, Number.NaN);
           }
           var result = 0;
           var copy = Decimal.fromDecimal(this);
@@ -2115,7 +2149,25 @@
         key: "layeradd",
         value: function layeradd(diff, base) {
           var linear = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-          var slogthis = this.slog(base).toNumber();
+          var baseD = D(base);
+          if (baseD.gt(1) && baseD.lte(1.44466786100976613366)) {
+            var excessSlog = Decimal.excess_slog(this, base, linear);
+            var _slogthis = excessSlog[0].toNumber();
+            var range = excessSlog[1];
+            var _slogdest = _slogthis + diff;
+            var negln = Decimal.ln(base).neg();
+            var lower = negln.lambertw().div(negln);
+            var upper = negln.lambertw(false).div(negln);
+            var slogzero = Decimal.dOne;
+            if (range == 1) slogzero = lower.mul(upper).sqrt();else if (range == 2) slogzero = upper.mul(2);
+            var slogone = baseD.pow(slogzero);
+            var wholeheight = Math.floor(_slogdest);
+            var fracheight = _slogdest - wholeheight;
+            var towertop = slogzero.pow(1 - fracheight).mul(slogone.pow(fracheight));
+            return Decimal.tetrate(baseD, wholeheight, towertop, linear); //wholediff is a whole number so this is safe even if it ends up calling iteratedlog
+          }
+  
+          var slogthis = this.slog(base, 100, linear).toNumber();
           var slogdest = slogthis + diff;
           if (slogdest >= 0) {
             return Decimal.tetrate(base, slogdest, Decimal.dOne, linear);
@@ -2133,21 +2185,32 @@
       }, {
         key: "lambertw",
         value: function lambertw() {
+          var principal = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
           if (this.lt(-0.3678794411710499)) {
-            throw Error(`lambertw() ERROR: ${this} cannot be calculated! (Lambertw() may only work with values > -0.3678794411710499)`);
-          } else if (this.mag < 0) {
-            return Decimal.fromNumber(f_lambertw(this.toNumber()));
-          } else if (this.layer === 0) {
-            return Decimal.fromNumber(f_lambertw(this.sign * this.mag));
-          } else if (this.layer === 1) {
-            return d_lambertw(this);
-          } else if (this.layer === 2) {
-            return d_lambertw(this);
+            return FC_NN(Number.NaN, Number.NaN, Number.NaN); //complex
+          } else if (principal) {
+            if (this.abs().lt("1e-300")) return new Decimal(this);else if (this.mag < 0) {
+              return Decimal.fromNumber(f_lambertw(this.toNumber()));
+            } else if (this.layer === 0) {
+              return Decimal.fromNumber(f_lambertw(this.sign * this.mag));
+            } else if (this.lt("eee15")) {
+              return d_lambertw(this);
+            } else {
+              // Numbers this large would sometimes fail to converge using d_lambertw, and at this size this.ln() is close enough
+              return this.ln();
+            }
+          } else {
+            if (this.sign === 1) {
+              return FC_NN(Number.NaN, Number.NaN, Number.NaN); //complex
+            }
+            if (this.layer === 0) {
+              return Decimal.fromNumber(f_lambertw(this.sign * this.mag, 1e-10, false));
+            } else if (this.layer == 1) {
+              return d_lambertw(this, 1e-10, false);
+            } else {
+              return this.neg().recip().lambertw().neg();
+            }
           }
-          if (this.layer >= 3) {
-            return FC_NN(this.sign, this.layer - 1, this.mag);
-          }
-          throw "Unhandled behavior in lambertw()";
         }
         //The super square-root function - what number, tetrated to height 2, equals this?
         //Other sroots are possible to calculate probably through guess and check methods, this one is easy though.
@@ -3116,8 +3179,8 @@
         }
       }, {
         key: "lambertw",
-        value: function lambertw(value) {
-          return D(value).lambertw();
+        value: function lambertw(value, principal) {
+          return D(value).lambertw(principal);
         }
       }, {
         key: "ssqrt",
@@ -3309,6 +3372,109 @@
           } else {
             return Math.pow(base, Math.log(lower) / Math.log(base) * (1 - frac) + Math.log(upper) / Math.log(base) * frac);
           }
+        }
+      }, {
+        key: "excess_slog",
+        value: function excess_slog(value, base) {
+          var linear = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+          value = D(value);
+          base = D(base);
+          var baseD = base;
+          base = base.toNumber();
+          if (base == 1 || base <= 0) return [FC_NN(Number.NaN, Number.NaN, Number.NaN), 0];
+          if (base > 1.44466786100976613366) return [value.slog(base, 100, linear), 0];
+          var negln = Decimal.ln(base).neg();
+          var lower = negln.lambertw().div(negln);
+          var upper = Decimal.dInf;
+          if (base > 1) upper = negln.lambertw(false).div(negln);
+          if (base > 1.444667861009099) {
+            lower = upper = Decimal.fromNumber(Math.E);
+          }
+          if (value.lt(lower)) return [value.slog(base, 100, linear), 0];
+          if (value.eq(lower)) return [FC_NN(1, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY), 0];
+          if (value.eq(upper)) return [FC_NN(1, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY), 2];
+          if (value.gt(upper)) {
+            var slogzero = upper.mul(2);
+            var slogone = baseD.pow(slogzero);
+            var estimate = 0;
+            if (value.gte(slogzero) && value.lt(slogone)) estimate = 0;else if (value.gte(slogone)) {
+              var payload = slogone;
+              estimate = 1;
+              while (payload.lt(value)) {
+                payload = baseD.pow(payload);
+                estimate = estimate + 1;
+                if (payload.layer > 3) {
+                  var layersleft = Math.floor(value.layer - payload.layer + 1);
+                  payload = baseD.iteratedexp(layersleft, payload, linear);
+                  estimate = estimate + layersleft;
+                }
+              }
+              if (payload.gt(value)) {
+                payload = payload.log(base);
+                estimate = estimate - 1;
+              }
+            } else if (value.lt(slogzero)) {
+              var _payload5 = slogzero;
+              estimate = 0;
+              while (_payload5.gt(value)) {
+                _payload5 = _payload5.log(base);
+                estimate = estimate - 1;
+              }
+            }
+            var fracheight = 0;
+            var tested = 0;
+            var step_size = 0.5;
+            var towertop = slogzero;
+            var guess = Decimal.dZero;
+            while (step_size > 1e-16) {
+              tested = fracheight + step_size;
+              towertop = slogzero.pow(1 - tested).mul(slogone.pow(tested)); //Weighted geometric average
+              guess = Decimal.iteratedexp(base, estimate, towertop);
+              if (guess.eq(value)) return [new Decimal(estimate + tested), 2];else if (guess.lt(value)) fracheight += step_size;
+              step_size /= 2;
+            }
+            if (guess.neq_tolerance(value, 1e-7)) return [FC_NN(Number.NaN, Number.NaN, Number.NaN), 0];
+            return [new Decimal(estimate + fracheight), 2];
+          }
+          if (value.lt(upper) && value.gt(lower)) {
+            var _slogzero = lower.mul(upper).sqrt(); //Geometric mean of the two b^x = x solutions
+            var _slogone = baseD.pow(_slogzero);
+            var _estimate = 0;
+            if (value.lte(_slogzero) && value.gt(_slogone)) _estimate = 0;else if (value.lte(_slogone)) {
+              var _payload6 = _slogone;
+              _estimate = 1;
+              while (_payload6.gt(value)) {
+                _payload6 = baseD.pow(_payload6);
+                _estimate = _estimate + 1;
+              }
+              if (_payload6.lt(value)) {
+                _payload6 = _payload6.log(base);
+                _estimate = _estimate - 1;
+              }
+            } else if (value.gt(_slogzero)) {
+              var _payload7 = _slogzero;
+              _estimate = 0;
+              while (_payload7.lt(value)) {
+                _payload7 = _payload7.log(base);
+                _estimate = _estimate - 1;
+              }
+            }
+            var _fracheight = 0;
+            var _tested = 0;
+            var _step_size = 0.5;
+            var _towertop = _slogzero;
+            var _guess2 = Decimal.dZero;
+            while (_step_size > 1e-16) {
+              _tested = _fracheight + _step_size;
+              _towertop = _slogzero.pow(1 - _tested).mul(_slogone.pow(_tested)); //Weighted geometric average
+              _guess2 = Decimal.iteratedexp(base, _estimate, _towertop);
+              if (_guess2.eq(value)) return [new Decimal(_estimate + _tested), 1];else if (_guess2.gt(value)) _fracheight += _step_size;
+              _step_size /= 2;
+            }
+            if (_guess2.neq_tolerance(value, 1e-7)) return [FC_NN(Number.NaN, Number.NaN, Number.NaN), 0];
+            return [new Decimal(_estimate + _fracheight), 1];
+          }
+          throw new Error("Unhandled behavior in excess_slog");
         }
       }]);
       return Decimal;

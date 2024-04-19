@@ -1,22 +1,5 @@
 // NOTE: ALL INFORMATION USED BY OTHER EFFECTS MUST BE STORED IN THE PLAYER VARIABLE!! LEAVING IT IN TMP WILL BREAK THINGS BECAUSE THEY OULD BE LEFT UNDEFINED!
 // NOTE: Do not test updateProgression(x) because sometimes that could cause infinite loops
-/**
- * TODO: PART B, ALL AUTOBUYERS SHOULD BE EASY TO OBTAIN, AT UP1B WHEN KUA > 0, UP2B WHEN KSHARDS > 0, UP3B WHEN KPOWER > 0, AND PR2 >= 12
- * Upgrade 1 Part B:
- * Base Effect Per Bought (if Kuaraniai === 0, set it to 1): Kuaraniai.log10().add(4).div(13).mul(3).add(1).sqrt().sub(4).pow10().add(1)
- * 1.001x at 0.0001 Kuaraniai, 1.01x at 1.00 B Kuaraniai
- * Cost Base: 10.00 T, x1.05, x1.001^2
- * 
- * Upgrade 2 Part B:
- * Base Effect Per Bought (if Kuaraniai === 0, set it to 1): Decimal.pow(4, Kuaraniai.log10().add(4).div(13)).div(200).add(1)
- * 1.005x at 0.0001 Kuaraniai, 1.02x at 1.00 B Kuaraniai
- * Cost Base: 100.0 Qi, x1.075, x1.0009^2
- * 
- * Upgrade 3 Part B:
- * Base Effect Per Bought (if Kuaraniai === 0, set it to 0): Kuaraniai.log10().add(4).div(13).mul(7).add(1).cbrt().sub(5).pow10()
- * +0.0001 at 0.0001 Kuaraniai, +0.001 at 1.00 B Kuaraniai
- * Cost Base: 1.000 Dc, x2, x1.025^2
- */
 "use strict";
 
 const PR2_EFF = [

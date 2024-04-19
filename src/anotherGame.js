@@ -22,6 +22,16 @@ try {
     console.log(`cannot set intervalyum`);
 }
 
+try {
+    if (player.hp === undefined) {
+        var player = {};
+        setPlayer();
+    }
+} catch {
+    var player = {};
+    setPlayer();
+}
+
 const abbSuffixes = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc", "UDc", "DDc", "TDc", "QaDc", "QiDc", "SxDc", "SpDc", "OcDc", "NoDc", "Vg"];
 const abbExp = 1e66;
 
@@ -41,6 +51,8 @@ function format(num, pv = 0, epv = 3) {
         return (10 ** (Math.log10(num) % 1)).toFixed(epv) + "e" + Math.floor(Math.log10(num))
     }
 }
+
+const clamp = (num, min, max) => Math.min(Math.max(num, min), max)
 
 function start() {
     document.body.style['background-color'] = '#000';
@@ -93,11 +105,11 @@ function start() {
             </div>
             <div id="${item}HPBarAB" style="width: 20vw; height: 1vw; border: 0.3vw solid #848; margin-bottom: 0.2vw;">
                 <div id="${item}HPBarAB1" style="position: relative; background-color: #424; height: 100%; z-index: 1;"></div>
-                <div id="${item}HPBarAB2" style="transition-duration: 0.1s; background-color: #f8f; position: relative; top: -100%; height: 100%; z-index: 2;"></div>
+                <div id="${item}HPBarAB2" style="transition-duration: 0.2s; background-color: #f8f; position: relative; top: -100%; height: 100%; z-index: 2;"></div>
             </div>
             <div id="${item}SpeedBarAB" style="width: 20vw; height: 1vw; border: 0.3vw solid #ccc; margin-bottom: 0.2vw;">
                 <div id="${item}SpeedBarAB1" style="position: relative; background-color: #444; height: 100%; z-index: 1;"></div>
-                <div id="${item}SpeedBarAB2" style="transition-duration: 0.1s; position: relative; background-color: #fff; top: -100%; height: 100%; z-index: 2;"></div>
+                <div id="${item}SpeedBarAB2" style="transition-duration: 0.2s; position: relative; background-color: #fff; top: -100%; height: 100%; z-index: 2;"></div>
             </div>
             `
             name = `<span style="color: #ff0; font-size: 1.4vw">Level: <b><span id="${item}Level" style="font-size: 1.8vw">level</span></b> <span id="${item}XP">(xp / xp)</span></span>`
@@ -115,11 +127,11 @@ function start() {
                 ${xp}
                 <div id="${item}HPBar" style="width: 20vw; height: 1vw; margin-bottom: 0.2vw;">
                     <div id="${item}HPBar1" style="position: relative; height: 100%; z-index: 1;"></div>
-                    <div id="${item}HPBar2" style="transition-duration: 0.1s; position: relative; top: -100%; height: 100%; z-index: 2;"></div>
+                    <div id="${item}HPBar2" style="transition-duration: 0.2s; position: relative; top: -100%; height: 100%; z-index: 2;"></div>
                 </div>
                 <div id="${item}SpeedBar" style="width: 20vw; height: 1vw; border: 0.3vw solid #ccc; margin-bottom: 0.2vw;">
                     <div id="${item}SpeedBar1" style="position: relative; background-color: #444; height: 100%; z-index: 1;"></div>
-                    <div id="${item}SpeedBar2" style="transition-duration: 0.1s; position: relative; background-color: #fff; top: -100%; height: 100%; z-index: 2;"></div>
+                    <div id="${item}SpeedBar2" style="transition-duration: 0.2s; position: relative; background-color: #fff; top: -100%; height: 100%; z-index: 2;"></div>
                 </div>
             </div>
             <div id="${item}Stats" style="display: flex; flex-direction: column; font-size: 1.4vw;">
@@ -145,69 +157,14 @@ function start() {
 
 let started = false;
 
-let player = {
-    time: 0,
-    name: "Player",
-    xp: 0.1,
-    dispXP: 0,
-    level: 1,
-
-    hp: 20,
-    maxhp: 20,
-    atk: 3,
-    def: 1,
-    speed: 0.2,
-    progress: 0,
-    crit: [0, 2],
-    alive: true,
-    special: {
-        poison: [0, 1, 1],
-        bleed: [0, 1, 1],
-        burn: [0, 0, 1],
-        slow: [0, 1, 1, 1],
-        block: [0, 0.5],
-        counter: [0, 0.5],
-        hitRegen: [0, 1, 1],
-        hug: [0, 0, 0, 1]
-    },
-    status: [],
-
-    altBli: {
-        hp: 20,
-        progress: 0,
-        alive: true
-    },
-
-    state: 0,
-
-    stage: -1,
-    difficulty: 0,
-    defeated: [0, 0, 0, 0, 0, 0, 0, 0],
-
-    zone: [],
-
-    rewards: {
-        hp: 0,
-        regen: 0,
-        atk: 0,
-        def: 0,
-        speed: 0,
-        divSpeed: 1, // penalty
-        critP: 0,
-        critD: 0,
-        psnP: 0,
-        psnD: 0,
-        psnR: 0,
-        burnP: 0,
-        burnD: 0,
-        burnR: 0,
-        blockP: 0,
-        blockD: 2,
-        invBAlly: 0,
-    },
-
-    enemy: {
-        name: 'lmao',
+function setPlayer() {
+    player = {
+        time: 0,
+        name: "Player",
+        xp: 0.1,
+        dispXP: 0,
+        level: 1,
+    
         hp: 20,
         maxhp: 20,
         atk: 3,
@@ -215,17 +172,74 @@ let player = {
         speed: 0.2,
         progress: 0,
         crit: [0, 2],
+        alive: true,
         special: {
-            poison: [0, 0, 1],
-            bleed: [0, 0, 1],
+            poison: [0, 1, 1],
+            bleed: [0, 1, 1],
             burn: [0, 0, 1],
-            slow: [0, 0, 0, 1],
-            block: [0, 1],
-            counter: [0, 0],
-            hitRegen: [0, 0, 0],
-            hug: [0, 0, 0, 1],
+            slow: [0, 1, 1, 1],
+            block: [0, 0.5],
+            counter: [0, 0.5],
+            hitRegen: [0, 1, 1],
+            hug: [0, 0, 0, 1]
         },
         status: [],
+    
+        altBli: {
+            hp: 20,
+            progress: 0,
+            alive: true
+        },
+    
+        state: 0,
+    
+        stage: -1,
+        difficulty: 0,
+        defeated: [0, 0, 0, 0, 0, 0, 0, 0],
+    
+        zone: [],
+    
+        rewards: {
+            hp: 0,
+            regen: 0,
+            atk: 0,
+            def: 0,
+            speed: 0,
+            divSpeed: 1, // penalty
+            critP: 0,
+            critD: 0,
+            psnP: 0,
+            psnD: 0,
+            psnR: 0,
+            burnP: 0,
+            burnD: 0,
+            burnR: 0,
+            blockP: 0,
+            blockD: 2,
+            invBAlly: 0,
+        },
+    
+        enemy: {
+            name: 'lmao',
+            hp: 20,
+            maxhp: 20,
+            atk: 3,
+            def: 1,
+            speed: 0.2,
+            progress: 0,
+            crit: [0, 2],
+            special: {
+                poison: [0, 0, 1],
+                bleed: [0, 0, 1],
+                burn: [0, 0, 1],
+                slow: [0, 0, 0, 1],
+                block: [0, 1],
+                counter: [0, 0],
+                hitRegen: [0, 0, 0],
+                hug: [0, 0, 0, 1],
+            },
+            status: [],
+        }
     }
 }
 
@@ -244,14 +258,14 @@ const enemyList = [
     { id: 1, type: 1, get when() { return true }, name: "Blighteon", 
     stats: { hp: 40, atk: 5, def: 5, speed: 0.125, crit: [0.125, 1.5], 
         special: {
-            poison: [0.5, 1.5, 2]
+            poison: [0.5, 4.0, 1.5]
         }
     }, reward: [
         ["divSpeed", 0.01], 
         ["hp", 0.2], 
         ["def", 0.1], 
-        ["psnP", 0.001], 
-        ["psnD", 0.09], 
+        ["psnP", 0.0025], 
+        ["psnD", 0.19], 
         ["xp", 2.5]
     ], cap: 100 },
 
@@ -536,8 +550,8 @@ function doThing() {
     el('playerHPBarAB').style.display = (player.rewards.invBAlly >= 1) ? "" : "none";
     el('playerSpeedBarAB').style.display = (player.rewards.invBAlly >= 1) ? "" : "none";
     if (player.rewards.invBAlly >= 1) {
-        el('playerHPBarAB2').style.width = `${player.altBli.hp / player.maxhp * 100}%`;
-        el('playerSpeedBarAB2').style.width = `${player.altBli.progress * 100}%`;
+        el('playerHPBarAB2').style.width = `${((clamp(player.altBli.hp / player.maxhp, 0.05, 0.95) - 0.05) / 0.9) * 100}%`;
+        el('playerSpeedBarAB2').style.width = `${((clamp(player.altBli.progress, 0.05, 0.95) - 0.05) / 0.9) * 100}%`;
         el('invBlHP').innerText = format(player.altBli.hp, 1);
         el('invBlMaxHP').innerText = format(player.maxhp, 1);
         el('invBlRegen').innerText = format(player.regen * (player.state === 0 ? 1 : 0.4), 2);
@@ -595,9 +609,9 @@ function doThing() {
 
         el(obj.html + 'HPBar').style.border = `0.3vw solid hsl(${obj.data.hp / obj.data.maxhp * 120}, 100%, 25%)`;
         el(obj.html + 'HPBar1').style.backgroundColor = `hsl(${obj.data.hp / obj.data.maxhp * 120}, 100%, 15%)`;
-        el(obj.html + 'HPBar2').style.width = `${obj.data.hp / obj.data.maxhp * 100}%`;
+        el(obj.html + 'HPBar2').style.width = `${((clamp(obj.data.hp / obj.data.maxhp, 0.05, 0.95) - 0.05) / 0.9) * 100}%`;
         el(obj.html + 'HPBar2').style.backgroundColor = `hsl(${obj.data.hp / obj.data.maxhp * 120}, 100%, 50%)`;
-        el(obj.html + 'SpeedBar2').style.width = `${obj.data.progress * 100}%`;
+        el(obj.html + 'SpeedBar2').style.width = `${((clamp(obj.data.progress, 0.05, 0.95) - 0.05) / 0.9) * 100}%`;
     }
 
     for (let i = 0; i < enemyList.length; i++) {
