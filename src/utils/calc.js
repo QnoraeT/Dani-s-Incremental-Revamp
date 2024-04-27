@@ -4,6 +4,7 @@ const c = {
     d0:          Decimal.dZero,
     em4:         Decimal.fromComponents_noNormalize(1, 0, 0.0001),
     em2:         Decimal.fromComponents_noNormalize(1, 0, 0.01),
+    d0_015:      Decimal.fromComponents_noNormalize(1, 0, 0.015),
     d0_02:       Decimal.fromComponents_noNormalize(1, 0, 0.02),
     dlog1_05:    Decimal.fromComponents_noNormalize(1, 0, Math.log10(1.05)), // 0.021189
     d0_022:      Decimal.fromComponents_noNormalize(1, 0, 0.022),
@@ -15,11 +16,13 @@ const c = {
     d0_15:       Decimal.fromComponents_noNormalize(1, 0, 0.15),
     d0_2:        Decimal.fromComponents_noNormalize(1, 0, 0.2),
     d0_25:       Decimal.fromComponents_noNormalize(1, 0, 0.25), 
+    d0_252:      Decimal.fromComponents_noNormalize(1, 0, 0.252), 
     d0_255:      Decimal.fromComponents_noNormalize(1, 0, 0.255), 
     d0_26:       Decimal.fromComponents_noNormalize(1, 0, 0.26), 
     d0_275:      Decimal.fromComponents_noNormalize(1, 0, 0.275), 
     d0_3:        Decimal.fromComponents_noNormalize(1, 0, 0.3),
     d1div3:      Decimal.fromComponents_noNormalize(1, 0, 1/3), // 0.333333
+    d0_35:       Decimal.fromComponents_noNormalize(1, 0, 0.35), 
     d0_4:        Decimal.fromComponents_noNormalize(1, 0, 0.4),
     d5div12:     Decimal.fromComponents_noNormalize(1, 0, 5/12), // 0.416667
     d0_5:        Decimal.fromComponents_noNormalize(1, 0, 0.5),
@@ -34,7 +37,10 @@ const c = {
     d0_875:      Decimal.fromComponents_noNormalize(1, 0, 0.875),
     d0_9:        Decimal.fromComponents_noNormalize(1, 0, 0.9),
     d0_95:       Decimal.fromComponents_noNormalize(1, 0, 0.95),
+    d0_975:      Decimal.fromComponents_noNormalize(1, 0, 0.975),
     d1:          Decimal.dOne,
+    d1_0004:     Decimal.fromComponents_noNormalize(1, 0, 1.0004),
+    d1_0005:     Decimal.fromComponents_noNormalize(1, 0, 1.0005),
     d1_0009:     Decimal.fromComponents_noNormalize(1, 0, 1.0009),
     d1_001:      Decimal.fromComponents_noNormalize(1, 0, 1.001),
     d1_01:       Decimal.fromComponents_noNormalize(1, 0, 1.01),
@@ -49,6 +55,7 @@ const c = {
     d1_2:        Decimal.fromComponents_noNormalize(1, 0, 1.2),
     d1_25:       Decimal.fromComponents_noNormalize(1, 0, 1.25),
     dcbrt2:      Decimal.fromComponents_noNormalize(1, 0, Math.cbrt(2)), // 1.259921
+    d1_3:        Decimal.fromComponents_noNormalize(1, 0, 1.3),
     d4div3:      Decimal.fromComponents_noNormalize(1, 0, 4/3), // 1.333333
     d1_5:        Decimal.fromComponents_noNormalize(1, 0, 1.5),
     d1_55:       Decimal.fromComponents_noNormalize(1, 0, 1.55),
@@ -114,6 +121,7 @@ const c = {
     e15:         Decimal.fromComponents_noNormalize(1, 0, 1000000000000000), 
     maxSafe:     Decimal.fromComponents_noNormalize(1, 0, 9007199254740991), // e15.954589770191003
     e16:         Decimal.fromComponents_noNormalize(1, 1, 16),
+    e17:         Decimal.fromComponents_noNormalize(1, 1, 17),
     e18:         Decimal.fromComponents_noNormalize(1, 1, 18),
     e20:         Decimal.fromComponents_noNormalize(1, 1, 20),
     e24:         Decimal.fromComponents_noNormalize(1, 1, 24),
@@ -132,6 +140,7 @@ const c = {
     e200:        Decimal.fromComponents_noNormalize(1, 1, 200),
     e260:        Decimal.fromComponents_noNormalize(1, 1, 260),
     maxNum:      Decimal.fromComponents_noNormalize(1, 1, Math.log10(2) * 1024), // 1.797e308 - e308.254716
+    trueInf:     Decimal.dInf
 }
 
 const DEFAULT_SCALE = [
@@ -193,7 +202,7 @@ function scale(num, type, inverse = false, start, str, powScale) {
         case 1.1:
         case "E":
         case "E1":
-            return inverse
+            return inverse 
                     ? Decimal.min(num, num.div(start).log(str).add(1).mul(start))
                     : Decimal.max(num, Decimal.pow(str, num.div(start).sub(1)).mul(start))
         case 1.2:
@@ -201,21 +210,21 @@ function scale(num, type, inverse = false, start, str, powScale) {
             return inverse
                     ? num.mul(str).mul(str.ln()).div(start).lambertw().mul(start).div(str.ln())
                     : Decimal.pow(str, num.div(start).sub(1)).mul(num)
-        case 1.3:  // alemaninc
+        case 1.3: // alemaninc
         case "E3":
-            return inverse
-                    ? num.div(start).ln().mul(str).add(1).root(str).mul(start)
-                    : num.div(start).pow(str).sub(1).div(str).exp().mul(start)
+            return inverse // poly exponential scaling
+                    ? num.div(start).ln().mul(str.sub(1)).add(1).root(str.sub(1)).mul(start)
+                    : num.div(start).pow(str.sub(1)).sub(1).div(str.sub(1)).exp().mul(start)
         // Semi-exponential
-        case 2:
+        case 2: 
         case 2.1:
         case "SE":
         case "SE1":
-            return inverse
+            return inverse // steep scaling
                     ? Decimal.pow(start, num.sub(start).mul(str).add(start).log(start).root(str))
                     : Decimal.pow(start, num.log(start).pow(str)).sub(start).div(str).add(start)
         case 2.2:
-        case "SE2":
+        case "SE2": // very shallow scaling
             return inverse
                     ? Decimal.pow(start, num.log(start).sub(1).mul(str).add(1).root(str))
                     : Decimal.pow(start, num.log(start).pow(str).sub(1).div(str).add(1))
@@ -230,6 +239,16 @@ function scale(num, type, inverse = false, start, str, powScale) {
         default:
             throw new Error(`Scaling type ${type} doesn't exist`);
     }
+}
+
+// dumb i thought it would look ok tho
+Decimal.prototype.clone = function() {
+    return this;
+}
+
+Decimal.prototype.dilate = function(power) {
+    if (this.lt(1)) { this.clone() }
+    return this.clone().log10().pow(power).pow10();
 }
 
 function D(x) { return new Decimal(x); }
@@ -389,7 +408,7 @@ function intRand(min, max) {
  * @returns {Decimal}
  */
 function inverseQuad(x, a, b, c) {
-    return c.eq(0)
+    return a.eq(0)
             ? x.sub(c).div(b)
             : x.sub(c).mul(a).mul(4).add(b.pow(2)).sqrt().sub(b).div(a.mul(2))
 }

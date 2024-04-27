@@ -51,131 +51,36 @@
             </div>
         </div>
         <div id="generators" v-if="tab[0] === 'gen'">
-            <div class="flex-container" style="flex-direction: row; justify-content: center; margin-top: 1vw; margin-bottom: 1vw;">
+            <div class="flex-container" style="flex-direction: column; justify-content: center; margin-top: 1vw; margin-bottom: 1vw;">
                 <span v-if="player.col.inAChallenge" style="color: #ff4000; text-align: center; font-size: 1.6vw;">
                     You have <b>{{formatTime(player.col.time, 3)}}</b> left within these challenges:
                 </span>
-                <br v-if="player.col.inAChallenge">
-                <div v-for="(item, index) in player.inChallenge" v-bind:style="{ color: gRC(2 * COL_CHALLENGES[index].progress.toNumber(), 1.0, 1.0) }">
-                    <li v-if="player.inChallenge[index].overall">
+                <div v-for="(item, index) in player.inChallenge" style="text-align: center; " v-bind:style="{ color: gRC(2 * COL_CHALLENGES[index].progress.toNumber() + (COL_CHALLENGES[index].canComplete ? 1.5 : 0.0), 1.0, 1.0) }">
+                    <span v-if="player.inChallenge[index].overall">
                         {{item.name}}: {{COL_CHALLENGES[index].progDisplay}}
-                    </li>
+                    </span>
                 </div>
             </div>
-            <table style="margin-left: auto; margin-right: auto;">
-                <tr>
-                    <td>
-                        <div class="flex-container" style="flex-direction: column;">
-                            <button style="text-align: center; font-size: 1.0667vw" 
-                            v-bind:class="{ nope: !tmp.upg1CanBuy, ok: tmp.upg1CanBuy }"
-                            class="whiteText mediumButton fontVerdana generatorButton" id="genUP1" v-if="player.nerf.up1Active" @click="buyGenUPG(1)">
-                                <h3 style="font-size: 1.25vw">Upgrade 1: {{format(player.generators.upg1.bought)}}{{player.generators.upg1.freeExtra.gt(0)?` (+${format(player.generators.upg1.freeExtra)})`:""}}</h3>
-                                Increase point gain by {{format(player.generators.upg1.calculatedEB, 2)}}x
-                                <br>Total: {{format(player.generators.upg1.effect, 2)}}x to point gain
-                                <br><span v-bind:style="{ color: tmp.upg1ScalingColor }">Cost: {{format(player.generators.upg1.cost)}} points</span>
-                            </button>
-
-                            <button style="text-align: center; font-size: 1.0667vw" 
-                            v-bind:class="{ nopeFill: !player.auto.upg1, okFill: player.auto.upg1 }"
-                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="autoUP1" v-if="player.nerf.up1Active && player.generators.pr2.best.gte(2)" @click="player.auto.upg1 = !player.auto.upg1">
-                                <b>Upgrade 1 Autobuyer: {{player.auto.upg1?"On":"Off"}}</b>
-                            </button>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="flex-container" style="flex-direction: column;">
-                            <button style="text-align: center; font-size: 1.0667vw" 
-                            v-bind:class="{ nope: !tmp.upg2CanBuy, ok: tmp.upg2CanBuy }"
-                            class="whiteText mediumButton fontVerdana generatorButton" id="genUP2" v-if="player.nerf.up2Active && player.generators.pr2.best.gte(1)" @click="buyGenUPG(2)">
-                                <h3 style="font-size: 1.25vw">Upgrade 2: {{format(player.generators.upg2.bought)}}{{player.generators.upg2.freeExtra.gt(0)?` (+${format(player.generators.upg2.freeExtra)})`:""}}</h3>
-                                Decreases Upgrade 1's cost by {{format(player.generators.upg2.calculatedEB, 2)}}x
-                                <br>Total: /{{format(player.generators.upg2.effect, 2)}} to Upgrade 1's cost
-                                <br><span v-bind:style="{ color: tmp.upg2ScalingColor }">Cost: {{format(player.generators.upg2.cost)}} points</span>
-                            </button>
-
-                            <button style="text-align: center; font-size: 1.0667vw" 
-                            v-bind:class="{ nopeFill: !player.auto.upg2, okFill: player.auto.upg2 }"
-                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="autoUP2" v-if="player.nerf.up2Active && player.generators.pr2.best.gte(4)" @click="player.auto.upg2 = !player.auto.upg2">
-                                <b>Upgrade 2 Autobuyer: {{player.auto.upg2?"On":"Off"}}</b>
-                            </button>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="flex-container" style="flex-direction: column;">
-                            <button style="text-align: center; font-size: 1.0667vw" 
-                            v-bind:class="{ nope: !tmp.upg3CanBuy, ok: tmp.upg3CanBuy }"
-                            class="whiteText mediumButton fontVerdana generatorButton" id="genUP3" v-if="player.nerf.up3Active && player.generators.pr2.best.gte(5)" @click="buyGenUPG(3)">
-                                <h3 style="font-size: 1.25vw">Upgrade 3: {{format(player.generators.upg3.bought)}}{{player.generators.upg3.freeExtra.gt(0)?` (+${format(player.generators.upg3.freeExtra)})`:""}}</h3>
-                                Increases Upgrade 1's base by +{{format(player.generators.upg3.calculatedEB, 2)}}
-                                <br>Total: +{{format(player.generators.upg3.effect, 2)}} to Upgrade 1's base
-                                <br><span v-bind:style="{ color: tmp.upg3ScalingColor }">Cost: {{format(player.generators.upg3.cost)}} points</span>
-                            </button>
-
-                            <button style="text-align: center; font-size: 1.0667vw" 
-                            v-bind:class="{ nopeFill: !player.auto.upg3, okFill: player.auto.upg3 }"
-                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="autoUP3" v-if="player.nerf.up3Active && player.kua.kshards.upgrades >= 5" @click="player.auto.upg3 = !player.auto.upg3">
-                                <b>Upgrade 3 Autobuyer: {{player.auto.upg3?"On":"Off"}}</b>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="flex-container" style="flex-direction: column;">
-                            <button style="text-align: center; font-size: 1.0667vw" 
-                            v-bind:class="{ nope: !tmp.upg1BCanBuy, ok: tmp.upg1BCanBuy }"
-                            class="whiteText mediumButton fontVerdana generatorButton" id="genUP1b" v-if="player.nerf.up1BActive && player.kua.amount.gt(0)" @click="buyGenUPG(4)">
-                                <h3 style="font-size: 1.25vw">UPG 1 B-Side: {{format(player.generators.upg1.partB.bought)}}{{player.generators.upg1.partB.freeExtra.gt(0)?` (+${format(player.generators.upg1.partB.freeExtra)})`:""}}</h3>
-                                Increase point gain by {{format(player.generators.upg1.partB.calculatedEB, 2)}}x
-                                <br>Total: {{format(player.generators.upg1.partB.effect, 2)}}x to point gain
-                                <br><span v-bind:style="{ color: tmp.upg1BScalingColor }">Cost: {{format(player.generators.upg1.partB.cost)}} points</span>
-                            </button>
-
-                            <button style="text-align: center; font-size: 1.0667vw" 
-                            v-bind:class="{ nopeFill: !player.auto.upg1B, okFill: player.auto.upg1B }"
-                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="autoUP1b" v-if="player.nerf.up1BActive && player.generators.pr2.best.gte(12)" @click="player.auto.upg1B = !player.auto.upg1B">
-                                <b>UPG 1 B-Side Autobuyer: {{player.auto.upg1B?"On":"Off"}}</b>
-                            </button>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="flex-container" style="flex-direction: column;">
-                            <button style="text-align: center; font-size: 1.0667vw" 
-                            v-bind:class="{ nope: !tmp.upg2BCanBuy, ok: tmp.upg2BCanBuy }"
-                            class="whiteText mediumButton fontVerdana generatorButton" id="genUP2b" v-if="player.nerf.up2BActive && player.kua.kshards.amount.gt(0)" @click="buyGenUPG(5)">
-                                <h3 style="font-size: 1.25vw">UPG 2 B-Side: {{format(player.generators.upg2.partB.bought)}}{{player.generators.upg2.partB.freeExtra.gt(0)?` (+${format(player.generators.upg2.partB.freeExtra)})`:""}}</h3>
-                                Decreases Upgrade 1's cost by {{format(player.generators.upg2.partB.calculatedEB, 2)}}x
-                                <br>Total: /{{format(player.generators.upg2.partB.effect, 2)}} to Upgrade 1's cost
-                                <br><span v-bind:style="{ color: tmp.upg2BScalingColor }">Cost: {{format(player.generators.upg2.partB.cost)}} points</span>
-                            </button>
-
-                            <button style="text-align: center; font-size: 1.0667vw" 
-                            v-bind:class="{ nopeFill: !player.auto.upg2B, okFill: player.auto.upg2B }"
-                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="autoUP2b" v-if="player.nerf.up2BActive && player.generators.pr2.best.gte(14)" @click="player.auto.upg2B = !player.auto.upg2B">
-                                <b>UPG 2 B-Side Autobuyer: {{player.auto.upg2B?"On":"Off"}}</b>
-                            </button>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="flex-container" style="flex-direction: column;">
-                            <button style="text-align: center; font-size: 1.0667vw" 
-                            v-bind:class="{ nope: !tmp.upg3BCanBuy, ok: tmp.upg3BCanBuy }"
-                                class="whiteText mediumButton fontVerdana generatorButton" id="genUP3b" v-if="player.nerf.up3BActive && player.kua.kpower.amount.gt(0)" @click="buyGenUPG(6)">
-                                <h3 style="font-size: 1.25vw">UPG 3 B-Side: {{format(player.generators.upg3.partB.bought)}}{{player.generators.upg3.partB.freeExtra.gt(0)?` (+${format(player.generators.upg3.partB.freeExtra)})`:""}}</h3>
-                                Increases Upgrade 1's base by +{{format(player.generators.upg3.partB.calculatedEB, 2)}}
-                                <br>Total: +{{format(player.generators.upg3.partB.effect, 2)}} to Upgrade 1's base
-                                <br><span v-bind:style="{ color: tmp.upg3BScalingColor }">Cost: {{format(player.generators.upg3.partB.cost)}} points</span>
-                            </button>
-
-                            <button style="text-align: center; font-size: 1.0667vw" 
-                            v-bind:class="{ nopeFill: !player.auto.upg3B, okFill: player.auto.upg3B }"
-                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="autoUP3b" v-if="player.nerf.up3BActive && player.generators.pr2.best.gte(18)" @click="player.auto.upg3B = !player.auto.upg3B">
-                                <b>UPG 3 B-Side Autobuyer: {{player.auto.upg3B?"On":"Off"}}</b>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            </table>
+            <div class="flex-container" style="margin-left: auto; margin-right: auto; flex-direction: row; flex-wrap: wrap; justify-content: center; margin-top: 1vw; margin-bottom: 1vw; width: 50vw; align-content: center;">
+                <div v-for="(item, index) in BASIC_UPGS">
+                    <div class="flex-container" style="flex-direction: column; margin: 0.2vw;" v-if="player.nerf.upgradesActive[index] && item.shown">
+                        <button style="text-align: center; font-size: 1.0667vw" 
+                        v-bind:class="{ nope: !tmp.upgrades[index].canBuy, ok: tmp.upgrades[index].canBuy }"
+                        class="whiteText mediumButton fontVerdana generatorButton" @click="buyGenUPG(index)">
+                            <h3 style="margin-top: 0.5vw; font-size: 1.25vw">Upgrade {{index + 1}}: {{format(player.generators.upgrades[index].bought)}}{{Decimal.gt(tmp.upgrades[index].freeExtra, 0) ? ` (+${format(tmp.upgrades[index].freeExtra)})`:""}}</h3>
+                            {{BASIC_UPGS[index].display}}
+                            <br><span v-bind:style="{ color: tmp.upgrades[index].effectColor }">{{BASIC_UPGS[index].totalDisp}}</span>
+                            <br><span v-bind:style="{ color: tmp.upgrades[index].costColor }">Cost: {{format(tmp.upgrades[index].cost)}} points</span>
+                        </button>
+    
+                        <button style="text-align: center; font-size: 1.0667vw" 
+                        v-bind:class="{ nopeFill: !player.auto.upgrades[index], okFill: player.auto.upgrades[index] }"
+                        class="whiteText thinMediumButton fontVerdana genAutoButton" v-if="item.auto" @click="player.auto.upgrades[index] = !player.auto.upgrades[index]">
+                            <b>Upgrade {{index + 1}} Autobuyer: {{player.auto.upgrades[index]?"On":"Off"}}</b>
+                        </button>
+                    </div>
+                </div>
+            </div>
             <table style="margin-top: 0.96vw; margin-left: auto; margin-right: auto;">
                 <tr>
                     <td> 
@@ -184,12 +89,12 @@
                             v-bind:class="{ nope: !tmp.praiCanDo, ok: tmp.praiCanDo }"
                             class="whiteText largeButton fontVerdana generatorButton" id="prai" v-if="player.nerf.praiActive" @click="reset('prai')">
                             <h3 style="font-size: 1.25vw">PRai: {{format(player.generators.prai.amount)}}</h3>
-                                {{`Reset your progress to gain ${player.generators.pr2.best.gte(1) ? format(tmp.praiPending) + " " : ""}PRai.`}}
+                                {{`Reset your progress to gain ${Decimal.gte(player.generators.pr2.best, 1) ? format(tmp.praiPending) + " " : ""}PRai.`}}
                                 <br>{{
                                     tmp.praiCanDo
-                                        ? tmp.praiPending.lt(1e6) && player.generators.pr2.best.gte(1)
-                                            ? `Next in ${format(tmp.praiNext)} points.`
-                                            : ""
+                                        ? tmp.praiPending.lt(1e6) && Decimal.gte(player.generators.pr2.best, 1)
+                                            ? `Next in ${format(tmp.praiNext)} points. (${format(Decimal.div(tmp.praiPending, player.generators.prai.timeInPRai), 2)}/s)`
+                                            : `(${format(Decimal.div(tmp.praiPending, player.generators.prai.timeInPRai), 2)}/s)`
                                         : `You can PRai reset in ${formatTime(tmp.praiNext)}`
                                 }}
                                 <br>You have {{format(player.generators.prai.amount)}} PRai, which boosts your points by {{format(player.generators.prai.effect, 2)}}x.
@@ -246,9 +151,9 @@
                     <br>You have {{format(player.kua.amount, 3)}} Kuaraniai, which generates {{format(tmp.kuaShardGeneration, 4)}} Kuaraniai Shards (KShards) per second. It also:
                     <div v-if="player.nerf.kuaActive.effects">
                         <li>Reduces Upgrade 1's scaling strength by {{formatPerc(tmp.kuaEffects.upg1Scaling, 3)}}</li> 
-                        <li v-if="player.kua.amount.gt(0)"> Adds Upgrade 2 B-Side, and makes it's base x{{format(tmp.kuaEffects.up1b, 4)}}/bought. </li>
-                        <li v-if="player.kua.kpower.upgrades >= 3">Raises Points gain to ^{{format(tmp.kuaEffects.ptPower, 4)}}</li>
                         <li v-if="player.kua.kpower.upgrades >= 6">Reduces Upgrade 1's super scaling strength by {{formatPerc(tmp.kuaEffects.upg1SuperScaling, 3)}}</li>
+                        <li v-if="Decimal.gt(player.kua.amount, 0)"> Adds Upgrade 1 B-Side, and makes it's base x{{format(tmp.kuaEffects.up4, 4)}}/bought. </li>
+                        <li v-if="player.kua.kpower.upgrades >= 3">Raises Points gain to ^{{format(tmp.kuaEffects.ptPower, 4)}}</li>
                         <li v-if="player.kua.kpower.upgrades >= 6">Delays Upgrade 2's softcap by {{format(tmp.kuaEffects.upg2Softcap, 2)}}x</li>
                         <li v-if="player.kua.kshards.upgrades >= 7">Multiplies Point gain by {{format(tmp.kuaEffects.pts, 2)}}x</li>
                         <li v-if="player.kua.kshards.upgrades >= 10">Increases KShards' PRai boost by ^{{format(tmp.kuaEffects.kshardPrai, 4)}}</li>
@@ -264,7 +169,7 @@
                                     Generate {{format(tmp.kuaPowerGeneration, 3)}} Kuaraniai Power (KPower) per second.
                                 </li>
                                 <li v-if="player.kua.kshards.amount.gt(0)">
-                                    Adds Upgrade 2 B-Side, and makes it's base x{{format(tmp.kuaEffects.up2b, 4)}}/bought.
+                                    Adds Upgrade 2 B-Side, and makes it's base x{{format(tmp.kuaEffects.up5, 4)}}/bought.
                                 </li>
                                 <li v-if="player.kua.kshards.upgrades >= 2">
                                     Multiply PRai's effect by {{format(KUA_UPGRADES.KShards[1].eff, 2)}}x.
@@ -272,12 +177,15 @@
                                 <li v-if="player.kua.kshards.upgrades >= 8">
                                     Multiply PRai gain by {{format(KUA_UPGRADES.KShards[7].eff, 2)}}x.
                                 </li>
+                                <li v-if="player.kua.kshards.upgrades >= 9">
+                                    Delays Upgrade 2's cost growth (before scalings) by +{{format(KUA_UPGRADES.KShards[8].eff, 2)}} purchases.
+                                </li>
                             </div>
                         </div>
                         <div class="flex-container" style="flex-direction: row; justify-content: center;">
                             <div v-for="(item, index) in KUA_UPGRADES.KShards">
                                 <button @click="buyKShardUpg(index)" v-bind:style="{ opacity: (1 - ((index - player.kua.kshards.upgrades) / 5)) ** 2 }" v-if="index >= player.kua.kshards.upgrades && index < player.kua.kshards.upgrades + 5 && item.show" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 12.8vw; height: 12.8vw; font-size: 0.96vw" class="whiteText kuaButton2 fontVerdana">
-                                    <span v-if="item.eh" style="color: #ff0; font-size: 0.8vw"><b>[ NOT IMPLEMENTED ]</b><br></span>
+                                    <span style="color: #ff0; font-size: 0.8vw; margin-right: 0.5vw"><b>#{{index + 1}}</b></span><span v-if="item.eh" style="color: #ff0; font-size: 0.8vw"><b>[ NOT IMPLEMENTED ]</b><br></span>
                                     <span style="vertical-align: top;">{{item.desc}}</span>
                                     <br><br>
                                     <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost, 1)}} KShards</span>
@@ -290,7 +198,7 @@
                             You have <b>{{format(player.kua.kpower.amount, 3)}}</b> Kuaraniai power.
                             <div v-if="player.nerf.kuaActive.kpower.effects">
                                 <li v-if="player.kua.kpower.amount.gt(0)">
-                                    Adds Upgrade 3 B-Side, and makes it's base +{{format(tmp.kuaEffects.up3b, 5)}}/bought.
+                                    Adds Upgrade 3 B-Side, and makes it's base +{{format(tmp.kuaEffects.up6, 5)}}/bought.
                                 </li>
                                 <li v-if="player.kua.kpower.upgrades >= 1">
                                     Increases Upgrade 2's base by +{{format(KUA_UPGRADES.KPower[0].eff, 3)}}.
@@ -309,7 +217,7 @@
                         <div class="flex-container" style="flex-direction: row; justify-content: center;">
                             <div v-for="(item, index) in KUA_UPGRADES.KPower">
                                 <button @click="buyKPowerUpg(index)" v-bind:style="{ opacity: (1 - ((index - player.kua.kpower.upgrades) / 5)) ** 2 }" v-if="index >= player.kua.kpower.upgrades && index < player.kua.kpower.upgrades + 5 && item.show" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 12.8vw; height: 12.8vw; font-size: 0.96vw" class="whiteText kuaButton2 fontVerdana">
-                                    <span v-if="item.eh" style="color: #ff0; font-size: 0.8vw"><b>[ NOT IMPLEMENTED ]</b><br></span>
+                                    <span style="color: #ff0; font-size: 0.8vw; margin-right: 0.5vw"><b>#{{index + 1}}</b></span><span v-if="item.eh" style="color: #ff0; font-size: 0.8vw"><b>[ NOT IMPLEMENTED ]</b><br></span>
                                     <span style="vertical-align: top;">{{item.desc}}</span>
                                     <br><br>
                                     <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost, 1)}} KPower</span>
@@ -321,15 +229,19 @@
             </div>
         </div>
         <div id="colosseum" v-if="tab[0] === 'col'">
-            <div class="flex-container" style="flex-direction: column; justify-content: center;">
-                <span style="color: #ff4000; text-align: center; font-size: 1.6vw;">You have <span style="font-size: 1.92vw;"><b>{{format(player.col.power, 2)}}</b></span> Colosseum Power. <span style="font-size: 1.2vw;">({{format(tmp.colosseumPowerGeneration, 2)}}/s)</span></span>
-                <span style="color: #ff4000; text-align: center; font-size: 1.6vw;">This will give you about <span style="font-size: 1.92vw;"><b>{{formatTime(player.col.maxTime, 3)}}</b></span> within challenges.</span>
+            <div class="flex-container" style="flex-direction: row; justify-content: center; font-size: 1.4vw;" v-if="Decimal.gte(timesCompleted('nk'), 1)">
+                <button @click="switchTab(0, 1)" style="border: 0.2vw; margin-left: 0.16vw; margin-right: 0.16vw; width: 10vw; height: 3vw; color: #f40;" class="colButton fontVerdana">Challenges</button>
+                <button @click="switchTab(1, 1)" style="border: 0.2vw; margin-left: 0.16vw; margin-right: 0.16vw; width: 10vw; height: 3vw; color: #f40;" class="colButton fontVerdana">Battle</button>
             </div>
-            <div class="flex-container" style="flex-direction: row; justify-content: center; margin-top: 3.2vw;">
+            <div class="flex-container" style="flex-direction: column; justify-content: center;">
+                <span style="color: #f40; text-align: center; font-size: 1.6vw;">You have <span style="font-size: 1.92vw;"><b>{{format(player.col.power, 2)}}</b></span> Colosseum Power. <span style="font-size: 1.2vw;">({{format(tmp.colosseumPowerGeneration, 2)}}/s)</span></span>
+                <span style="color: #f40; text-align: center; font-size: 1.6vw;">This will give you about <span style="font-size: 1.92vw;"><b>{{formatTime(player.col.maxTime, 3)}}</b></span> within challenges.</span>
+            </div>
+            <div class="flex-container" style="flex-direction: row; justify-content: center; margin-top: 3.2vw;" v-if="tab[1] === 0">
                 <div v-for="(item, index) in COL_CHALLENGES" class="flex-container">
                     <button v-if="item.show" v-bind:class="{ colButton: !completedChallenge(item.id) && !inChallenge(item.id), colButtonProg: completedChallenge(item.id) ? false : inChallenge(item.id), colButtonComp: completedChallenge(item.id) }" class="whiteText fontVerdana main-container" style="padding: 0%; margin-left: 0.2vw; margin-right: 0.2vw; " @click="challengeToggle(item.id)">
                         <div v-bind:class="{ colButtonHeader: !completedChallenge(item.id) && !inChallenge(item.id), colButtonHeaderProg: completedChallenge(item.id) ? false : inChallenge(item.id), colButtonHeaderComp: completedChallenge(item.id) }" class="first-cont" style="width: 100%; height: 16.667%;">
-                            <span class="generic-text" style="left: 0.4vw; top: 0.4vw; font-size: 1.12vw">{{['One-Time', 'Multiple (' + 'format(player.col.completed[index] ?? new Decimal(0))' + '/' + 'format(item.cap)' + ')', 'Continuous'][item.type]}} {{item.id}}</span> 
+                            <span class="generic-text" style="left: 0.4vw; top: 0.4vw; font-size: 1.12vw">{{['One-Time', 'Multiple (' + 'format(player.col.completed[index] ?? new Decimal(0))' + '/' + 'format(item.cap)' + ')', 'Continuous'][item.type]}}</span> 
                             <span class="generic-text" style="right: 0.4vw; top: 0.4vw; font-size: 1.12vw">#{{item.num}}</span>
                             <span class="centered-text" style="bottom: 0.4vw; font-size: 2.08vw"><b>{{item.name}}</b></span>
                         </div>
@@ -342,6 +254,28 @@
                             <span class="centered-text" style="top: 4.4vw">{{item.reward}}</span>
                         </div>
                     </button>
+                </div>
+            </div>
+            <div class="whiteText" style="font-family: Tinos; margin-left: auto; margin-right: auto; display: flex; justify-content: center; flex-direction: column;" v-if="tab[1] === 1">
+                <div id="topInfo" style="background-color: #111; border: 0.4vw solid #222; width: 80vw; height: 40vw; display: flex; justify-content: center; align-items: center;">
+        
+                </div>
+                <div id="enemySelection" style="background-color: #111; border: 0.4vw solid #222; width: 80vw; height: 30vw; display: flex; flex-wrap: wrap; justify-content: center; align-items: center;">
+        
+                </div>
+                <div id="inBattle" style="background-color: #111; border: 0.4vw solid #222; width: 80vw; height: 6vw; display: flex; justify-content: center;">
+                    <button onclick="leaveBattle()" id="leaveBattle" class="whiteText" style="display: flex; justify-content: center; align-items: center; font-size: 2vw; text-align: center; background-color: #111; border: 0.4vw solid #222; width: 16vw; height: 6vw;">
+                        <b>Leave</b>
+                    </button>
+                    <button onclick="toggleBattle()" id="toBattle" class="whiteText" style="display: flex; justify-content: center; align-items: center; font-size: 2vw; text-align: center; background-color: #111; border: 0.4vw solid #222; width: 16vw; height: 6vw;">
+                        
+                    </button>
+                    <button onclick="rerollBattle()" id="rerollBattle" class="whiteText" style="display: flex; justify-content: center; align-items: center; font-size: 2vw; text-align: center; background-color: #111; border: 0.4vw solid #222; width: 16vw; height: 6vw;">
+                        <b>Reroll</b>
+                    </button>
+                </div>
+                <div id="battleRewards" style="background-color: #111; border: 0.4vw solid #222; width: 80vw; height: 25vw; display: flex; flex-wrap: wrap; align-content: center; justify-content: center;">
+                    
                 </div>
             </div>
         </div>

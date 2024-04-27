@@ -36,8 +36,8 @@ function format(number, dec = 0, expdec = 3) {
     let n = new Decimal(number);
     if (n.lt(0)) return "-" + format(n.negate(), dec, expdec);
     if (n.eq(0)) return (0).toFixed(dec);
-    if (!Number.isFinite(n.mag)) return "Infinity";
     if (Number.isNaN(n.mag)) return "NaN";
+    if (!Number.isFinite(n.mag)) return "Infinity";
     if (n.lt(0.001)) {
         return "1 / " + format(n.recip(), dec, expdec);
     } else if (n.lt(1e6)) {
@@ -68,8 +68,8 @@ function formatTime(number, dec = 0, expdec = 3, limit = 2) {
     let n = new Decimal(number);
     if (n.lt(0)) return "-" + formatTime(n.negate(), dec, expdec);
     if (n.eq(0)) return (0).toFixed(dec);
-    if (!Number.isFinite(n.mag)) return "Forever";
     if (Number.isNaN(n.mag)) return "I don't know?";
+    if (!Number.isFinite(n.mag)) return "Forever";
     let lim = 0;
     let str = "";
     let end = false;

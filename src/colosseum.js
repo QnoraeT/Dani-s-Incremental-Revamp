@@ -1,8 +1,42 @@
 "use strict";
 
+/**
+ * type
+ * 0 = One-Time only
+ * 1 = Can complete multiple times (Decimal)
+ * 2 = Continouous (Decimal, best)
+ * 
+ * layer
+ * 0 = kua
+ */
+const COL_CHALLENGES = {
+    nk: {
+        type: 0,
+        num: 1,
+        id: 'nk',
+        layer: 0,
+        name: `No Kuaraniai`,
+        goal: c.e25,
+        get goalDesc() { return `Reach ${format(this.goal)} Points.`},
+        desc: `All Kuaraniai resources and upgrades are disabled.`,
+        reward: `Unlock another tab in this tab, and every KPower Upgrade above 10 unlocks a new challenge.`,
+        cap: c.d1,
+        show: true,
+        get canComplete() { return Decimal.gte(player.value.points, this.goal) },
+        get progress() { return Decimal.min(c.d1, player.value.points.max(c.d1).log10().div(this.goal.log10())) },
+        get progDisplay() { return `${format(player.value.points)} / ${format(this.goal)} (${format(this.progress.mul(c.e2), 3)}%)` }
+    },
+
+}
+
+function timesCompleted(id) {
+    if (player.value.col.completed[id] === undefined) { return false; }
+    return player.value.col.completed[id];
+}
+
 function completedChallenge(id) {
     if (player.value.col.completed[id] === undefined) { return false; }
-    return player.value.col.completed[id].gte(COL_CHALLENGES[id].cap);
+    return Decimal.gte(player.value.col.completed[id], COL_CHALLENGES[id].cap);
 }
 
 function inChallenge(id) {
@@ -32,33 +66,6 @@ function exitChallenge(id) {
     player.value.auto.prai = player.value.col.saved[id].auto.prai;
 }
 
-/**
- * type
- * 0 = One-Time only
- * 1 = Can complete multiple times (Decimal)
- * 2 = Continouous (Decimal, best)
- * 
- * layer
- * 0 = kua
- */
-const COL_CHALLENGES = {
-    nk: {
-        type: 0,
-        num: 1,
-        id: 'nk',
-        layer: 0,
-        name: `No Kuaraniai`,
-        goal: c.e25,
-        get goalDesc() { return `Reach ${format(this.goal)} Points.`},
-        desc: `All Kuaraniai resources and upgrades are disabled.`,
-        reward: `Unlock another tab in this tab, and every KPower Upgrade above 10 unlocks a new challenge.`,
-        cap: c.d1,
-        show: true,
-        get progress() { return Decimal.min(1, player.value.points.max(c.d1).log10().div(this.goal.log10())) },
-        get progDisplay() { return `${format(player.value.points)} / ${format(this.goal)} (${format(this.progress.mul(c.e2), 3)}%)` }
-    }
-}
-
 function updateAllCol() {
     updateCol("col");
 }
@@ -67,7 +74,7 @@ function updateCol(type) {
     let scal, pow, sta, i, j;
     switch (type) {
         case "col":
-            if (player.value.col.time.lte(0) && player.value.col.inAChallenge) {
+            if (Decimal.lte(player.value.col.time, 0) && player.value.col.inAChallenge) {
                 for (let i = player.value.col.challengeOrder.chalID.length - 1; i >= 0; i--) {
                     exitChallenge(player.value.col.challengeOrder.chalID[i]);
                 }
@@ -75,10 +82,10 @@ function updateCol(type) {
 
             tmp.value.colPow = c.d0_4;
 
-            i = player.value.kua.best.max(c.e2).div(c.e2).pow(tmp.value.colPow);
+            i = Decimal.max(player.value.kua.best, c.e2).div(c.e2).pow(tmp.value.colPow);
             tmp.value.colosseumPowerGeneration = i;
 
-            i = player.value.col.power.max(c.e2).log10().mul(c.d20);
+            i = Decimal.max(player.value.col.power, c.e2).log10().mul(c.d20);
             player.value.col.maxTime = i;
 
             player.value.col.inAChallenge = false;
@@ -165,7 +172,7 @@ function challengeToggle(id) {
         player.value.col.challengeOrder.layer.push(COL_CHALLENGES[id].layer);
         reset("col", true)
     } else {
-        if (player.value.points.gte(COL_CHALLENGES[id].goal)) {
+        if (COL_CHALLENGES[id].canComplete) {
             if (player.value.col.completed[id] === undefined) {
                 player.value.col.completed[id] = c.d0;
             }

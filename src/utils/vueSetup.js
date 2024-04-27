@@ -24,13 +24,15 @@ function loadVue() {
                 ACHIEVEMENT_DATA,
                 ACH_DEF_COLORS,
                 c,
+                BASIC_UPGS,
                 KUA_UPGRADES,
                 buyKShardUpg,
                 buyKPowerUpg,
                 COL_CHALLENGES,
                 challengeToggle,
                 completedChallenge,
-                inChallenge
+                inChallenge,
+                timesCompleted
             }
     }}).mount('#app')
 }

@@ -1,63 +1,52 @@
+"use strict";
+
 function updateNerf() {
-    let i;
+    let nerf;
 
-    i = true;
-    player.value.nerf.up1Active = i;
+    for (let i = 0; i < player.value.nerf.upgradesActive.length; i++) {
+        nerf = true;
+        player.value.nerf.upgradesActive[i] = nerf;
+    }
 
-    i = true;
-    player.value.nerf.up2Active = i;
+    nerf = true;
+    player.value.nerf.praiActive = nerf;
     
-    i = true;
-    player.value.nerf.up3Active = i;
+    nerf = true;
+    player.value.nerf.pr2Active = nerf;
     
-    i = true;
-    player.value.nerf.up1BActive = i;
+    nerf = true;
+    nerf &&= !inChallenge('nk');
+    player.value.nerf.kuaActive.effects = nerf;
+    
+    nerf = true;
+    nerf &&= !inChallenge('nk');
+    player.value.nerf.kuaActive.gain = nerf;
 
-    i = true;
-    player.value.nerf.up2BActive = i;
+    nerf = true;
+    nerf &&= !inChallenge('nk');
+    player.value.nerf.kuaActive.upgrades = nerf;
     
-    i = true;
-    player.value.nerf.up3BActive = i;
-
-    i = true;
-    player.value.nerf.praiActive = i;
+    nerf = true;
+    nerf &&= !inChallenge('nk');
+    player.value.nerf.kuaActive.kpower.effects = nerf;
     
-    i = true;
-    player.value.nerf.pr2Active = i;
+    nerf = true;
+    nerf &&= !inChallenge('nk');
+    player.value.nerf.kuaActive.kpower.gain = nerf;
     
-    i = true;
-    if (inChallenge('nk')) { i = false; }
-    player.value.nerf.kuaActive.effects = i;
+    nerf = true;
+    nerf &&= !inChallenge('nk');
+    player.value.nerf.kuaActive.kpower.upgrades = nerf;
     
-    i = true;
-    if (inChallenge('nk')) { i = false; }
-    player.value.nerf.kuaActive.gain = i;
-
-    i = true;
-    if (inChallenge('nk')) { i = false; }
-    player.value.nerf.kuaActive.upgrades = i;
+    nerf = true;
+    nerf &&= !inChallenge('nk');
+    player.value.nerf.kuaActive.kshards.effects = nerf;
     
-    i = true;
-    if (inChallenge('nk')) { i = false; }
-    player.value.nerf.kuaActive.kpower.effects = i;
+    nerf = true;
+    nerf &&= !inChallenge('nk');
+    player.value.nerf.kuaActive.kshards.gain = nerf;
     
-    i = true;
-    if (inChallenge('nk')) { i = false; }
-    player.value.nerf.kuaActive.kpower.gain = i;
-    
-    i = true;
-    if (inChallenge('nk')) { i = false; }
-    player.value.nerf.kuaActive.kpower.upgrades = i;
-    
-    i = true;
-    if (inChallenge('nk')) { i = false; }
-    player.value.nerf.kuaActive.kshards.effects = i;
-    
-    i = true;
-    if (inChallenge('nk')) { i = false; }
-    player.value.nerf.kuaActive.kshards.gain = i;
-    
-    i = true;
-    if (inChallenge('nk')) { i = false; }
-    player.value.nerf.kuaActive.kshards.upgrades = i;
+    nerf = true;
+    nerf &&= !inChallenge('nk');
+    player.value.nerf.kuaActive.kshards.upgrades = nerf;
 }

@@ -2,57 +2,57 @@
 const saveID = "danidanijr_save_revamp";
 const TABS_LIST = [
     {
-        get name() { return "Generators" },
-        get staticName() { return "gen" },
-        get backgroundColor() { return "#999999" },
-        get textColor() { return "#000000" },
-        get outlineColor() { return "#00000000" },
-        get highlightColor() { return "#FFFFFF" },
+        name: "Generators",
+        staticName: "gen" ,
+        backgroundColor: "#999999",
+        textColor: "#000000",
+        outlineColor: "#00000000",
+        highlightColor: "#FFFFFF",
         if: true
     },
     {
-        get name() { return "Options" },
-        get staticName() { return "opt" },
-        get backgroundColor() { return "#999999" },
-        get textColor() { return "#000000" },
-        get outlineColor() { return "#00000000" },
-        get highlightColor() { return "#FFFFFF" },
+        name: "Options" ,
+        staticName: "opt" ,
+        backgroundColor: "#999999",
+        textColor: "#000000",
+        outlineColor: "#00000000",
+        highlightColor: "#FFFFFF",
         if: true
     },
     {
-        get name() { return "Stats" },
-        get staticName() { return "stat" },
-        get backgroundColor() { return "#999999" },
-        get textColor() { return "#000000" },
-        get outlineColor() { return "#00000000" },
-        get highlightColor() { return "#FFFFFF" },
+        name: "Stats",
+        staticName: "stat",
+        backgroundColor: "#999999",
+        textColor: "#000000",
+        outlineColor: "#00000000",
+        highlightColor: "#FFFFFF",
         if: true
     },
     {
-        get name() { return "Achievements" },
-        get staticName() { return "ach" },
-        get backgroundColor() { return "#999999" },
-        get textColor() { return "#000000" },
-        get outlineColor() { return "#00000000" },
-        get highlightColor() { return "#FFFFFF" },
+        name: "Achievements",
+        staticName: "ach",
+        backgroundColor: "#999999",
+        textColor: "#000000",
+        outlineColor: "#00000000",
+        highlightColor: "#FFFFFF",
         if: true
     },
     {
-        get name() { return "Kuaraniai" },
-        get staticName() { return "kua" },
-        get backgroundColor() { return "#3100ff" },
-        get textColor() { return "#ffffff" },
-        get outlineColor() { return "#7958ff" },
-        get highlightColor() { return "#ff81cb" },
+        name: "Kuaraniai",
+        staticName: "kua",
+        backgroundColor: "#3100ff",
+        textColor: "#ffffff",
+        outlineColor: "#7958ff",
+        highlightColor: "#ff81cb",
         get if() { return player.value.kua.unlocked }
     },
     {
-        get name() { return "Colosseum" },
-        get staticName() { return "col" },
-        get backgroundColor() { return "#af1a00" },
-        get textColor() { return "#ffffff" },
-        get outlineColor() { return "#ff3600" },
-        get highlightColor() { return "#ff9b7f" },
+        name: "Colosseum",
+        staticName: "col",
+        backgroundColor: "#af1a00",
+        textColor: "#ffffff",
+        outlineColor: "#ff3600",
+        highlightColor: "#ff9b7f",
         get if() { return player.value.col.unlocked }
     },
 ]
@@ -98,12 +98,7 @@ function resetPlayer() {
         setTimeSpeed: c.d1, // change this if you think the game is going too fast or slow, i won't judge you =P
         version: 0,
         nerf: {
-            up1Active: true,
-            up2Active: true,
-            up3Active: true,
-            up1BActive: true,
-            up2BActive: true,
-            up3BActive: true,
+            upgradesActive: [true, true, true, true, true, true],
             praiActive: true,
             pr2Active: true,
             kuaActive: {
@@ -124,88 +119,21 @@ function resetPlayer() {
             },
         },
         auto: {
-            upg1: false,
-            upg2: false,
-            upg3: false,
-            upg1B: false,
-            upg2B: false,
-            upg3B: false,
+            upgrades: [false, false, false, false, false, false],
             prai: false,
             pr2: false,
             kua: false,
             kuaUpgrades: false,
         },
         generators: {
-            upg1: {
-                cost: c.d5,
-                target: c.d0,
-                effectBase: c.d1_5,
-                calculatedEB: c.d1_5,
-                costBase: c.d1_55,
-                bought: c.d0,
-                freeExtra: c.d0,
-                effective: c.d0,
-                effect: c.d1,
-                best: c.d0,
-                partB: {
-                    cost: c.d5,
-                    target: c.d0,
-                    effectBase: c.d1_5,
-                    calculatedEB: c.d1_5,
-                    costBase: c.d1_55,
-                    bought: c.d0,
-                    freeExtra: c.d0,
-                    effective: c.d0,
-                    effect: c.d1,
-                    best: c.d0
-                },
-            },
-            upg2: {
-                cost: c.e3,
-                target: c.d0,
-                effectBase: c.d1_2,
-                calculatedEB: c.d1_2,
-                costBase: c.d1_25,
-                bought: c.d0,
-                freeExtra: c.d0,
-                effective: c.d0,
-                effect: c.d1,
-                best: c.d0,
-                partB: {
-                    cost: c.e3,
-                    target: c.d0,
-                    effectBase: c.d1_2,
-                    calculatedEB: c.d1_2,
-                    costBase: c.d1_25,
-                    bought: c.d0,
-                    freeExtra: c.d0,
-                    effective: c.d0,
-                    effect: c.d1,
-                    best: c.d0,
-                },
-            },
-            upg3: {
-                cost: c.e10,
-                target: c.d0,
-                effectBase: c.d0_02,
-                calculatedEB: c.d0_02,
-                bought: c.d0,
-                freeExtra: c.d0,
-                effective: c.d0,
-                effect: c.d0,
-                best: c.d0,
-                partB: {
-                    cost: c.e10,
-                    target: c.d0,
-                    effectBase: c.d0_02,
-                    calculatedEB: c.d0_02,
-                    bought: c.d0,
-                    freeExtra: c.d0,
-                    effective: c.d0,
-                    effect: c.d0,
-                    best: c.d0,
-                },
-            },
+            upgrades: [
+                { bought: c.d0, best: c.d0 },
+                { bought: c.d0, best: c.d0 },
+                { bought: c.d0, best: c.d0 },
+                { bought: c.d0, best: c.d0 },
+                { bought: c.d0, best: c.d0 },
+                { bought: c.d0, best: c.d0 },
+            ],
             prai: {
                 amount: c.d0,
                 effect: c.d1,
@@ -271,69 +199,6 @@ function resetPlayer() {
     }
 }
 
-function fixGame2() {
-    player.value.generators.prai.amount     = D(player.value.generators.prai.amount);
-    player.value.generators.prai.best       = D(player.value.generators.prai.best);
-    player.value.generators.prai.bestInPR2  = D(player.value.generators.prai.bestInPR2);
-    player.value.generators.prai.effect     = D(player.value.generators.prai.effect);
-    player.value.generators.prai.timeInPRai = D(player.value.generators.prai.timeInPRai);
-    player.value.generators.prai.times      = D(player.value.generators.prai.times);
-    player.value.generators.prai.total      = D(player.value.generators.prai.total);
-    player.value.generators.prai.totalInKua = D(player.value.generators.prai.totalInKua);
-    player.value.generators.prai.totalInPR2 = D(player.value.generators.prai.totalInPR2);
-    player.value.generators.pr2.amount      = D(player.value.generators.pr2.amount);
-    player.value.generators.pr2.best        = D(player.value.generators.pr2.best);
-    player.value.generators.pr2.cost        = D(player.value.generators.pr2.cost);
-    player.value.generators.pr2.effect      = D(player.value.generators.pr2.effect);
-    player.value.generators.pr2.freeExtra   = D(player.value.generators.pr2.freeExtra);
-    player.value.generators.pr2.target      = D(player.value.generators.pr2.target);
-    player.value.kua.amount                 = D(player.value.kua.amount);
-    player.value.kua.total                  = D(player.value.kua.total);
-    player.value.kua.best                   = D(player.value.kua.best);
-    player.value.kua.timeInKua              = D(player.value.kua.timeInKua);
-    player.value.kua.times                  = D(player.value.kua.times);
-    player.value.kua.kshards.amount         = D(player.value.kua.kshards.amount);
-    player.value.kua.kshards.total          = D(player.value.kua.kshards.total);
-    player.value.kua.kshards.best           = D(player.value.kua.kshards.best);
-    player.value.kua.kpower.amount          = D(player.value.kua.kpower.amount);
-    player.value.kua.kpower.total           = D(player.value.kua.kpower.total);
-    player.value.kua.kpower.best            = D(player.value.kua.kpower.best);
-}
-
-function fixData(defaultData, newData) {
-    let item;
-    for (item in defaultData) {
-        if (defaultData[item] == null) {
-            if (newData[item] === undefined) {
-                newData[item] = null;
-            }
-        } else if (Array.isArray(defaultData[item])) {
-            if (newData[item] === undefined) {
-                newData[item] = defaultData[item];
-            } else {
-                fixData(defaultData[item], newData[item]);
-            }
-        } else if (defaultData[item] instanceof Decimal) { // Convert to Decimal
-            if (newData[item] === undefined) {
-                newData[item] = defaultData[item];
-            } else {
-                newData[item] = new Decimal(newData[item]);
-            }
-        } else if ((!!defaultData[item]) && (typeof defaultData[item] === "object")) {
-            if (newData[item] === undefined || (typeof defaultData[item] !== "object")) {
-                newData[item] = defaultData[item];
-            } else {
-                fixData(defaultData[item], newData[item]);
-            }
-        } else {
-            if (newData[item] === undefined) {
-                newData[item] = defaultData[item];
-            }
-        }
-    }
-    return newData;
-}
-
 function updatePlayerData(player) {
     player.value.version = player.value.version||-1;
     if (player.value.version < 0) {
@@ -367,22 +232,22 @@ function reset(layer, override) {
             if (tmp.value.praiCanDo || override) {
                 if (!override) {
                     setAchievement(8, tmp.value.praiPending.gte(c.e3));
-                    player.value.generators.prai.amount = player.value.generators.prai.amount.add(tmp.value.praiPending);
-                    player.value.generators.prai.total = player.value.generators.prai.total.add(tmp.value.praiPending);
-                    player.value.generators.prai.totalInPR2 = player.value.generators.prai.totalInPR2.add(tmp.value.praiPending);
-                    player.value.generators.prai.totalInKua = player.value.generators.prai.totalInKua.add(tmp.value.praiPending);
-                    player.value.generators.prai.times = player.value.generators.prai.times.add(c.d1);
+                    player.value.generators.prai.amount = Decimal.add(player.value.generators.prai.amount, tmp.value.praiPending);
+                    player.value.generators.prai.total = Decimal.add(player.value.generators.prai.total, tmp.value.praiPending);
+                    player.value.generators.prai.totalInPR2 = Decimal.add(player.value.generators.prai.totalInPR2, tmp.value.praiPending);
+                    player.value.generators.prai.totalInKua = Decimal.add(player.value.generators.prai.totalInKua, tmp.value.praiPending);
+                    player.value.generators.prai.times = Decimal.add(player.value.generators.prai.times, c.d1);
                 }
 
                 for (let i = 0; i < 2; i++) {
                     player.value.generators.prai.timeInPRai = c.d0;
-                    player.value.generators.upg3.bought = c.d0;
-                    player.value.generators.upg2.bought = c.d0;
-                    player.value.generators.upg1.bought = c.d0;
+                    player.value.generators.upgrades[0].bought = c.d0;
+                    player.value.generators.upgrades[1].bought = c.d0;
+                    player.value.generators.upgrades[2].bought = c.d0;
                     updateStart("prai");
-                    updateStart("upg3");
-                    updateStart("upg2");
-                    updateStart("upg1");
+                    updateStart(2);
+                    updateStart(1);
+                    updateStart(0);
                     player.value.pps = calcPointsPerSecond();
                     player.value.points = c.d0;
                     player.value.totalPointsInPRai = c.d0;
@@ -392,7 +257,7 @@ function reset(layer, override) {
         case "pr2":
             if (tmp.value.pr2CanDo || override) {
                 if (!override) {
-                    player.value.generators.pr2.amount = player.value.generators.pr2.amount.add(1);
+                    player.value.generators.pr2.amount = Decimal.add(player.value.generators.pr2.amount, c.d1);
                 }
 
                 for (let i = 0; i < 2; i++) {
@@ -409,14 +274,18 @@ function reset(layer, override) {
             if (tmp.value.kuaCanDo || override) {
                 if (!override) {
                     setAchievement(11, true);
-                    player.value.kua.amount = player.value.kua.amount.add(tmp.value.kuaPending);
-                    player.value.kua.total = player.value.kua.total.add(tmp.value.kuaPending);
-                    player.value.kua.times = player.value.kua.times.add(c.d1);
+                    player.value.kua.amount = Decimal.add(player.value.kua.amount, tmp.value.kuaPending);
+                    player.value.kua.total = Decimal.add(player.value.kua.total, tmp.value.kuaPending);
+                    player.value.kua.times = Decimal.add(player.value.kua.times, c.d1);
                 }
 
                 player.value.generators.prai.times = c.d0;
                 player.value.kua.timeInKua = c.d0;
                 player.value.generators.prai.totalInKua = c.d0;
+                player.value.generators.prai.amount = c.d0;
+                player.value.generators.prai.total = c.d0;
+                player.value.generators.prai.totalInPR2 = c.d0;
+                player.value.generators.prai.bestInPR2 = c.d0;
                 if (player.value.achievements.includes(11)) {
                     player.value.generators.prai.amount = c.d10;
                     player.value.generators.prai.total = c.d10;
@@ -443,13 +312,13 @@ function reset(layer, override) {
                 player.value.kua.kpower.best = c.d0;
                 player.value.kua.kpower.total = c.d0;
                 player.value.kua.kpower.upgrades = 0;
-                player.value.auto.upg1 = false;
-                player.value.auto.upg2 = false;
-                player.value.auto.upg3 = false;
+                player.value.auto.upgrades[0] = false;
+                player.value.auto.upgrades[1] = false;
+                player.value.auto.upgrades[2] = false;
                 player.value.auto.prai = false;
-                player.value.generators.upg3.partB.bought = c.d0;
-                player.value.generators.upg2.partB.bought = c.d0;
-                player.value.generators.upg1.partB.bought = c.d0;
+                player.value.generators.upgrades[3].bought = c.d0;
+                player.value.generators.upgrades[4].bought = c.d0;
+                player.value.generators.upgrades[5].bought = c.d0;
                 player.value.generators.pr2.best = c.d0;
                 player.value.generators.pr2.amount = c.d0;
                 updateKua("kua");
@@ -463,21 +332,24 @@ function reset(layer, override) {
 
 function calcPointsPerSecond() {
     let i = c.d1;
-    i = i.mul(player.value.generators.upg1.effect);
-    i = i.mul(player.value.generators.upg1.partB.effect);
+    i = i.mul(tmp.value.upgrades[0].effect);
+    i = i.mul(tmp.value.upgrades[3].effect);
     i = i.mul(player.value.generators.prai.effect);
     i = i.mul(player.value.generators.pr2.effect);
     if (player.value.achievements.includes(4)) {
-        i = i.mul(c.d3);
+        i = i.mul(c.d2);
     }
     if (player.value.achievements.includes(11)) {
-        i = i.mul(c.d3);
+        i = i.mul(c.d2);
     }
     if (player.value.achievements.includes(12)) {
         i = i.mul(ACHIEVEMENT_DATA[12].eff);
     }
     if (player.value.achievements.includes(13)) {
         i = i.mul(ACHIEVEMENT_DATA[13].eff);
+    }
+    if (player.value.achievements.includes(25)) {
+        i = i.mul(ACHIEVEMENT_DATA[25].eff);
     }
     if (getKuaUpgrade("p", 3)) {
         i = i.pow(tmp.value.kuaEffects.ptPower);
@@ -505,7 +377,7 @@ function loadGame() {
 
     let loadgame = JSON.parse(localStorage.getItem(saveID)); 
     if (loadgame !== null) {
-        game.value = fixData(game.value, loadgame._value); 
+        game.value = loadgame._value; 
         player.value = game.value[currentSave].player;
         updatePlayerData(player);
     } else {
@@ -537,13 +409,9 @@ function loadGame() {
                 }
 
                 let gameDelta = Decimal.mul(otherGameStuffIg.delta, player.value.timeSpeed).mul(player.value.setTimeSpeed);
-                player.value.gameTime = player.value.gameTime.add(gameDelta);
+                player.value.gameTime = Decimal.add(player.value.gameTime, gameDelta);
                 player.value.totalTime += otherGameStuffIg.delta;
                 otherGameStuffIg.sessionTime += otherGameStuffIg.delta;
-
-                // too important because i do not know what's causing this but challenges fuck up the save and i don't know why
-                // TODO: find a reason why player.value.col.saved[challengeID] is not getting Decimal'd for Kua, PRai, and PR2 so fix it so i don't have to do this garbage
-                // fixGame2();
 
                 updateNerf();
 
@@ -554,42 +422,48 @@ function loadGame() {
                 }
                 updateAllCol();
                 generate = tmp.value.colosseumPowerGeneration.mul(gameDelta);
-                player.value.col.power = player.value.col.power.add(generate)
-                player.value.col.totalPower = player.value.col.totalPower.add(generate)
+                player.value.col.power = Decimal.add(player.value.col.power, generate)
+                player.value.col.totalPower = Decimal.add(player.value.col.totalPower, generate)
 
-                player.value.kua.timeInKua = player.value.kua.timeInKua.add(gameDelta);
+                player.value.kua.timeInKua = Decimal.add(player.value.kua.timeInKua, gameDelta);
                 updateAllKua();
                 generate = tmp.value.kuaShardGeneration.mul(gameDelta);
-                player.value.kua.kshards.amount = player.value.kua.kshards.amount.add(generate);
-                player.value.kua.kshards.total = player.value.kua.kshards.total.add(generate);
+                player.value.kua.kshards.amount = Decimal.add(player.value.kua.kshards.amount, generate);
+                player.value.kua.kshards.total = Decimal.add(player.value.kua.kshards.total, generate);
                 generate = tmp.value.kuaPowerGeneration.mul(gameDelta);
-                player.value.kua.kpower.amount = player.value.kua.kpower.amount.add(generate);
-                player.value.kua.kpower.total = player.value.kua.kpower.total.add(generate);
+                player.value.kua.kpower.amount = Decimal.add(player.value.kua.kpower.amount, generate);
+                player.value.kua.kpower.total = Decimal.add(player.value.kua.kpower.total, generate);
 
-                player.value.generators.prai.timeInPRai = player.value.generators.prai.timeInPRai.add(gameDelta);
+                player.value.generators.prai.timeInPRai = Decimal.add(player.value.generators.prai.timeInPRai, gameDelta);
                 updateAllStart();
                 if (getKuaUpgrade("s", 1) && player.value.auto.prai) {
                     generate = tmp.value.praiPending.mul(gameDelta).mul(c.em4);
-                    player.value.generators.prai.amount = player.value.generators.prai.amount.add(generate);
-                    player.value.generators.prai.total = player.value.generators.prai.total.add(generate);
-                    player.value.generators.prai.totalInPR2 = player.value.generators.prai.totalInPR2.add(generate);
-                    player.value.generators.prai.totalInKua = player.value.generators.prai.totalInKua.add(generate);
+                    player.value.generators.prai.amount = Decimal.add(player.value.generators.prai.amount, generate);
+                    player.value.generators.prai.total = Decimal.add(player.value.generators.prai.total, generate);
+                    player.value.generators.prai.totalInPR2 = Decimal.add(player.value.generators.prai.totalInPR2, generate);
+                    player.value.generators.prai.totalInKua = Decimal.add(player.value.generators.prai.totalInKua, generate);
+                }
+                if (player.value.auto.kua) {
+                    generate = tmp.value.kuaPending.mul(gameDelta).mul(c.e2);
+                    player.value.kua.amount = Decimal.add(player.value.kua.amount, generate);
+                    player.value.kua.total = Decimal.add(player.value.kua.total, generate);
                 }
                 player.value.pps = calcPointsPerSecond();
-                generate = player.value.pps.mul(gameDelta);
-                player.value.points = player.value.points.add(generate);
-                player.value.totalPointsInPRai = player.value.totalPointsInPRai.add(generate);
-                player.value.totalPoints = player.value.totalPoints.add(generate);
+                generate = Decimal.mul(player.value.pps, gameDelta);
+                player.value.points = Decimal.add(player.value.points, generate);
+                player.value.totalPointsInPRai = Decimal.add(player.value.totalPointsInPRai, generate);
+                player.value.totalPoints = Decimal.add(player.value.totalPoints, generate);
         
-                setAchievement(17, player.value.points.gte(c.e24) && player.value.generators.upg1.bought.eq(c.d0) && player.value.generators.upg2.bought.eq(c.d0) && player.value.generators.upg3.bought.eq(c.d0));
-                setAchievement(22, player.value.points.gte(c.e80) && player.value.generators.upg1.bought.eq(c.d0) && player.value.generators.upg2.bought.eq(c.d0) && player.value.generators.upg3.bought.eq(c.d0));
-                setAchievement(24, player.value.points.gte(c.e90) && player.value.generators.upg1.bought.eq(c.d0) && player.value.generators.upg2.bought.eq(c.d0));
+                setAchievement(17, Decimal.gte(player.value.points, c.e24) && Decimal.eq(player.value.generators.upgrades[0].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[1].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[2].bought, c.d0));
+                setAchievement(22, Decimal.gte(player.value.points, c.e80) && Decimal.eq(player.value.generators.upgrades[0].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[1].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[2].bought, c.d0));
+                setAchievement(24, Decimal.gte(player.value.points, c.e33) && Decimal.eq(player.value.generators.upgrades[0].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[1].bought, c.d0));
+                setAchievement(25, Decimal.gte(player.value.points, c.e260) && Decimal.lt(player.value.kua.timeInKua, 5) )
 
-                if (player.value.generators.pr2.best.gte(c.d10)) {
+                if (Decimal.gte(player.value.generators.pr2.best, c.d10)) {
                     player.value.kua.unlocked = true;
                 }
 
-                if (player.value.kua.kpower.upgrades >= 2 && player.value.kua.amount.gte(c.e2)) {
+                if (player.value.kua.kpower.upgrades >= 2 && Decimal.gte(player.value.kua.amount, c.e2)) {
                     player.value.col.unlocked = true;
                 }
 
@@ -599,20 +473,19 @@ function loadGame() {
                 }
 
                 // misc unimportant stuff
-
-                let k = { upg1: "Upgrade 1", upg2: "Upgrade 2", upg3: "Upgrade 3", praiGain: "PRai Gain", praiEffect: "PRai Effect", pr2: "PR2" }
+                let k = { upg1: "Upgrade 1", upg2: "Upgrade 2", upg3: "Upgrade 3", upg4: "Upgrade 4", upg5: "Upgrade 5", upg6: "Upgrade 6", praiGain: "PRai Gain", praiEffect: "PRai Effect", pr2: "PR2" };
                 for (let i in tmp.value.scaling) {
                     for (let j in tmp.value.scaling[i]) {
-                        if (tmp.value.scaling[i][j].res.gte(tmp.value.scaling[i][j].start)) {
-                            tmp.value.scaleList[j].push(`${k[i]} - ${format(tmp.value.scaling[i][j].strength.mul(c.e2), 3)}% starting at ${format(tmp.value.scaling[i][j].start, 3)}`)
+                        if (Decimal.gte(tmp.value.scaling[i][j].res, tmp.value.scaling[i][j].start)) {
+                            tmp.value.scaleList[j].push(`${k[i]} - ${format(tmp.value.scaling[i][j].strength.mul(c.e2), 3)}% starting at ${format(tmp.value.scaling[i][j].start, 3)}`);
                         }
                     }
                 }
                 
                 for (let i in tmp.value.softcap) {
                     for (let j in tmp.value.softcap[i]) {
-                        if (tmp.value.softcap[i][j].res.gte(tmp.value.softcap[i][j].start)) {
-                            tmp.value.softList[j].push(`${k[i]} - ${format(tmp.value.softcap[i][j].strength.mul(c.e2), 3)}% starting at ${format(tmp.value.softcap[i][j].start, 3)}`)
+                        if (Decimal.gte(tmp.value.softcap[i][j].res, tmp.value.softcap[i][j].start)) {
+                            tmp.value.softList[j].push(`${k[i]} - ${format(tmp.value.softcap[i][j].strength.mul(c.e2), 3)}% starting at ${format(tmp.value.softcap[i][j].start, 3)} (${tmp.value.softcap[i][j].red})`);
                         }
                     }
                 }

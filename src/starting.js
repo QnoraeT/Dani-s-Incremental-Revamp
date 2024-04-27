@@ -1,283 +1,166 @@
+"use strict";
 // NOTE: ALL INFORMATION USED BY OTHER EFFECTS MUST BE STORED IN THE PLAYER VARIABLE!! LEAVING IT IN TMP WILL BREAK THINGS BECAUSE THEY OULD BE LEFT UNDEFINED!
 // NOTE: Do not test updateProgression(x) because sometimes that could cause infinite loops
-"use strict";
 
 const PR2_EFF = [
     {
         show: true,
-        get when() { return c.d1 },
+        when: c.d1,
         get text() { return `you gain a new upgrade and make PRai resets unforced.` }
     },
     {
         show: true,
-        get when() { return c.d2 },
+        when: c.d2,
         get text() { return `unlock the Upgrade 1 Autobuyer.` }
     },
     {
         show: true,
-        get when() { return c.d4 },
-        get text() { return `unlock the Upgrade 2 Autobuyer and increase the Upgrade 2 base from ${format(c.d1_2, 3)}x -> ${format(c.d4div3, 3)}x.`}
+        when: c.d4,
+        get text() { return `unlock the Upgrade 2 Autobuyer and increase the Upgrade 2 base from ${format(c.d1_2, 3)}x -> ${format(c.d1_3, 3)}x.`}
     },
     {
         show: true,
-        get when() { return c.d5 },
+        when: c.d5,
         get text() { return `unlock Upgrade 3.`}
     },
     {
         show: true,
-        get when() { return c.d7 },
+        when: c.d7,
         get text() { return `weaken the Upgrade 1 scaling by ${formatPerc(c.d10div9, 3)}`}
     },
     {
         show: true,
-        get when() { return c.d10 },
+        when: c.d10,
         get text() { return `unlock a new layer`}
     },
     {
         show: true,
-        get when() { return c.d11 },
+        when: c.d11,
         get text() { return `slow down Upgrade 3 cost by ${formatPerc(c.d10div9, 3)}`}
     },
     {
         show: true,
-        get when() { return c.d12 },
+        when: c.d12,
         get text() { return `unlock the Upgrade 1 B-Side autobuyer.`}
     },
     {
         show: true,
-        get when() { return c.d14 },
+        when: c.d14,
         get text() { return `unlock the Upgrade 2 B-Side autobuyer.`}
     },
     {
         show: true,
-        get when() { return c.d15 },
+        when: c.d15,
         get text() { return `decrease Upgrade 2's superscaling strength by ${formatPerc(c.d8div7, 3)}`}
     },
     {
         show: true,
-        get when() { return c.d18 },
+        when: c.d18,
         get text() { return `unlock the Upgrade 3 B-Side autobuyer.`}
     },
     {
         show: true,
-        get when() { return c.d20 },
+        when: c.d20,
         get text() { return `weaken Upgrade 1's cost scaling by ${format(c.d10, 3)}%`}
     },
     {
-        get show() { return player.value.kua.amount.gte(c.d10); },
-        get when() { return c.d25 },
+        get show() { return Decimal.gte(player.value.kua.amount, c.d10); },
+        when: c.d25,
         get text() { return `makes upgrade 1 and 2's scaling and super scaling start ${format(c.d15, 1)} later`}
     },
     {
         get show() { return getKuaUpgrade("s", 11) },
-        get when() { return c.d31 },
+        when: c.d31,
         get text() { return `boosts Kuaraniai effects based on how much PR2 you have`}
     },
 ]
 
 function buyGenUPG(id){
-    switch (id) {
-        case 1:
-            if (player.value.points.gte(player.value.generators.upg1.cost)) {
-                player.value.points = player.value.points.sub(player.value.generators.upg1.cost);
-                player.value.generators.upg1.bought = player.value.generators.upg1.bought.add(c.d1);
-                updateStart("upg1");
-            }
-            break;
-        case 2:
-            if (player.value.points.gte(player.value.generators.upg2.cost)) {
-                player.value.points = player.value.points.sub(player.value.generators.upg2.cost);
-                player.value.generators.upg2.bought = player.value.generators.upg2.bought.add(c.d1);
-                updateStart("upg2");
-            }
-            break;
-        case 3:
-            if (player.value.points.gte(player.value.generators.upg3.cost)) {
-                player.value.points = player.value.points.sub(player.value.generators.upg3.cost);
-                player.value.generators.upg3.bought = player.value.generators.upg3.bought.add(c.d1);
-                updateStart("upg3");
-            }
-            break;
-        case 4:
-            if (player.value.points.gte(player.value.generators.upg1.partB.cost)) {
-                player.value.points = player.value.points.sub(player.value.generators.upg1.partB.cost);
-                player.value.generators.upg1.partB.bought = player.value.generators.upg1.partB.bought.add(c.d1);
-                updateStart("upg1B");
-            }
-            break;
-        case 5:
-            if (player.value.points.gte(player.value.generators.upg2.partB.cost)) {
-                player.value.points = player.value.points.sub(player.value.generators.upg2.partB.cost);
-                player.value.generators.upg2.partB.bought = player.value.generators.upg2.partB.bought.add(c.d1);
-                updateStart("upg2B");
-            }
-            break;
-        case 6:
-            if (player.value.points.gte(player.value.generators.upg3.partB.cost)) {
-                player.value.points = player.value.points.sub(player.value.generators.upg3.partB.cost);
-                player.value.generators.upg3.partB.bought = player.value.generators.upg3.partB.bought.add(c.d1);
-                updateStart("upg3B");
-            }
-            break;
-        default:
-            throw new Error(`Generator upgrade ${id} is not something you can buy... >_>`);
+    if (Decimal.gte(player.value.points, tmp.value.upgrades[id].cost)) {
+        player.value.points = Decimal.sub(player.value.points, tmp.value.upgrades[id].cost);
+        player.value.generators.upgrades[id].bought = Decimal.add(player.value.generators.upgrades[id].bought, c.d1);
     }
 }
 
 function updateAllStart() {
+    if (tmp.value.upgrades === undefined) { 
+        tmp.value.upgrades = [] 
+        for (let i = player.value.generators.upgrades.length - 1; i >= 0; i--) {
+            tmp.value.upgrades.push({})
+        }
+    };
+
     updateStart("pr2");
     updateStart("prai");
-    updateStart("upg3B");
-    updateStart("upg2B");
-    updateStart("upg1B");
-    updateStart("upg3");
-    updateStart("upg2");
-    updateStart("upg1");
+    for (let i = player.value.generators.upgrades.length - 1; i >= 0; i--) {
+        updateStart(i);
+    }
 }
 
-function updateStart(type) {
-    let scal, pow, sta, i, j;
-    switch (type) {
-        case "upg1":
-            updateScaling("upg1");
-            updateSoftcap("upg1");
-
-            player.value.generators.upg1.costBase = c.d1_55;
-            if (getKuaUpgrade("s", 7)) {
-                player.value.generators.upg1.costBase = player.value.generators.upg1.costBase.sub(c.d0_05);
-            }
-
-            tmp.value.upg1CostDiv = c.d1;
-            
-            tmp.value.upg1CostDiv = tmp.value.upg1CostDiv.mul(player.value.generators.upg2.effect);
-            tmp.value.upg1CostDiv = tmp.value.upg1CostDiv.mul(player.value.generators.upg2.partB.effect);
-
-            scal = player.value.generators.upg1.bought;
-            scal = doAllScaling(scal, tmp.value.scaling.upg1, false);
-            if (player.value.achievements.includes(17)) {
-                scal = scal.div(ACHIEVEMENT_DATA[17].eff);
-            }
-            if (getKuaUpgrade("p", 10)) {
-                scal = scal.div(KUA_UPGRADES.KPower[9].eff)
-            }
-            player.value.generators.upg1.cost = Decimal.pow(player.value.generators.upg1.costBase, scal).div(tmp.value.upg1CostDiv).mul(c.d5);
-
-            if (player.value.points.mul(tmp.value.upg1CostDiv).gte(c.d5)) {
-                scal = player.value.points.div(c.d5).mul(tmp.value.upg1CostDiv).log(player.value.generators.upg1.costBase);
-                if (getKuaUpgrade("p", 10)) {
-                    scal = scal.mul(KUA_UPGRADES.KPower[9].eff)
-                }
-                if (player.value.achievements.includes(17)) {
-                    scal = scal.mul(ACHIEVEMENT_DATA[17].eff);
-                }
-                scal = doAllScaling(scal, tmp.value.scaling.upg1, true);
-                player.value.generators.upg1.target = scal;
-            } else {
-                player.value.generators.upg1.target = c.d0;
-            }
-
-            i = c.d1_5
-            i = i.add(player.value.generators.upg3.effect);
-            i = i.add(player.value.generators.upg3.partB.effect);
+const BASIC_UPGS = [
+    {
+        get freeExtra() {
+            let i = c.d0;
+            return i;
+        },
+        get effectBase() {
+            let i = c.d1_5;
+            i = i.add(tmp.value.upgrades[2].effect ?? c.d0);
+            i = i.add(tmp.value.upgrades[5].effect ?? c.d0);
             if (player.value.achievements.includes(22)) {
                 i = i.mul(c.d1_01);
             }
-            player.value.generators.upg1.effectBase = i;
-
-            i = c.d0;
-            player.value.generators.upg1.freeExtra = i;
-
-            i = player.value.generators.upg1.bought;
-            i = i.add(player.value.generators.upg1.freeExtra);
+            return i;
+        },
+        effective(x) {
+            let i = D(x);
+            i = i.add(this.freeExtra);
             if (player.value.achievements.includes(16)) {
                 i = i.mul(ACHIEVEMENT_DATA[16].eff);
             }
-            player.value.generators.upg1.effective = i;
+            return i;
+        },
+        effect(x = player.value.generators.upgrades[0].bought) {
+            let i = this.effective(x), j, sta, pow;
 
-            i = Decimal.pow(player.value.generators.upg1.effectBase, player.value.generators.upg1.effective);
+            i = this.effectBase.pow(i);
             if (getKuaUpgrade("p", 8)) {
-                i = i.max(c.d1).log10().pow(c.d1_01).pow10();
+                i = i.max(c.d1).dilate(c.d1_01);
             }
+            j = i;
             sta = tmp.value.softcap.upg1[0].start;
             pow = tmp.value.softcap.upg1[0].strength;
             i = scale(i, 2.1, false, sta, pow, c.d0_5);
-            player.value.generators.upg1.effect = i;
-
-            if (player.value.generators.upg1.effective.gte(c.e10)) {
-                player.value.generators.upg1.calculatedEB = player.value.generators.upg1.effectBase;
+            tmp.value.softcap.upg1[0].red = `^${format(i.log(j), 3)}`;
+            return i;
+        },
+        get calcEB() {
+            if (Decimal.gte(this.effective(player.value.generators.upgrades[0].bought), c.e10)) {
+                return this.effectBase;
             } else {
-                i = Decimal.pow(player.value.generators.upg1.effectBase, player.value.generators.upg1.effective.add(c.d1));
-                if (getKuaUpgrade("p", 8)) {
-                    i = i.max(c.d1).log10().pow(c.d1_01).pow10();
-                }
-                sta = tmp.value.softcap.upg1[0].start;
-                pow = tmp.value.softcap.upg1[0].strength;
-                i = scale(i, 2.1, false, sta, pow, c.d0_5);
-                player.value.generators.upg1.calculatedEB = i.div(player.value.generators.upg1.effect);
+                return this.effect(Decimal.add(player.value.generators.upgrades[0].bought, c.d1)).div(this.effect());
             }
-
-            tmp.value.upg1CanBuy = player.value.points.gte(player.value.generators.upg1.cost);
-            player.value.generators.upg1.best = player.value.generators.upg1.best.max(player.value.generators.upg1.bought);
-
-            tmp.value.upg1ScalingColor = `#FFFFFF`
-            for (let i = tmp.value.scaling.upg1.length - 1; i >= 0; i--) {
-                if (player.value.generators.upg1.bought.gte(tmp.value.scaling.upg1[i].start)) {
-                    tmp.value.upg1ScalingColor = SCALE_ATTR[i].color;
-                    break;
-                }
-            }
-
-            if (player.value.auto.upg1) {
-                player.value.generators.upg1.bought = Decimal.max(player.value.generators.upg1.bought, player.value.generators.upg1.target.add(c.d1).floor())
-            }
-
-            setAchievement(0, player.value.generators.upg1.bought.gte(c.d1));
-            setAchievement(1, player.value.generators.upg1.bought.gte(c.d20));
-            setAchievement(10, player.value.generators.upg1.bought.gte(c.e2));
-            setAchievement(16, player.value.generators.upg1.bought.gte(c.d200) && player.value.generators.prai.totalInKua.eq(c.d0));
-            setAchievement(21, player.value.generators.upg1.bought.gte(c.d300) && player.value.generators.prai.totalInKua.eq(c.d0));
-            setAchievement(23, player.value.generators.upg1.bought.gte(c.d300) && player.value.generators.upg2.bought.eq(c.d0));
-            break;
-        case "upg2":
-            updateScaling("upg2");
-            updateSoftcap("upg2");
-
-            player.value.generators.upg2.costBase = c.d1_25;
-            tmp.value.upg2CostDiv = c.d1;
-
-            scal = player.value.generators.upg2.bought;
-            scal = doAllScaling(scal, tmp.value.scaling.upg2, false);
-            if (player.value.achievements.includes(17)) {
-                scal = scal.div(ACHIEVEMENT_DATA[17].eff);
-            }
-            if (getKuaUpgrade("s", 9)) {
-                scal = scal.sub(KUA_UPGRADES.KShards[8].eff);
-            }
-            if (getKuaUpgrade("p", 10)) {
-                scal = scal.div(KUA_UPGRADES.KPower[9].eff)
-            }
-            player.value.generators.upg2.cost = Decimal.pow(player.value.generators.upg2.costBase, scal).div(tmp.value.upg2CostDiv).mul(c.e3);
-
-            if (player.value.points.mul(tmp.value.upg2CostDiv).gte(c.e3)) {
-                scal = player.value.points.div(c.e3).mul(tmp.value.upg2CostDiv).log(player.value.generators.upg2.costBase);
-                if (getKuaUpgrade("p", 10)) {
-                    scal = scal.mul(KUA_UPGRADES.KPower[9].eff)
-                }
-                if (getKuaUpgrade("s", 9)) {
-                    scal = scal.add(KUA_UPGRADES.KShards[8].eff);
-                }
-                if (player.value.achievements.includes(17)) {
-                    scal = scal.mul(ACHIEVEMENT_DATA[17].eff);
-                }
-                scal = doAllScaling(scal, tmp.value.scaling.upg2, true);
-                player.value.generators.upg2.target = scal;
-            } else {
-                player.value.generators.upg2.target = c.d0;
-            }
-
-            i = c.d1_2;
-            if (player.value.generators.pr2.amount.gte(c.d4)) {
-                i = i.mul(c.d10div9);
+        },
+        shown: true,
+        get auto() {
+            return Decimal.gte(player.value.generators.pr2.best, c.d2);
+        },
+        get display() {
+            return `Increase point gain by ${format(this.calcEB, 2)}x`;
+        },
+        get totalDisp() {
+            return `Total: ${format(this.effect(), 2)}x to point gain`;
+        }
+    },
+    {
+        get freeExtra() {
+            let i = c.d0;
+            return i;
+        },
+        get effectBase() {
+            let i = c.d1_2;
+            if (Decimal.gte(player.value.generators.pr2.amount, c.d4)) {
+                i = i.add(c.d0_1);
             }
             if (getKuaUpgrade("s", 5)) {
                 i = i.mul(c.d1_125);
@@ -288,297 +171,383 @@ function updateStart(type) {
             if (player.value.achievements.includes(22)) {
                 i = i.mul(c.d1_01);
             }
-            player.value.generators.upg2.effectBase = i;
+            return i;
+        },
+        effective(x) {
+            let i = D(x);
+            i = i.add(this.freeExtra);
+            return i;
+        },
+        effect(x = player.value.generators.upgrades[1].bought) {
+            let i = this.effective(x), j, sta, pow;
 
-            i = c.d0;
-            player.value.generators.upg2.freeExtra = i;
-
-            i = player.value.generators.upg2.bought;
-            i = i.add(player.value.generators.upg2.freeExtra);
-            player.value.generators.upg2.effective = i;
-
-            i = Decimal.pow(player.value.generators.upg2.effectBase, player.value.generators.upg2.effective);
-            setAchievement(5, i.gte(tmp.value.softcap.upg2[0].start));
+            i = this.effectBase.pow(i);
+            j = i;
             sta = tmp.value.softcap.upg2[0].start;
             pow = tmp.value.softcap.upg2[0].strength;
             i = scale(i, 0, false, sta, pow, c.d0_5);
+            tmp.value.softcap.upg2[0].red = `/${format(j.div(i), 2)}`;
             if (getKuaUpgrade("p", 7)) {
                 i = i.pow(c.d3);
             }
-            player.value.generators.upg2.effect = i;
-
-            if (player.value.generators.upg2.effective.gte(c.e10)) {
-                player.value.generators.upg2.calculatedEB = player.value.generators.upg2.effectBase;
+            return i;
+        },
+        get calcEB() {
+            if (Decimal.gte(this.effective(player.value.generators.upgrades[1].bought), c.e10)) {
+                return this.effectBase;
             } else {
-                i = Decimal.pow(player.value.generators.upg2.effectBase, player.value.generators.upg2.effective.add(c.d1));
-                sta = tmp.value.softcap.upg2[0].start;
-                pow = tmp.value.softcap.upg2[0].strength;
-                i = scale(i, 0, false, sta, pow, c.d0_5);
-                if (getKuaUpgrade("p", 7)) {
-                    i = i.pow(c.d3);
-                }
-                player.value.generators.upg2.calculatedEB = i.div(player.value.generators.upg2.effect);
+                return this.effect(Decimal.add(player.value.generators.upgrades[1].bought, c.d1)).div(this.effect());
             }
-
-            tmp.value.upg2CanBuy = player.value.points.gte(player.value.generators.upg2.cost);
-
-            tmp.value.upg2ScalingColor = `#FFFFFF`
-            for (let i = tmp.value.scaling.upg2.length - 1; i >= 0; i--) {
-                if (player.value.generators.upg2.bought.gte(tmp.value.scaling.upg2[i].start)) {
-                    tmp.value.upg2ScalingColor = SCALE_ATTR[i].color;
-                    break;
-                }
-            }
-
-            if (player.value.auto.upg2) {
-                player.value.generators.upg2.bought = Decimal.max(player.value.generators.upg2.bought, player.value.generators.upg2.target.add(c.d1).floor())
-            }
-
-            setAchievement(18, player.value.generators.upg2.effect.gte(c.e50));
-            break;
-        case "upg3":
-            updateScaling("upg3");
-            updateSoftcap("upg3");
-
-            tmp.value.upg3CostDiv = c.d1;
-
-            scal = player.value.generators.upg3.bought;
-            if (player.value.generators.pr2.amount.gte(c.d11)) {
-                scal = scal.div(c.d10div9);
-            }
-            scal = doAllScaling(scal, tmp.value.scaling.upg3, false);
-            if (player.value.achievements.includes(17)) {
-                scal = scal.div(ACHIEVEMENT_DATA[17].eff);
-            }
-            player.value.generators.upg3.cost = Decimal.pow(c.d1_05, scal.pow(c.d2)).mul(Decimal.pow(c.e2, scal)).mul(c.e10).div(tmp.value.upg3CostDiv);
-
-            if (player.value.points.mul(tmp.value.upg3CostDiv).gte(c.e10)) {
-                scal = player.value.points.mul(tmp.value.upg3CostDiv).log10().mul(c.dlog1_05).add(c.d0_788107).sqrt().sub(c.d1).div(c.dlog1_05);
-                if (player.value.achievements.includes(17)) {
-                    scal = scal.mul(ACHIEVEMENT_DATA[17].eff);
-                }
-                scal = doAllScaling(scal, tmp.value.scaling.upg3, true);
-                if (player.value.generators.pr2.amount.gte(c.d11)) {
-                    scal = scal.mul(c.d10div9);
-                }
-                player.value.generators.upg3.target = scal;
-            } else {
-                player.value.generators.upg3.target = c.d0;
-            }
-
-            i = c.em2;
+        },
+        get shown() {
+            return Decimal.gte(player.value.generators.pr2.best, c.d1);
+        },
+        get auto() {
+            return Decimal.gte(player.value.generators.pr2.best, c.d4);
+        },
+        get display() {
+            return `Decreases Upgrade 1's cost by ${format(this.calcEB, 2)}x`;
+        },
+        get totalDisp() {
+            return `Total: /${format(this.effect(), 2)} to Upgrade 1's cost`;
+        }
+    },
+    {
+        get freeExtra() {
+            let i = c.d0;
+            return i;
+        },
+        get effectBase() {
+            let i = c.em2;
             if (player.value.achievements.includes(22)) {
                 i = i.mul(c.d1_01);
             }
-            player.value.generators.upg3.effectBase = i;
-
-            i = c.d0;
-            player.value.generators.upg3.freeExtra = i;
-
-            i = player.value.generators.upg3.bought;
-            i = i.add(player.value.generators.upg3.freeExtra);
+            return i;
+        },
+        effective(x) {
+            let i = D(x);
+            i = i.add(this.freeExtra);
             if (getKuaUpgrade("p", 2)) {
                 i = i.mul(KUA_UPGRADES.KPower[1].eff);
             }
             if (player.value.achievements.includes(15)) {
-                i = i.mul(c.d1_02);
+                i = i.mul(c.d1_01);
             }
-            player.value.generators.upg3.effective = i;
+            return i;
+        },
+        effect(x = player.value.generators.upgrades[2].bought) {
+            let i = this.effective(x), j, sta, pow;
 
-            i = player.value.generators.upg3.effectBase.mul(player.value.generators.upg3.effective);
+            i = this.effectBase.mul(i);
+            j = i;
             sta = tmp.value.softcap.upg3[0].start;
             pow = tmp.value.softcap.upg3[0].strength;
             i = scale(i, 0, false, sta, pow, c.d0_5);
-            player.value.generators.upg3.effect = i;
-
-            if (player.value.generators.upg3.effective.gte(c.e10)) {
-                player.value.generators.upg3.calculatedEB = player.value.generators.upg3.effectBase;
+            tmp.value.softcap.upg3[0].red = `/${format(j.div(i), 2)}`;
+            return i;
+        },
+        get calcEB() {
+            if (Decimal.gte(this.effective(player.value.generators.upgrades[2].bought), c.e10)) {
+                return this.effectBase;
             } else {
-                i = player.value.generators.upg3.effectBase.mul(player.value.generators.upg3.effective.add(c.d1));
-                sta = tmp.value.softcap.upg3[0].start;
-                pow = tmp.value.softcap.upg3[0].strength;
-                i = scale(i, 0, false, sta, pow, c.d0_5);
-                player.value.generators.upg3.calculatedEB = i.sub(player.value.generators.upg3.effect);
+                return this.effect(Decimal.add(player.value.generators.upgrades[2].bought, c.d1)).sub(this.effect());
+            }
+        },
+        get shown() {
+            return Decimal.gte(player.value.generators.pr2.best, c.d5);
+        },
+        get auto() {
+            return getKuaUpgrade('s', 5);
+        },
+        get display() {
+            return `Increases Upgrade 1's base by +${format(this.calcEB, 2)}`;
+        },
+        get totalDisp() {
+            return `Total: +${format(this.effect(), 2)} to Upgrade 1's base`;
+        }
+    },
+    {
+        get freeExtra() {
+            let i = c.d0;
+            return i;
+        },
+        get effectBase() {
+            let i = tmp.value.kuaEffects.up4;
+            return i;
+        },
+        effective(x) {
+            let i = D(x);
+            i = i.add(this.freeExtra);
+            return i;
+        },
+        effect(x = player.value.generators.upgrades[3].bought) {
+            let i = this.effective(x);
+
+            i = this.effectBase.pow(i);
+            return i;
+        },
+        get calcEB() {
+            if (Decimal.gte(this.effective(player.value.generators.upgrades[3].bought), c.e10)) {
+                return this.effectBase;
+            } else {
+                return this.effect(Decimal.add(player.value.generators.upgrades[3].bought, c.d1)).div(this.effect());
+            }
+        },
+        get shown() {
+            return Decimal.gt(player.value.kua.amount, c.d0);
+        },
+        get auto() {
+            return Decimal.gte(player.value.generators.pr2.best, c.d12);
+        },
+        get display() {
+            return `Increase point gain by ${format(this.calcEB, 2)}x`;
+        },
+        get totalDisp() {
+            return `Total: ${format(this.effect(), 2)}x to point gain`;
+        }
+    },
+    {
+        get freeExtra() {
+            let i = c.d0;
+            return i;
+        },
+        get effectBase() {
+            let i = tmp.value.kuaEffects.up5;
+            return i;
+        },
+        effective(x) {
+            let i = D(x);
+            i = i.add(this.freeExtra);
+            return i;
+        },
+        effect(x = player.value.generators.upgrades[4].bought) {
+            let i = this.effective(x);
+
+            i = this.effectBase.pow(i);
+            return i;
+        },
+        get calcEB() {
+            if (Decimal.gte(this.effective(player.value.generators.upgrades[4].bought), c.e10)) {
+                return this.effectBase;
+            } else {
+                return this.effect(Decimal.add(player.value.generators.upgrades[4].bought, c.d1)).div(this.effect());
+            }
+        },
+        get shown() {
+            return Decimal.gte(player.value.kua.kshards.amount, c.em2);
+        },
+        get auto() {
+            return Decimal.gte(player.value.generators.pr2.best, c.d14);
+        },
+        get display() {
+            return `Decreases Upgrade 1's cost by ${format(this.calcEB, 2)}x`;
+        },
+        get totalDisp() {
+            return `Total: /${format(this.effect(), 2)} to Upgrade 1's cost`;
+        }
+    },
+    {
+        get freeExtra() {
+            let i = c.d0;
+            return i
+        },
+        get effectBase() {
+            let i = tmp.value.kuaEffects.up6;
+            return i;
+        },
+        effective(x) {
+            let i = D(x);
+            i = i.add(this.freeExtra);
+            return i
+        },
+        effect(x = player.value.generators.upgrades[5].bought) {
+            let i = this.effective(x);
+
+            i = this.effectBase.mul(i);
+            return i
+        },
+        get calcEB() {
+            if (Decimal.gte(this.effective(player.value.generators.upgrades[5].bought), c.e10)) {
+                return this.effectBase;
+            } else {
+                return this.effect(Decimal.add(player.value.generators.upgrades[5].bought, c.d1)).sub(this.effect());
+            }
+        },
+        get shown() {
+            return Decimal.gte(player.value.kua.kpower.amount, c.d1);
+        },
+        get auto() {
+            return Decimal.gte(player.value.generators.pr2.best, c.d18);
+        },
+        get display() {
+            return `Increases Upgrade 1's base by +${format(this.calcEB, 2)}`;
+        },
+        get totalDisp() {
+            return `Total: +${format(this.effect(), 2)} to Upgrade 1's base`;
+        }
+    },
+]
+/**
+ * this is expected to be ran from 5 -> 4 -> 3 -> ... !
+ * @param {*} staID 
+ */
+function updateStart(staID) { 
+    let scal, pow, sta, i, j;
+    switch (staID) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            updateScaling(`upg${staID + 1}`);
+            updateSoftcap(`upg${staID + 1}`);
+
+            tmp.value.upgrades[staID].costBase = [
+                {exp: 0, scale: [c.d5,   c.d1_55,  c.d1]},
+                {exp: 0, scale: [c.e3,   c.d1_25,  c.d1]},
+                {exp: 0, scale: [c.e10,  c.e2,     c.d1_05]},
+                {exp: 0, scale: [c.e13,  c.d1_05,  c.d1_0005]},
+                {exp: 0, scale: [c.e20,  c.d1_075, c.d1_0004]},
+                {exp: 0, scale: [c.e33,  c.d2,     c.d1_025]},
+            ][staID];
+
+            if (staID === 0) {
+                if (getKuaUpgrade("s", 7)) {
+                    tmp.value.upgrades[staID].costBase.scale[0] = tmp.value.upgrades[staID].costBase.scale[0].sub(c.d0_05);
+                }
+            }
+            scal = D(player.value.generators.upgrades[staID].bought);
+            if (staID === 2) {
+                if (getKuaUpgrade("s", 7)) {
+                    scal = scal.div(c.d10div9);
+                }
+            }
+            scal = doAllScaling(scal, tmp.value.scaling[`upg${staID + 1}`], false);
+            if (staID === 0) {
+                if (player.value.achievements.includes(17)) {
+                    scal = scal.div(ACHIEVEMENT_DATA[17].eff);
+                }
+                if (getKuaUpgrade("p", 10)) {
+                    scal = scal.div(KUA_UPGRADES.KPower[9].eff)
+                }
+            }
+            if (staID === 1) {
+                if (player.value.achievements.includes(17)) {
+                    scal = scal.div(ACHIEVEMENT_DATA[17].eff);
+                }
+                if (getKuaUpgrade("s", 9)) {
+                    scal = scal.sub(KUA_UPGRADES.KShards[8].eff);
+                }
+                if (getKuaUpgrade("p", 10)) {
+                    scal = scal.div(KUA_UPGRADES.KPower[9].eff)
+                }
+            }
+            if (staID === 2) {
+                if (player.value.achievements.includes(17)) {
+                    scal = scal.div(ACHIEVEMENT_DATA[17].eff);
+                }
             }
 
-            tmp.value.upg3CanBuy = player.value.points.gte(player.value.generators.upg3.cost);
+            tmp.value.upgrades[staID].cost = Decimal.pow(tmp.value.upgrades[staID].costBase.scale[2], scal.pow(c.d2)).mul(Decimal.pow(tmp.value.upgrades[staID].costBase.scale[1], scal)).mul(tmp.value.upgrades[staID].costBase.scale[0]).layeradd10(tmp.value.upgrades[staID].costBase.exp);
 
-            tmp.value.upg3ScalingColor = `#FFFFFF`
-            for (let i = tmp.value.scaling.upg3.length - 1; i >= 0; i--) {
-                if (player.value.generators.upg3.bought.gte(tmp.value.scaling.upg3[i].start)) {
-                    tmp.value.upg3ScalingColor = SCALE_ATTR[i].color;
+            if (staID === 0) {
+                tmp.value.upgrades[staID].cost = tmp.value.upgrades[staID].cost.div(tmp.value.upgrades[1].effect ?? c.d1);
+                tmp.value.upgrades[staID].cost = tmp.value.upgrades[staID].cost.div(tmp.value.upgrades[4].effect ?? c.d1);
+            }
+
+            tmp.value.upgrades[staID].target = c.d0;
+            if (Decimal.gte(player.value.points, tmp.value.upgrades[staID].costBase.scale[0])) {
+                i = D(player.value.points);
+                if (staID === 0) {
+                    i = i.mul(tmp.value.upgrades[4].effect ?? c.d1);
+                    i = i.mul(tmp.value.upgrades[1].effect ?? c.d1);
+                }
+
+                scal = inverseQuad(i.layeradd10(-tmp.value.upgrades[staID].costBase.exp).log10(), tmp.value.upgrades[staID].costBase.scale[2].log10(), tmp.value.upgrades[staID].costBase.scale[1].log10(), tmp.value.upgrades[staID].costBase.scale[0].log10());
+
+                if (staID === 2) {
+                    if (player.value.achievements.includes(17)) {
+                        scal = scal.mul(ACHIEVEMENT_DATA[17].eff);
+                    }
+                }
+                if (staID === 1) {
+                    if (getKuaUpgrade("p", 10)) {
+                        scal = scal.mul(KUA_UPGRADES.KPower[9].eff)
+                    }
+                    if (getKuaUpgrade("s", 9)) {
+                        scal = scal.add(KUA_UPGRADES.KShards[8].eff);
+                    }
+                    if (player.value.achievements.includes(17)) {
+                        scal = scal.mul(ACHIEVEMENT_DATA[17].eff);
+                    }
+                }
+                if (staID === 0) {
+                    if (getKuaUpgrade("p", 10)) {
+                        scal = scal.mul(KUA_UPGRADES.KPower[9].eff)
+                    }
+                    if (player.value.achievements.includes(17)) {
+                        scal = scal.mul(ACHIEVEMENT_DATA[17].eff);
+                    }
+                }
+                scal = doAllScaling(scal, tmp.value.scaling[`upg${staID + 1}`], true);
+                if (staID === 2) {
+                    if (getKuaUpgrade("s", 7)) {
+                        scal = scal.mul(c.d10div9);
+                    }
+                }
+                tmp.value.upgrades[staID].target = scal;
+            }
+
+            tmp.value.upgrades[staID].effect = BASIC_UPGS[staID].effect();
+            tmp.value.upgrades[staID].freeExtra = BASIC_UPGS[staID].freeExtra;
+            tmp.value.upgrades[staID].effectBase = BASIC_UPGS[staID].effectBase;
+            tmp.value.upgrades[staID].calculatedEB = BASIC_UPGS[staID].calcEB;
+
+            tmp.value.upgrades[staID].effectColor = `#FFFFFF`
+            for (let i = tmp.value.softcap[`upg${staID + 1}`].length - 1; i >= 0; i--) {
+                if (Decimal.gte(tmp.value.upgrades[staID].effect, tmp.value.softcap[`upg${staID + 1}`][i].start)) {
+                    tmp.value.upgrades[staID].effectColor = SOFT_ATTR[i].color;
                     break;
                 }
             }
 
-            if (player.value.auto.upg3) {
-                player.value.generators.upg3.bought = Decimal.max(player.value.generators.upg3.bought, player.value.generators.upg3.target.add(c.d1).floor())
-            }
-
-            setAchievement(15, player.value.points.gte(c.e80) && player.value.generators.upg3.bought.eq(c.d0));
-            break;
-        case "upg1B":
-            updateScaling("upg1B");
-            updateSoftcap("upg1B");
-
-            tmp.value.upg1BCostDiv = c.d1;
-
-            scal = player.value.generators.upg1.partB.bought;
-            scal = doAllScaling(scal, tmp.value.scaling.upg1B, false);
-            player.value.generators.upg1.partB.cost = Decimal.pow(c.d1_001, scal.pow(c.d2)).mul(Decimal.pow(c.d1_05, scal)).mul(c.e13).div(tmp.value.upg1BCostDiv);
-
-            if (player.value.points.mul(tmp.value.upg1BCostDiv).gte(c.e10)) {
-                scal = inverseQuad(player.value.points.mul(tmp.value.upg1BCostDiv).log10(), c.d1_001.log10(), c.d1_05.log10(), c.d13)
-                player.value.generators.upg1.partB.target = scal;
-            } else {
-                player.value.generators.upg1.partB.target = c.d0;
-            }
-
-            player.value.generators.upg1.partB.effectBase = tmp.value.kuaEffects.up1b;
-
-            i = c.d0;
-            player.value.generators.upg1.partB.freeExtra = i;
-
-            i = player.value.generators.upg1.partB.bought;
-            i = i.add(player.value.generators.upg1.partB.freeExtra);
-            player.value.generators.upg1.partB.effective = i;
-
-            i = player.value.generators.upg1.partB.effectBase.pow(player.value.generators.upg1.partB.effective);
-            player.value.generators.upg1.partB.effect = i;
-
-            if (player.value.generators.upg1.partB.effective.gte(c.e10)) {
-                player.value.generators.upg1.partB.calculatedEB = player.value.generators.upg1.partB.effectBase;
-            } else {
-                i = player.value.generators.upg1.partB.effectBase.pow(player.value.generators.upg1.partB.effective.add(c.d1));
-                player.value.generators.upg1.partB.calculatedEB = i.div(player.value.generators.upg1.partB.effect);
-            }
-
-            tmp.value.upg1BCanBuy = player.value.points.gte(player.value.generators.upg1.partB.cost);
-
-            tmp.value.upg1BScalingColor = `#FFFFFF`
-            for (let i = tmp.value.scaling.upg1B.length - 1; i >= 0; i--) {
-                if (player.value.generators.upg1B.bought.gte(tmp.value.scaling.upg1B[i].start)) {
-                    tmp.value.upg1BScalingColor = SCALE_ATTR[i].color;
+            tmp.value.upgrades[staID].costColor = `#FFFFFF`
+            for (let i = tmp.value.scaling[`upg${staID + 1}`].length - 1; i >= 0; i--) {
+                if (Decimal.gte(player.value.generators.upgrades[staID].bought, tmp.value.scaling[`upg${staID + 1}`][i].start)) {
+                    tmp.value.upgrades[staID].costColor = SCALE_ATTR[i].color;
                     break;
                 }
             }
 
-            if (player.value.auto.upg1B) {
-                player.value.generators.upg1.partB.bought = Decimal.max(player.value.generators.upg1.partB.bought, player.value.generators.upg1.partB.target.add(c.d1).floor())
-            }
-            break;
-        case "upg2B":
-            updateScaling("upg2B");
-            updateSoftcap("upg2B");
-
-            tmp.value.upg2BCostDiv = c.d1;
-
-            scal = player.value.generators.upg2.partB.bought;
-            scal = doAllScaling(scal, tmp.value.scaling.upg2B, false);
-            player.value.generators.upg2.partB.cost = Decimal.pow(c.d1_0009, scal.pow(c.d2)).mul(Decimal.pow(c.d1_075, scal)).mul(c.e20).div(tmp.value.upg2BCostDiv);
-
-            if (player.value.points.mul(tmp.value.upg2BCostDiv).gte(c.e10)) {
-                scal = inverseQuad(player.value.points.mul(tmp.value.upg2BCostDiv).log10(), c.d1_0009.log10(), c.d1_075.log10(), c.d20)
-                player.value.generators.upg2.partB.target = scal;
-            } else {
-                player.value.generators.upg2.partB.target = c.d0;
+            if (player.value.auto.upgrades[staID]) {
+                player.value.generators.upgrades[staID].bought = Decimal.max(player.value.generators.upgrades[staID].bought, tmp.value.upgrades[staID].target.add(c.d1).floor());
             }
 
-            player.value.generators.upg2.partB.effectBase = tmp.value.kuaEffects.up2b;
+            tmp.value.upgrades[staID].canBuy = Decimal.gte(player.value.points, tmp.value.upgrades[staID].cost);
+            player.value.generators.upgrades[staID].best = Decimal.max(player.value.generators.upgrades[staID].best, player.value.generators.upgrades[staID].bought);
 
-            i = c.d0;
-            player.value.generators.upg2.partB.freeExtra = i;
-
-            i = player.value.generators.upg2.partB.bought;
-            i = i.add(player.value.generators.upg2.partB.freeExtra);
-            player.value.generators.upg2.partB.effective = i;
-
-            i = player.value.generators.upg2.partB.effectBase.pow(player.value.generators.upg2.partB.effective);
-            player.value.generators.upg2.partB.effect = i;
-
-            if (player.value.generators.upg2.partB.effective.gte(c.e10)) {
-                player.value.generators.upg2.partB.calculatedEB = player.value.generators.upg2.partB.effectBase;
-            } else {
-                i = player.value.generators.upg2.partB.effectBase.pow(player.value.generators.upg2.partB.effective.add(c.d1));
-                player.value.generators.upg2.partB.calculatedEB = i.div(player.value.generators.upg2.partB.effect);
-            }
-
-            tmp.value.upg2BCanBuy = player.value.points.gte(player.value.generators.upg2.partB.cost);
-
-            tmp.value.upg2BScalingColor = `#FFFFFF`
-            for (let i = tmp.value.scaling.upg2B.length - 1; i >= 0; i--) {
-                if (player.value.generators.upg2B.bought.gte(tmp.value.scaling.upg2B[i].start)) {
-                    tmp.value.upg2BScalingColor = SCALE_ATTR[i].color;
-                    break;
-                }
-            }
-
-            if (player.value.auto.upg2B) {
-                player.value.generators.upg2.partB.bought = Decimal.max(player.value.generators.upg2.partB.bought, player.value.generators.upg2.partB.target.add(c.d1).floor())
-            }
-            break;
-        case "upg3B":
-            updateScaling("upg3B");
-            updateSoftcap("upg3B");
-
-            tmp.value.upg3BCostDiv = c.d1;
-
-            scal = player.value.generators.upg3.partB.bought;
-            scal = doAllScaling(scal, tmp.value.scaling.upg3B, false);
-            player.value.generators.upg3.partB.cost = Decimal.pow(c.d1_025, scal.pow(c.d2)).mul(Decimal.pow(c.d2, scal)).mul(c.e33).div(tmp.value.upg3BCostDiv);
-
-            if (player.value.points.mul(tmp.value.upg3BCostDiv).gte(c.e10)) {
-                scal = inverseQuad(player.value.points.mul(tmp.value.upg3BCostDiv).log10(), c.d1_025.log10(), c.d2.log10(), c.d33)
-                player.value.generators.upg3.partB.target = scal;
-            } else {
-                player.value.generators.upg3.partB.target = c.d0;
-            }
-
-            player.value.generators.upg3.partB.effectBase = tmp.value.kuaEffects.up3b;
-
-            i = c.d0;
-            player.value.generators.upg3.partB.freeExtra = i;
-
-            i = player.value.generators.upg3.partB.bought;
-            i = i.add(player.value.generators.upg3.partB.freeExtra);
-            player.value.generators.upg3.partB.effective = i;
-
-            i = player.value.generators.upg3.partB.effectBase.mul(player.value.generators.upg3.partB.effective);
-            player.value.generators.upg3.partB.effect = i;
-
-            if (player.value.generators.upg3.partB.effective.gte(c.e10)) {
-                player.value.generators.upg3.partB.calculatedEB = player.value.generators.upg3.partB.effectBase;
-            } else {
-                i = player.value.generators.upg3.partB.effectBase.mul(player.value.generators.upg3.partB.effective.add(c.d1));
-                player.value.generators.upg3.partB.calculatedEB = i.sub(player.value.generators.upg3.partB.effect);
-            }
-
-            tmp.value.upg3BCanBuy = player.value.points.gte(player.value.generators.upg3.partB.cost);
-
-            tmp.value.upg3BScalingColor = `#FFFFFF`
-            for (let i = tmp.value.scaling.upg3B.length - 1; i >= 0; i--) {
-                if (player.value.generators.upg3B.bought.gte(tmp.value.scaling.upg3B[i].start)) {
-                    tmp.value.upg3BScalingColor = SCALE_ATTR[i].color;
-                    break;
-                }
-            }
-
-            if (player.value.auto.upg3B) {
-                player.value.generators.upg3.partB.bought = Decimal.max(player.value.generators.upg3.partB.bought, player.value.generators.upg3.partB.target.add(c.d1).floor())
-            }
+            setAchievement(0,  Decimal.gte(player.value.generators.upgrades[0].bought, c.d1));
+            setAchievement(1,  Decimal.gte(player.value.generators.upgrades[0].bought, c.d20));
+            setAchievement(10, Decimal.gte(player.value.generators.upgrades[0].bought, c.e2));
+            setAchievement(16, Decimal.gte(player.value.generators.upgrades[0].bought, c.e2)   && Decimal.eq(player.value.generators.prai.totalInKua, c.d0));
+            setAchievement(21, Decimal.gte(player.value.generators.upgrades[0].bought, c.d300) && Decimal.eq(player.value.generators.prai.totalInKua, c.d0));
+            setAchievement(23, Decimal.gte(player.value.generators.upgrades[0].bought, c.d300) && Decimal.eq(player.value.generators.upgrades[1].bought, c.d0));
+            setAchievement(5,  Decimal.gte(tmp.value.upgrades[1].effect, c.d15));
+            setAchievement(18, Decimal.gte(tmp.value.upgrades[1].effect, c.e17));
+            setAchievement(15, Decimal.gte(player.value.points, c.e80) && Decimal.eq(player.value.generators.upgrades[2].bought, c.d0));
             break;
         case "prai":
-            updateSoftcap("prai");
-
             tmp.value.praiReq = c.e6;
-            tmp.value.praiExp = c.d0_25;
+            tmp.value.praiExp = c.d1div3;
             if (player.value.achievements.includes(19)) {
-                tmp.value.praiExp = c.d0_255;
+                tmp.value.praiExp = c.d0_35;
             }
+            tmp.value.praiDil = c.d0_9;
 
-            if (player.value.generators.pr2.amount.gte(c.d1) && player.value.totalPointsInPRai.gte(tmp.value.praiReq)) {
-                i = player.value.totalPointsInPRai;
-                i = i.max(c.d0).div(tmp.value.praiReq).pow(tmp.value.praiExp).sub(c.d1).mul(tmp.value.praiExp).add(c.d1);
+            if (Decimal.gte(player.value.generators.pr2.amount, c.d1) && Decimal.gte(player.value.totalPointsInPRai, tmp.value.praiReq)) {
+                i = D(player.value.totalPointsInPRai);
+                i = i.max(c.d0).div(tmp.value.praiReq).pow(tmp.value.praiExp).sub(c.d1).mul(tmp.value.praiExp).add(c.d1).dilate(tmp.value.praiDil);
                 i = i.mul(player.value.generators.pr2.effect);
                 if (player.value.achievements.includes(23)) {
                     i = i.mul(ACHIEVEMENT_DATA[23].eff);
@@ -586,17 +555,11 @@ function updateStart(type) {
                 if (getKuaUpgrade("s", 8)) {
                     i = i.mul(KUA_UPGRADES.KShards[7].eff);
                 }
-                sta = tmp.value.softcap.praiGain[0].start;
-                pow = tmp.value.softcap.praiGain[0].strength;
-                i = scale(i, 2.1, false, sta, pow, c.d0_9);
-                sta = tmp.value.softcap.praiGain[1].start;
-                pow = tmp.value.softcap.praiGain[1].strength;
-                i = scale(i.log10(), 2.1, false, c.logMaxNum, c.d1, c.d0_9).pow10();
                 tmp.value.praiPending = i.floor();
 
                 i = tmp.value.praiPending.add(c.d1).floor();
                 i = i.div(player.value.generators.pr2.effect);
-                i = i.sub(c.d1).div(tmp.value.praiExp).add(c.d1).root(tmp.value.praiExp).mul(tmp.value.praiReq);
+                i = i.log10().root(tmp.value.praiDil).pow10().sub(c.d1).div(tmp.value.praiExp).add(c.d1).root(tmp.value.praiExp).mul(tmp.value.praiReq);
                 tmp.value.praiNext = i.sub(player.value.totalPointsInPRai);
             } else {
                 tmp.value.praiPending = c.d1;
@@ -608,10 +571,11 @@ function updateStart(type) {
                 j = j.mul(c.d2_5);
             }
 
-            i = player.value.generators.prai.amount;
-            i = i.mul(j).add(c.d1);
+            tmp.value.praiEffDil = c.d0_975;
+            i = D(player.value.generators.prai.amount);
+            i = i.mul(j).add(c.d1).dilate(tmp.value.praiEffDil);
             if (player.value.achievements.includes(10)) {
-                i = i.mul(c.d3);
+                i = i.mul(c.d2);
             }
             if (getKuaUpgrade("p", 2)) {
                 i = i.mul(KUA_UPGRADES.KShards[1].eff);
@@ -619,15 +583,12 @@ function updateStart(type) {
             if (getKuaUpgrade("p", 5)) {
                 i = i.pow(KUA_UPGRADES.KPower[4].eff);
             }
-            sta = tmp.value.softcap.praiEffect[0].start;
-            pow = tmp.value.softcap.praiEffect[0].strength;
-            i = scale(i, 2.1, false, sta, pow, c.d0_5);
             player.value.generators.prai.effect = i;
 
-            i = player.value.generators.prai.amount.add(tmp.value.praiPending);
-            i = i.mul(j).add(c.d1);
+            i = Decimal.add(player.value.generators.prai.amount, tmp.value.praiPending);
+            i = i.mul(j).add(c.d1).dilate(tmp.value.praiEffDil);
             if (player.value.achievements.includes(10)) {
-                i = i.mul(c.d3);
+                i = i.mul(c.d2);
             }
             if (getKuaUpgrade("p", 2)) {
                 i = i.mul(KUA_UPGRADES.KShards[1].eff);
@@ -635,25 +596,22 @@ function updateStart(type) {
             if (getKuaUpgrade("p", 5)) {
                 i = i.pow(KUA_UPGRADES.KPower[4].eff);
             }
-            sta = tmp.value.softcap.praiEffect[0].start;
-            pow = tmp.value.softcap.praiEffect[0].strength;
-            i = scale(i, 2.1, false, sta, pow, c.d0_5);
             tmp.value.praiNextEffect = i;
 
             player.value.generators.prai.best = Decimal.max(player.value.generators.prai.best, player.value.generators.prai.amount);
             player.value.generators.prai.bestInPR2 = Decimal.max(player.value.generators.prai.bestInPR2, player.value.generators.prai.amount);
-            tmp.value.praiCanDo = player.value.totalPointsInPRai.gte(tmp.value.praiReq);
+            tmp.value.praiCanDo = Decimal.gte(player.value.totalPointsInPRai, tmp.value.praiReq);
 
-            setAchievement(2, player.value.generators.prai.best.gte(c.d1));
-            setAchievement(3, player.value.generators.prai.best.gte(c.d10));
-            setAchievement(6, player.value.totalPointsInPRai.gte(c.e18));
+            setAchievement(2, Decimal.gte(player.value.generators.prai.best, c.d1));
+            setAchievement(3, Decimal.gte(player.value.generators.prai.best, c.d10));
+            setAchievement(6, Decimal.gte(player.value.totalPointsInPRai, c.e18));
             break;
         case "pr2":
             updateScaling("pr2");
             i = c.d0;
             player.value.generators.pr2.freeExtra = i;
 
-            i = player.value.generators.pr2.amount;
+            i = D(player.value.generators.pr2.amount);
             i = i.add(player.value.generators.pr2.freeExtra);
             tmp.value.pr2Effective = i
 
@@ -664,7 +622,7 @@ function updateStart(type) {
 
             i = tmp.value.pr2Effective.max(c.d0).add(c.d1).pow(tmp.value.pr2Effective.mul(j).add(c.d1).ln().add(c.d1));
             if (getKuaUpgrade("p", 8)) {
-                i = Decimal.pow(j.add(c.d1).pow(c.d7), tmp.value.pr2Effective).max(i)
+                i = Decimal.pow(j.add(c.d1).pow(c.d5), tmp.value.pr2Effective).max(i)
             }
             player.value.generators.pr2.effect = i;
 
@@ -673,12 +631,12 @@ function updateStart(type) {
                 tmp.value.pr2CostDiv = tmp.value.pr2CostDiv.mul(c.d1_5);
             }
 
-            scal = player.value.generators.pr2.amount;
+            scal = D(player.value.generators.pr2.amount);
             scal = doAllScaling(scal, tmp.value.scaling.pr2, false);
             player.value.generators.pr2.cost = scal.add(c.d4).factorial().mul(c.d5div12).div(tmp.value.pr2CostDiv);
 
-            if (player.value.generators.prai.amount.gte(c.d10)) {
-                scal = inverseFact(player.value.generators.prai.amount.mul(tmp.value.pr2CostDiv).div(c.d5div12)).sub(c.d4);
+            if (Decimal.gte(player.value.generators.prai.amount, c.d10)) {
+                scal = inverseFact(Decimal.mul(player.value.generators.prai.amount, tmp.value.pr2CostDiv).div(c.d5div12)).sub(c.d4);
                 scal = doAllScaling(scal, tmp.value.scaling.pr2, true);
                 player.value.generators.pr2.target = scal;
             } else {
@@ -687,21 +645,21 @@ function updateStart(type) {
 
             player.value.generators.pr2.best = Decimal.max(player.value.generators.pr2.best, player.value.generators.pr2.amount);
 
-            tmp.value.pr2CanDo = player.value.generators.prai.amount.gte(player.value.generators.pr2.cost);
+            tmp.value.pr2CanDo = Decimal.gte(player.value.generators.prai.amount, player.value.generators.pr2.cost);
 
             tmp.value.pr2ScalingColor = `#FFFFFF`
             for (let i = tmp.value.scaling.pr2.length - 1; i >= 0; i--) {
-                if (player.value.generators.pr2.amount.gte(tmp.value.scaling.pr2[i].start)) {
+                if (Decimal.gte(player.value.generators.pr2.amount, tmp.value.scaling.pr2[i].start)) {
                     tmp.value.pr2ScalingColor = SCALE_ATTR[i].color;
                     break;
                 }
             }
 
             tmp.value.pr2Text = "";
-            if (player.value.generators.pr2.amount.lte(PR2_EFF[PR2_EFF.length - 1].when)) {
+            if (Decimal.lte(player.value.generators.pr2.amount, PR2_EFF[PR2_EFF.length - 1].when)) {
                 for (i in PR2_EFF) {
                     // console.log(`${format(player.value.generators.pr2.amount)} < ${PR2_EFF[i].when} & ${PR2_EFF[i].show}`)
-                    if (player.value.generators.pr2.amount.lt(PR2_EFF[i].when) && PR2_EFF[i].show) {
+                    if (Decimal.lt(player.value.generators.pr2.amount, PR2_EFF[i].when) && PR2_EFF[i].show) {
                         tmp.value.pr2Text = {info: PR2_EFF[i].when, txt: PR2_EFF[i].text};
                         break;
                     }
@@ -712,12 +670,12 @@ function updateStart(type) {
                 player.value.generators.pr2.amount = Decimal.max(player.value.generators.pr2.amount, player.value.generators.pr2.target.add(c.d1).floor());
             }
 
-            setAchievement(4, player.value.generators.pr2.best.gte(c.d1));
-            setAchievement(7, player.value.generators.pr2.best.gte(c.d2));
-            setAchievement(9, player.value.generators.pr2.best.gte(c.d4));
-            setAchievement(26, player.value.generators.pr2.best.gte(c.d25));
+            setAchievement(4, Decimal.gte(player.value.generators.pr2.best, c.d1));
+            setAchievement(7, Decimal.gte(player.value.generators.pr2.best, c.d2));
+            setAchievement(9, Decimal.gte(player.value.generators.pr2.best, c.d4));
+            setAchievement(26, Decimal.gte(player.value.generators.pr2.best, c.d25));
             break;
         default:
-            throw new Error(`Starting area of the game does not contain ${type}`);
+            throw new Error(`Starting area of the game does not contain ${staID}`);
     }
 }

@@ -65,15 +65,15 @@ function start() {
 
         </div>
         <div id="inBattle" style="background-color: #111; border: 0.4vw solid #222; width: 80vw; height: 6vw; display: flex; justify-content: center;">
-            <div onclick="leaveBattle()" id="leaveBattle" style="display: flex; justify-content: center; align-items: center; color: #fff; font-size: 2vw; text-align: center; background-color: #111; border: 0.4vw solid #222; width: 16vw; height: 6vw;">
+            <button onclick="leaveBattle()" id="leaveBattle" style="font-family: Tinos; color: #fff; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 2vw; text-align: center; background-color: #111; border: 0.4vw solid #222; width: 16vw; height: 6vw;">
                 <b>Leave</b>
-            </div>
-            <div onclick="toggleBattle()" id="toBattle" style="display: flex; justify-content: center; align-items: center; color: #fff; font-size: 2vw; text-align: center; background-color: #111; border: 0.4vw solid #222; width: 16vw; height: 6vw;">
+            </button>
+            <button onclick="toggleBattle()" id="toBattle" style="font-family: Tinos; color: #fff; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 2vw; text-align: center; background-color: #111; border: 0.4vw solid #222; width: 16vw; height: 6vw;">
 
-            </div>
-            <div onclick="rerollBattle()" id="rerollBattle" style="display: flex; justify-content: center; align-items: center; color: #fff; font-size: 2vw; text-align: center; background-color: #111; border: 0.4vw solid #222; width: 16vw; height: 6vw;">
+            </button>
+            <button onclick="rerollBattle()" id="rerollBattle" style="font-family: Tinos; color: #fff; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 2vw; text-align: center; background-color: #111; border: 0.4vw solid #222; width: 16vw; height: 6vw;">
                 <b>Reroll</b>
-            </div>
+            </button>
         </div>
         <div id="battleRewards" style="background-color: #111; border: 0.4vw solid #222; width: 80vw; height: 25vw; display: flex; flex-wrap: wrap; align-content: center; justify-content: center;">
             
@@ -84,9 +84,9 @@ function start() {
     for (let i = 0; i < enemyList.length; i++) {
         let enemy = enemyList[i];
         table += `
-        <div id="enemySelect${enemy.id}" onclick="enterEnemy(${enemy.id})" style="text-align: center; background-color: #111; border: 0.4vw solid #222; width: 14vw; height: 12vw; font-size: 1.5vw">
+        <button id="enemySelect${enemy.id}" onclick="enterEnemy(${enemy.id})" style="font-family: Tinos; color: #fff; text-align: center; background-color: #111; border: 0.4vw solid #222; width: 14vw; height: 12vw; font-size: 1.5vw">
             <h3>${enemy.name}</h3>
-        </div>
+        </button>
         `
     }
     el('enemySelection').innerHTML = table;
@@ -195,7 +195,7 @@ function setPlayer() {
     
         stage: -1,
         difficulty: 0,
-        defeated: [0, 0, 0, 0, 0, 0, 0, 0],
+        defeated: [0, 0, 0, 0, 0, 0, 0, 0, 0],
     
         zone: [],
     
@@ -214,6 +214,9 @@ function setPlayer() {
             burnP: 0,
             burnD: 0,
             burnR: 0,
+            bleedP: 0,
+            bleedD: 0,
+            bleedR: 0,
             blockP: 0,
             blockD: 2,
             invBAlly: 0,
@@ -359,6 +362,29 @@ const enemyList = [
         ["critP", 0.0004],
         ["xp", 10]
     ], cap: 250 },
+
+    { id: 8, type: 0, get when() { return true }, name: "Aurora (Sparring)", 
+    stats: { hp: 999, atk: 100, def: 150, speed: 0.5, crit: [0.125, 1.5], regen: 20,
+        special: {
+            bleed: [0.3, 0.025, 1],
+            burn: [0.5, 30, 3],
+        }
+    }, zone: { 
+        size: 180,
+        table: [
+            { type: ["atk", 0],    amt: 2,      rare:  30 },
+            { type: ["hp", 0],     amt: 2.5,    rare:  25 },
+            { type: ["xp", 0],     amt: 15,     rare:  20 },
+            { type: ["burnD", 0],  amt: 2,      rare:  15 }, 
+            { type: ["regen", 0],  amt: 0.5,    rare:  15 }, 
+            { type: ["bleedP", 0], amt: 0.0001, rare:  10 }, 
+            { type: ["hp", 0],     amt: 30,     rare:  5  },
+            { type: ["atk", 0],    amt: 20,     rare:  4  },
+            { type: ["burnD", 0],  amt: 15,     rare:  3  },   
+            { type: ["xp", 1],     amt: 250,    every: 20 },
+            { type: ["burnR", 1],  amt: 0.025,  every: 45 }
+        ] 
+    }},
 ]
 
 function isUndefined(value) {
@@ -502,7 +528,7 @@ function formatReward(type, amt) {
         case 'speed':
             return `<span style="color: #fff">SPD: +${format(amt, 3)}</span>`;
         case 'divSpeed':
-            return `<span style="color: #c00">/SPD: +${format(amt, 3)}</span>`;
+            return `<span style="color: #a00">/SPD: +${format(amt, 3)}</span>`;
         case 'critP':
             return `<span style="color: #ff0">Critical Chance: +${format(amt * 100, 2)}%</span>`;
         case 'critD':
@@ -519,6 +545,12 @@ function formatReward(type, amt) {
             return `<span style="color: #f40">Burn Damage: +${format(amt, 2)}</span>`;
         case 'burnR':
             return `<span style="color: #f40">Burn Resistance: +${format(amt * 100, 2)}%</span>`;
+        case 'bleedP':
+            return `<span style="color: #c40">Bleed Chance: +${format(amt * 100, 2)}%</span>`;
+        case 'bleedD':
+            return `<span style="color: #c40">Bleed Damage: +${format(amt, 2)}</span>`;
+        case 'bleedR':
+            return `<span style="color: #c40">Bleed Resistance: +${format(amt * 100, 2)}%</span>`;
         case 'blockP':
             return `<span style="color: #fff">Block Chance: +${format(amt * 100, 2)}%</span>`;
         case 'blockD':
@@ -616,7 +648,7 @@ function doThing() {
 
     for (let i = 0; i < enemyList.length; i++) {
         let enemy = enemyList[i];
-        el(`enemySelect${enemy.id}`).innerHTML = `<h3>${enemy.name}</h3>Defeated: ${format(player.defeated[enemy.id])} times`;
+        el(`enemySelect${enemy.id}`).innerHTML = `<h3 style="margin-top: 0vw">${enemy.name}</h3>Defeated: ${format(player.defeated[enemy.id])} times`;
     }
 
     el('enemyInfo').style.display = (player.stage === -1) ? "none" : "";
@@ -714,6 +746,15 @@ function update() {
 
     player.special.burn[2] = 1.00;
     player.special.burn[2] += player.rewards.burnR;
+
+    player.special.bleed[0] = 0;
+    player.special.bleed[0] += player.rewards.bleedP;
+
+    player.special.bleed[1] = 0.01;
+    player.special.bleed[1] += player.rewards.bleedD;
+
+    player.special.bleed[2] = 1.00;
+    player.special.bleed[2] += player.rewards.bleedR;
 
     player.special.block[0] = 0;
     player.special.block[0] += player.rewards.blockP;
