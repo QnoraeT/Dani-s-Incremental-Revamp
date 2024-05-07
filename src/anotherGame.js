@@ -139,6 +139,7 @@ function start() {
                 <span style="color: #0f0;">DEF: <b><span id="${item}StatsDEF" style="font-size: 1.8vw">def</span></b></span>
                 <span style="color: #fff;">SPD: <b><span id="${item}StatsSPD" style="font-size: 1.8vw">speed</span></b>s</span>
                 <span style="color: #ff0;" id="${item}Crit">Crit: <b><span id="${item}StatsCrit1-1" style="font-size: 1.8vw">crit%</span></b>%, <b><span id="${item}StatsCrit1-2" style="font-size: 1.8vw">critX</span></b>x</span>
+                <span style="color: #f08;" id="${item}SCrit">Super Crit: <b><span id="${item}StatsSCrit1-1" style="font-size: 1.8vw">crit%</span></b>%, <b><span id="${item}StatsSCrit1-2" style="font-size: 1.8vw">critX</span></b>x</span>
                 <span style="color: #80f;" id="${item}Poison">Poison: <b><span id="${item}StatsPsn1" style="font-size: 1.8vw">psn%</span></b>%, <b><span id="${item}StatsPsn2" style="font-size: 1.8vw">psnDmg</span></b>/s, <b><span id="${item}StatsPsn3" style="font-size: 1.8vw">psnR</span></b>x resistance</span>
                 <span style="color: #f40;" id="${item}Burn">Burn: <b><span id="${item}StatsBrn1" style="font-size: 1.8vw">Brn%</span></b>%, <b><span id="${item}StatsBrn2" style="font-size: 1.8vw">BrnDmg</span></b>/s, <b><span id="${item}StatsBrn3" style="font-size: 1.8vw">BrnR</span></b>x resistance</span>
                 <span style="color: #800;" id="${item}Bleed">Bleed: <b><span id="${item}StatsBld1" style="font-size: 1.8vw">Bld%</span></b>%, <b><span id="${item}StatsBld2" style="font-size: 1.8vw">BldDmg</span></b>%/s, <b><span id="${item}StatsBld3" style="font-size: 1.8vw">BldR</span></b>x resistance</span>
@@ -172,6 +173,7 @@ function setPlayer() {
         speed: 0.2,
         progress: 0,
         crit: [0, 2],
+        scrit: [0, 2],
         alive: true,
         special: {
             poison: [0, 1, 1],
@@ -195,7 +197,7 @@ function setPlayer() {
     
         stage: -1,
         difficulty: 0,
-        defeated: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        defeated: [0, 0, 0, 0, 0, 0, 0, 0],
     
         zone: [],
     
@@ -208,6 +210,8 @@ function setPlayer() {
             divSpeed: 1, // penalty
             critP: 0,
             critD: 0,
+            scritP: 0,
+            scritD: 0,
             psnP: 0,
             psnD: 0,
             psnR: 0,
@@ -217,6 +221,10 @@ function setPlayer() {
             bleedP: 0,
             bleedD: 0,
             bleedR: 0,
+            slowP: 0,
+            slowE: 0,
+            slowL: 0,
+            slowR: 0,
             blockP: 0,
             blockD: 2,
             invBAlly: 0,
@@ -231,6 +239,7 @@ function setPlayer() {
             speed: 0.2,
             progress: 0,
             crit: [0, 2],
+            scrit: [0, 2],
             special: {
                 poison: [0, 0, 1],
                 bleed: [0, 0, 1],
@@ -385,6 +394,50 @@ const enemyList = [
             { type: ["burnR", 1],  amt: 0.025,  every: 45 }
         ] 
     }},
+
+    { id: 9, type: 0, get when() { return true }, name: "Fuck you", 
+    stats: { hp: 20000, atk: 200, def: 1000, speed: 0.5, crit: [0.333, 2], scrit: [0.1, 3], regen: 200,
+        special: {
+            block: [0.2, 0.2],
+            poison: [3, 100, 1],
+            bleed: [0.00001, 0.0, 3.0],
+            slow: [0.5, 100, 1, 1]
+        }
+    }, zone: { 
+        size: 200,
+        table: [
+            { type: ["speed", 0], amt: 0.1,   rare:  100 },
+            { type: ["speed", 0], amt: 1,     rare:  1 },
+            { type: ["def", 0],   amt: 20,    rare:  100 },
+            { type: ["def", 0],   amt: 400,   rare:  1 },
+            { type: ["hp", 0],    amt: 50,    rare:  100 },
+            { type: ["hp", 0],    amt: 750,   rare:  1 },
+            { type: ["xp", 1],    amt: 350,   every: 40 },
+            { type: ["psnD", 1],  amt: 7.5,   every: 50 },
+        ] 
+    }},
+
+    { id: 10, type: 0, get when() { return true }, name: "A cheater", 
+    stats: { hp: 9999, atk: 99.99, def: 9999.99, speed: 2.005, crit: [0, 1], regen: 9.999,
+        special: {
+            poison: [1.499, 99.99, 999.99],
+            burn: [1.499, 99.99, 999.99],
+            bleed: [1.499, 0.0999, 999.99],
+            slow: [1.499, 1.09, 3.99, 999.99],
+            hitRegen: [0.999, 9.99, 999.99],
+        }
+    }, zone: { 
+        size: 60,
+        table: [
+            { type: ["hitRegenC", 0], amt: 0.001, rare:  2 },
+            { type: ["hitRegenP", 0], amt: 10,    rare:  2 },
+            { type: ["psnR", 0],      amt: 0.025, rare:  1 },
+            { type: ["burnR", 0],     amt: 0.025, rare:  1 },
+            { type: ["bleedR", 0],    amt: 0.025, rare:  1 },
+            { type: ["slowR", 0],     amt: 0.025, rare:  1 },
+            { type: ["xp", 1],        amt: 999,   every: 60 },
+        ] 
+    }},
 ]
 
 function isUndefined(value) {
@@ -408,6 +461,9 @@ function enterEnemy(id) {
     player.enemy.regen = enemyList[id].stats.regen ?? 0;
     player.enemy.crit[0] = enemyList[id].stats.crit[0];
     player.enemy.crit[1] = enemyList[id].stats.crit[1];
+    player.enemy.scrit[0] = isUndefined(enemyList[id].stats.scrit) ? 0 : enemyList[id].stats.scrit[0];
+    player.enemy.scrit[1] = isUndefined(enemyList[id].stats.scrit) ? 1 : enemyList[id].stats.scrit[1];
+    
     if (isUndefined(enemyList[id].stats.special)) {
         player.enemy.special = {
             poison: [0, 0, 1],
@@ -521,6 +577,10 @@ function formatReward(type, amt) {
             return `<span style="color: #f00">HP: +${format(amt, 2)}</span>`;
         case 'regen':
             return `<span style="color: #f8f">Regeneration Speed: +${format(amt, 2)}/s</span>`;
+        case 'hitRegenC':
+            return `<span style="color: #f8f">Hit Regen Chance: +${format(amt * 100, 2)}%</span>`;
+        case 'hitRegenP':
+            return `<span style="color: #f8f">Hit Regen Power: +${format(amt, 2)}/s</span>`;
         case 'atk':
             return `<span style="color: #f80">ATK: +${format(amt, 2)}</span>`;
         case 'def':
@@ -533,12 +593,24 @@ function formatReward(type, amt) {
             return `<span style="color: #ff0">Critical Chance: +${format(amt * 100, 2)}%</span>`;
         case 'critD':
             return `<span style="color: #ff0">Critical Damage: +${format(amt, 2)}x</span>`;
+        case 'scritP':
+            return `<span style="color: #f08">Super Critical Chance: +${format(amt * 100, 2)}%</span>`;
+        case 'scritD':
+            return `<span style="color: #f08">Super Critical Damage: +${format(amt, 2)}x</span>`;
         case 'psnP':
             return `<span style="color: #80f">Poison Chance: +${format(amt * 100, 2)}%</span>`;
         case 'psnD':
             return `<span style="color: #80f">Poison Damage: +${format(amt, 2)}</span>`;
         case 'psnR':
             return `<span style="color: #80f">Poison Resistance: +${format(amt * 100, 2)}%</span>`;
+        case 'slowP':
+            return `<span style="color: #888">Slow Chance: +${format(amt * 100, 2)}%</span>`;
+        case 'slowE':
+            return `<span style="color: #888">Slow Effectiveness: +${format(amt, 2)}</span>`;
+        case 'slowL':
+            return `<span style="color: #888">Slow Length: +${format(amt, 2)}s</span>`;
+        case 'slowR':
+            return `<span style="color: #888">Slow Resistance: +${format(amt * 100, 2)}%</span>`;
         case 'burnP':
             return `<span style="color: #f40">Burn Chance: +${format(amt * 100, 2)}%</span>`;
         case 'burnD':
@@ -600,6 +672,7 @@ function doThing() {
         el(obj.html + 'MaxHP').innerText = format(obj.data.maxhp, 1);
         el(obj.html + 'Regen').innerText = format(obj.data.regen, 2);
         el(obj.html + 'Crit').style.display = (obj.data.crit[0] > 0) ? "" : "none";
+        el(obj.html + 'SCrit').style.display = (obj.data.scrit[0] > 0) ? "" : "none";
         el(obj.html + 'Poison').style.display = (obj.data.special.poison[0] > 0) ? "" : "none";
         el(obj.html + 'Burn').style.display = (obj.data.special.burn[0] > 0) ? "" : "none";
         el(obj.html + 'Bleed').style.display = (obj.data.special.bleed[0] > 0) ? "" : "none";
@@ -614,6 +687,8 @@ function doThing() {
         el(obj.html + 'StatsSPD').innerText = format(1 / obj.data.speed, 3);
         el(obj.html + 'StatsCrit1-1').innerText = format(obj.data.crit[0] * 100, 1);
         el(obj.html + 'StatsCrit1-2').innerText = format(obj.data.crit[1], 2);
+        el(obj.html + 'StatsSCrit1-1').innerText = format(obj.data.scrit[0] * 100, 1);
+        el(obj.html + 'StatsSCrit1-2').innerText = format(obj.data.scrit[1], 2);
         el(obj.html + 'StatsPsn1').innerText = format(obj.data.special.poison[0] * 100, 1);
         el(obj.html + 'StatsPsn2').innerText = format(obj.data.special.poison[1], 2);
         el(obj.html + 'StatsPsn3').innerText = format(obj.data.special.poison[2], 2);
@@ -729,6 +804,12 @@ function update() {
     player.crit[1] = 2;
     player.crit[1] += player.rewards.critD;
 
+    player.scrit[0] = 0;
+    player.scrit[0] += player.rewards.scritP;
+
+    player.scrit[1] = 2;
+    player.scrit[1] += player.rewards.scritD;
+
     player.special.poison[0] = 0;
     player.special.poison[0] += player.rewards.psnP;
 
@@ -738,6 +819,18 @@ function update() {
     player.special.poison[2] = 1.00;
     player.special.poison[2] += player.rewards.psnR;
 
+    player.special.slow[0] = 0;
+    player.special.slow[0] += player.rewards.slowP;
+
+    player.special.slow[1] = 1.00;
+    player.special.slow[1] += player.rewards.slowE;
+
+    player.special.slow[2] = 1.00;
+    player.special.slow[2] += player.rewards.slowL;
+
+    player.special.slow[3] = 1.00;
+    player.special.slow[3] += player.rewards.slowR;
+    
     player.special.burn[0] = 0;
     player.special.burn[0] += player.rewards.burnP;
 
@@ -934,6 +1027,9 @@ function playerAttack(ally, counters = false, dmgMod = 1) {
     let DM = player.atk * dmgMod;
     if (Math.random() <= player.crit[0]) {
         DM *= player.crit[1];
+        if (Math.random() <= player.scrit[0]) {
+            DM *= player.scrit[1];
+        }
     }
 
     addStatus(1, player.special.poison[0], 'poison', player.special.poison[1], 1);
@@ -963,6 +1059,9 @@ function enemyAttack(counters = false, dmgMod = 1) {
     let DM = player.enemy.atk * dmgMod;
     if (Math.random() <= player.enemy.crit[0]) {
         DM *= player.enemy.crit[1];
+        if (Math.random() <= player.enemy.scrit[0]) {
+            DM *= player.enemy.scrit[1];
+        }
     }
 
     addStatus(0, player.enemy.special.poison[0], 'poison', player.enemy.special.poison[1], 1);
