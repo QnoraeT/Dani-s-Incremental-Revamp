@@ -251,8 +251,8 @@ function initGame() {
 
     document.body.style['background-color'] = '#000';
     document.body.innerHTML = `
-    <div style="display: flex; justify-content: center; flex-direction: column;">
-        <div id="story" style="display: flex; justify-content: center; flex-direction: column;">
+    <div style="display: flex; flex-direction: column;">
+        <div id="story" style="display: flex; center; flex-direction: column; align-items: center;">
             <button id="nextStory" style="width: 13.5vw; height: 4vw; font-family: Tinos; color: #fff; background-color: #222; font-size: 2vw; border: 0.4vw solid #444" onclick="nextStory()">Next</button>
             <div id="storyThing"></div>
         </div>

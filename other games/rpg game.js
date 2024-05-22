@@ -58,10 +58,10 @@ function start() {
     document.body.style['background-color'] = '#000';
     document.body.innerHTML = `
     <div style="margin-left: auto; margin-right: auto; color: #fff; display: flex; justify-content: center; flex-direction: column;">
-        <div id="topInfo" style="background-color: #111; border: 0.4vw solid #222; width: 80vw; height: 40vw; display: flex; justify-content: center; align-items: center;">
+        <div id="topInfo" style="background-color: #111; border: 0.4vw solid #222; width: 80vw; height: 50vw; display: flex; justify-content: center; align-items: center;">
 
         </div>
-        <div id="enemySelection" style="background-color: #111; border: 0.4vw solid #222; width: 80vw; height: 30vw; display: flex; flex-wrap: wrap; justify-content: center; align-items: center;">
+        <div id="enemySelection" style="background-color: #111; border: 0.4vw solid #222; width: 80vw; height: 50vw; display: flex; flex-wrap: wrap; justify-content: center; align-items: center;">
 
         </div>
         <div id="inBattle" style="background-color: #111; border: 0.4vw solid #222; width: 80vw; height: 6vw; display: flex; justify-content: center;">
@@ -117,7 +117,7 @@ function start() {
             invbl = `<span id="invBlHPT" style="color: #f8f; font-size: 2vw">HP: <b><span id="invBlHP" style="font-size: 2.5vw">health</span></b> / <span id="invBlMaxHP">max health</span> (<span id="invBlRegen">regen</span>/s)<br></span>`
         }
         table += `
-        <div id="${item}Info" style="padding: 1vw; background-color: #111; border: 0.4vw solid #222; width: 35vw; height: 30vw;">
+        <div id="${item}Info" style="padding: 1vw; background-color: #111; border: 0.4vw solid #222; width: 35vw; height: 40vw;">
             <b><span id="${item}Name" style="font-size: 3vw; margin-bottom: 0.5vw;">example name</span></b>${name}
             <div>
                 ${invbl}
@@ -227,6 +227,9 @@ function setPlayer() {
             slowR: 0,
             blockP: 0,
             blockD: 2,
+            hitRegenC: 0,
+            hitRegenP: 0,
+            hitRegenL: 0,
             invBAlly: 0,
         },
     
@@ -438,6 +441,40 @@ const enemyList = [
             { type: ["xp", 1],        amt: 999,   every: 60 },
         ] 
     }},
+
+    { id: 11, type: 0, get when() { return true }, name: "Paudin Evolved", stats: { hp: 275000, atk: 3600, def: 1250, speed: 1.25, crit: [0.125, 1.5], scrit: [0.125, 3], special: {
+        slow: [0.4, 2, 1.5, 1],
+        bleed: [0.45, 0.5, 2]
+    }}, 
+    zone: { 
+        size: 1000,
+        table: [
+            { type: ["atk", 0],    amt: 10,    rare:  3 }, 
+            { type: ["hp", 0],     amt: 200,   rare:  2 }, 
+            { type: ["def", 0],    amt: 100,   rare:  2 }, 
+            { type: ["regen", 0],  amt: 1,     rare:  1 }, 
+            { type: ["xp", 1],     amt: 5000,  every: 20 },
+            { type: ["speed", 1],  amt: 2,     every: 50 },
+            { type: ["scritP", 1], amt: 0.02,  every: 1000 },
+        ] 
+    } },
+
+    { id: 12, type: 0, get when() { return true }, name: "Bullsh", stats: { hp: 1e9, atk: 2e5, def: 1e6, speed: 33.333, crit: [0.125, 1.5], scrit: [0.125, 3], special: {
+        poison: [10, 250000, 1.0],
+        bleed: [0.00001, 0, 1000001]
+    }}, 
+    zone: { 
+        size: 1000,
+        table: [
+            { type: ["atk", 0],    amt: 1000,   rare:  1 }, 
+            { type: ["hp", 0],     amt: 10000,  rare:  1 }, 
+            { type: ["def", 0],    amt: 1000,   rare:  1 }, 
+            { type: ["regen", 0],  amt: 1000,   rare:  1 }, 
+            { type: ["xp", 1],     amt: 250000, every: 40 },
+            { type: ["speed", 1],  amt: 2,      every: 100 },
+            { type: ["speed", 1],  amt: 20,     every: 1000 },
+        ] 
+    } },
 ]
 
 function isUndefined(value) {
@@ -795,6 +832,9 @@ function update() {
     if (eff >= 1.8) {
         eff = 2.4 * (Math.pow(eff / 1.8, 0.75) - 0.25);
     }
+    if (eff >= 100) {
+        eff = 100 * Math.pow((eff / 40) - 1.5, 0.4)
+    }
     player.speed += eff;
     player.speed /= player.rewards.divSpeed;
 
@@ -848,6 +888,15 @@ function update() {
 
     player.special.bleed[2] = 1.00;
     player.special.bleed[2] += player.rewards.bleedR;
+
+    player.special.hitRegen[0] = 0;
+    player.special.hitRegen[0] += player.rewards.hitRegenC;
+
+    player.special.hitRegen[1] = 0;
+    player.special.hitRegen[1] += player.rewards.hitRegenP;
+
+    player.special.hitRegen[2] = 1.00;
+    player.special.hitRegen[2] += player.rewards.hitRegenL;
 
     player.special.block[0] = 0;
     player.special.block[0] += player.rewards.blockP;
@@ -974,52 +1023,6 @@ function update() {
                 enemyAttack();
             }
         }
-
-        if (!(player.altBli.alive || player.alive)) {
-            player.alive = true;
-            player.altBli.alive = true;
-            player.state = 0;
-            player.progress = 0;
-            player.enemy.progress = 0;
-            player.status = [];
-            player.enemy.hp = enemyList[player.stage].stats.hp;
-            player.enemy.status = [];
-            player.hp = 0;
-        }
-
-        if (player.enemy.hp <= 0) {
-            if (enemyList[player.stage].type === 0) {
-                if (player.zone[player.difficulty % player.zone.length].type[0] === 'xp') { 
-                    player.xp += player.zone[player.difficulty % player.zone.length].amt;
-                } else {
-                    player.rewards[player.zone[player.difficulty % player.zone.length].type[0]] += player.zone[player.difficulty % player.zone.length].amt;
-                }
-            }
-
-            if (enemyList[player.stage].type === 1) {
-                for (let i = 0; i < enemyList[player.stage].reward.length; i++) {
-                    if (enemyList[player.stage].reward[i][0] === 'xp') {
-                        player.xp += enemyList[player.stage].reward[i][1];
-                    } else {
-                        player.rewards[enemyList[player.stage].reward[i][0]] += enemyList[player.stage].reward[i][1];
-                    }
-                }
-            }
-
-            player.difficulty++;
-            player.defeated[player.stage]++;
-            player.enemy.progress = 0;
-            player.enemy.status = [];
-            player.enemy.hp = enemyList[player.stage].stats.hp;
-
-            if (!player.altBli.alive) {
-                player.altBli.hp += 1
-            }
-
-            if (!player.alive) {
-                player.hp += 1
-            }
-        }
     }
 }
 
@@ -1046,6 +1049,40 @@ function playerAttack(ally, counters = false, dmgMod = 1) {
     
     if (ally === 1 && player.alive) {
         player.hp += DM / 20
+    }
+
+    if (player.enemy.hp <= 0) {
+        if (enemyList[player.stage].type === 0) {
+            if (player.zone[player.difficulty % player.zone.length].type[0] === 'xp') { 
+                player.xp += player.zone[player.difficulty % player.zone.length].amt;
+            } else {
+                player.rewards[player.zone[player.difficulty % player.zone.length].type[0]] += player.zone[player.difficulty % player.zone.length].amt;
+            }
+        }
+
+        if (enemyList[player.stage].type === 1) {
+            for (let i = 0; i < enemyList[player.stage].reward.length; i++) {
+                if (enemyList[player.stage].reward[i][0] === 'xp') {
+                    player.xp += enemyList[player.stage].reward[i][1];
+                } else {
+                    player.rewards[enemyList[player.stage].reward[i][0]] += enemyList[player.stage].reward[i][1];
+                }
+            }
+        }
+
+        player.difficulty++;
+        player.defeated[player.stage]++;
+        player.enemy.progress = 0;
+        player.enemy.status = [];
+        player.enemy.hp = enemyList[player.stage].stats.hp;
+
+        if (!player.altBli.alive) {
+            player.altBli.hp += 1
+        }
+
+        if (!player.alive) {
+            player.hp += 1
+        }
     }
 
     if (!counters) {
@@ -1077,6 +1114,18 @@ function enemyAttack(counters = false, dmgMod = 1) {
     player.hp -= (DM ** 2) / (DM + player.def);
     player.altBli.hp -= (DM ** 2) / (DM + (player.def * 1.5)) / 1.2;
     
+    if (!(player.altBli.alive || player.alive)) {
+        player.alive = true;
+        player.altBli.alive = true;
+        player.state = 0;
+        player.progress = 0;
+        player.enemy.progress = 0;
+        player.status = [];
+        player.enemy.hp = enemyList[player.stage].stats.hp;
+        player.enemy.status = [];
+        player.hp = 0;
+    }
+
     if (!counters) {
         if (Math.random() <= player.special.counter[0]) {
             enemyAttack(0, true, dmgMod * player.special.counter[1]);
