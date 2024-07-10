@@ -34,39 +34,39 @@ function numberWithCommas(x) {
 
 function format(number, dec = 0, expdec = 3) {
     let n = new Decimal(number);
-    if (n.lt(0)) return "-" + format(n.negate(), dec, expdec);
+    if (n.lt(0)) return `-${format(n.negate(), dec, expdec)}`;
     if (n.eq(0)) return (0).toFixed(dec);
     if (Number.isNaN(n.mag)) return "NaN";
     if (!Number.isFinite(n.mag)) return "Infinity";
     if (n.lt(0.001)) {
-        return "1 / " + format(n.recip(), dec, expdec);
+        return `1 / ${format(n.recip(), dec, expdec)}`;
     } else if (n.lt(1e6)) {
         return numberWithCommas(n.toNumber().toFixed(dec));
     } else if (n.lt(abbExp)) {
         let abb = n.log10().mul(0.33333333336666665).floor();
-        return n.div(abb.mul(3).pow10()).toNumber().toFixed(expdec) + " " + abbSuffixes[abb];
-    } else if (n.lt("e1e6")) {
+        return `${n.div(abb.mul(3).pow10()).toNumber().toFixed(expdec)} ${abbSuffixes[abb]}`;
+    } else if (n.lt("ee6")) {
         let exp = n.log10().mul(1.0000000001).floor();
-        return n.div(exp.pow10()).toNumber().toFixed(expdec) + "e" + format(exp, 0, expdec);
+        return `${n.div(exp.pow10()).toNumber().toFixed(expdec)}e${format(exp, 0, expdec)}`;
     } else if (n.lt("10^^7")) {
-        return "e" + format(n.log10(), dec, expdec);
+        return `e${format(n.log10(), dec, expdec)}`;
     } else {
-        return "F" + format(n.slog(10), dec, expdec);
+        return `F${format(n.slog(10), dec, expdec)}`;
     }
 }
 
 function formatPerc(number, dec = 3, expdec = 3) {
     let n = new Decimal(number);
     if (n.gte(1000)) {
-        return format(n, dec, expdec) + "x";
+        return `${format(n, dec, expdec)}x`;
     } else {
-        return format(Decimal.sub(100, Decimal.div(100, n)), dec, expdec) + "%";
+        return `${format(Decimal.sub(100, Decimal.div(100, n)), dec, expdec)}%`;
     }
 }
 
 function formatTime(number, dec = 0, expdec = 3, limit = 2) {
     let n = new Decimal(number);
-    if (n.lt(0)) return "-" + formatTime(n.negate(), dec, expdec);
+    if (n.lt(0)) return `-${formatTime(n.negate(), dec, expdec)}`;
     if (n.eq(0)) return (0).toFixed(dec);
     if (Number.isNaN(n.mag)) return "I don't know?";
     if (!Number.isFinite(n.mag)) return "Forever";
@@ -79,7 +79,7 @@ function formatTime(number, dec = 0, expdec = 3, limit = 2) {
         }
         if (n.gte(timeList[i].amt)) {
             end = lim + 1 >= limit || timeList[i].stop;
-            str = str + " " + format(n.div(timeList[i].amt).sub(end ? 0 : 0.5), end ? dec : 0, expdec) + " " + timeList[i].name;
+            str = `${str} ${format(n.div(timeList[i].amt).sub(end ? 0 : 0.5), end ? dec : 0, expdec)}${timeList[i].name}`;
             n = n.sub(n.div(timeList[i].amt).floor().mul(timeList[i].amt));
             lim++;
             if (timeList[i].stop) {
@@ -87,7 +87,7 @@ function formatTime(number, dec = 0, expdec = 3, limit = 2) {
             }
         } else {
             if (i === 0) {
-                return (str + " " + format(n, dec, expdec) + " s").slice(1);
+                return (`${str} ${format(n, dec, expdec)}s`).slice(1);
             }
         }
     }

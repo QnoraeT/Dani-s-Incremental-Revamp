@@ -26,9 +26,9 @@ function updateScaling(type) {
     switch (type) {
         case "upg1":
             if (tmp.value.scaling.upg1 === undefined) { tmp.value.scaling.upg1 = [] };
-            tmp.value.scaling.upg1[0] = { res: D(player.value.generators.upgrades[0].bought), start: c.d20,  strength: c.d1, bp: c.d2, type: 0 };
-            tmp.value.scaling.upg1[1] = { res: D(player.value.generators.upgrades[0].bought), start: c.e2,   strength: c.d1, bp: c.d3, type: 0 };
-            tmp.value.scaling.upg1[2] = { res: D(player.value.generators.upgrades[0].bought), start: c.d250, strength: c.d1, bp: c.d4, type: 1 };
+            tmp.value.scaling.upg1[0] = { res: player.value.generators.upgrades[0].bought, start: c.d20,  strength: c.d1, bp: c.d2, type: 0 };
+            tmp.value.scaling.upg1[1] = { res: player.value.generators.upgrades[0].bought, start: c.e2,   strength: c.d1, bp: c.d3, type: 0 };
+            tmp.value.scaling.upg1[2] = { res: player.value.generators.upgrades[0].bought, start: c.d250, strength: c.d1, bp: c.d4, type: 1 };
             if (player.value.achievements.includes(3)) {
                 tmp.value.scaling.upg1[0].start = tmp.value.scaling.upg1[0].start.add(c.d2_5);
             }
@@ -61,9 +61,9 @@ function updateScaling(type) {
             break;
         case "upg2":
             if (tmp.value.scaling.upg2 === undefined) { tmp.value.scaling.upg2 = [] };
-            tmp.value.scaling.upg2[0] = { res: D(player.value.generators.upgrades[1].bought), start: c.d15,  strength: c.d1, bp: c.d2, type: 0 };
-            tmp.value.scaling.upg2[1] = { res: D(player.value.generators.upgrades[1].bought), start: c.e2,   strength: c.d1, bp: c.d3, type: 0 };
-            tmp.value.scaling.upg2[2] = { res: D(player.value.generators.upgrades[1].bought), start: c.d500, strength: c.d1, bp: c.d4, type: 1 };
+            tmp.value.scaling.upg2[0] = { res: player.value.generators.upgrades[1].bought, start: c.d15,  strength: c.d1, bp: c.d2, type: 0 };
+            tmp.value.scaling.upg2[1] = { res: player.value.generators.upgrades[1].bought, start: c.e2,   strength: c.d1, bp: c.d3, type: 0 };
+            tmp.value.scaling.upg2[2] = { res: player.value.generators.upgrades[1].bought, start: c.d500, strength: c.d1, bp: c.d4, type: 1 };
 
             if (Decimal.gte(player.value.generators.pr2.amount, c.d15)) {
                 tmp.value.scaling.upg2[1].strength = tmp.value.scaling.upg2[1].strength.mul(c.d0_875);
@@ -92,25 +92,25 @@ function updateScaling(type) {
             break;
         case "upg3":
             if (tmp.value.scaling.upg3 === undefined) { tmp.value.scaling.upg3 = [] };
-            tmp.value.scaling.upg3[0] = { res: D(player.value.generators.upgrades[2].bought), start: c.d50, strength: c.d1, bp: c.d2, type: 0 };
+            tmp.value.scaling.upg3[0] = { res: player.value.generators.upgrades[2].bought, start: c.d50, strength: c.d1, bp: c.d2, type: 0 };
             break;
         case "upg4":
             if (tmp.value.scaling.upg4 === undefined) { tmp.value.scaling.upg4 = [] };
-            tmp.value.scaling.upg4[0] = { res: D(player.value.generators.upgrades[3].bought), start: c.e3, strength: c.d1, bp: c.d3, type: 2 };
+            tmp.value.scaling.upg4[0] = { res: player.value.generators.upgrades[3].bought, start: c.e4, strength: c.d1, bp: c.d2, type: 2 };
             break;
         case "upg5":
             if (tmp.value.scaling.upg5 === undefined) { tmp.value.scaling.upg5 = [] };
-            tmp.value.scaling.upg5[0] = { res: D(player.value.generators.upgrades[4].bought), start: c.e3, strength: c.d1, bp: c.d3, type: 2 };
+            tmp.value.scaling.upg5[0] = { res: player.value.generators.upgrades[4].bought, start: c.e4, strength: c.d1, bp: c.d2, type: 2 };
             break;       
         case "upg6":
             if (tmp.value.scaling.upg6 === undefined) { tmp.value.scaling.upg6 = [] };
-            tmp.value.scaling.upg6[0] = { res: D(player.value.generators.upgrades[5].bought), start: c.e3, strength: c.d1, bp: c.d3, type: 2 };
+            tmp.value.scaling.upg6[0] = { res: player.value.generators.upgrades[5].bought, start: c.e4, strength: c.d1, bp: c.d2, type: 2 };
             break;
         case "pr2":
             if (tmp.value.scaling.pr2 === undefined) { tmp.value.scaling.pr2 = [] };
-            tmp.value.scaling.pr2[0] = { res: D(player.value.generators.pr2.amount), start: c.d10, strength: c.d1, bp: c.d1_5, type: 0 };
-            tmp.value.scaling.pr2[1] = { res: D(player.value.generators.pr2.amount), start: c.d20, strength: c.d1, bp: c.d3,   type: 0 };
-            tmp.value.scaling.pr2[2] = { res: D(player.value.generators.pr2.amount), start: c.e2,  strength: c.d1, bp: c.d1_1, type: 1.3 };
+            tmp.value.scaling.pr2[0] = { res: player.value.generators.pr2.amount, start: c.d10, strength: c.d1, bp: c.d1_5, type: 0 };
+            tmp.value.scaling.pr2[1] = { res: player.value.generators.pr2.amount, start: c.d20, strength: c.d1, bp: c.d3,   type: 0 };
+            tmp.value.scaling.pr2[2] = { res: player.value.generators.pr2.amount, start: c.e2,  strength: c.d1, bp: c.d1_1, type: 1.3 };
             break;
         default:
             throw new Error(`updateScaling ${type} does not exist`);
@@ -120,6 +120,10 @@ function updateScaling(type) {
 function updateSoftcap(type) {
     if (tmp.value.softcap === undefined) { tmp.value.softcap = {}; };
     switch (type) {
+        case "points":
+            if (tmp.value.softcap.points === undefined) { tmp.value.softcap.points = [] };
+            tmp.value.softcap.points[0] = { red: "", res: Decimal.pow(player.value.points ?? c.d0, c.d1_23301886).log10(), start: c.logInf, strength: c.d1 };
+            break;
         case "upg1":
             if (tmp.value.softcap.upg1 === undefined) { tmp.value.softcap.upg1 = [] };
             tmp.value.softcap.upg1[0] = { red: "", res: Decimal.pow(tmp.value.upgrades[0].effect ?? c.d0, c.d2), start: c.e100, strength: c.d1 };
@@ -142,6 +146,7 @@ function updateSoftcap(type) {
             }
 
             tmp.value.softcap.upg2[0].start = tmp.value.softcap.upg2[0].start.mul(tmp.value.kuaEffects.upg2Softcap);
+            tmp.value.softcap.upg2[1] = { red: "", res: Decimal.pow(tmp.value.upgrades[1].effect ?? c.d0, c.d2), start: c.e2500, strength: c.d1 };
             break;
         case "upg3":
             if (tmp.value.softcap.upg3 === undefined) { tmp.value.softcap.upg3 = [] };
@@ -149,12 +154,15 @@ function updateSoftcap(type) {
             break;
         case "upg4":
             if (tmp.value.softcap.upg4 === undefined) { tmp.value.softcap.upg4 = [] };
+            tmp.value.softcap.upg4[0] = { red: "", res: Decimal.pow(tmp.value.upgrades[3].effect ?? c.d0, c.d2), start: c.e100, strength: c.d1 };
             break;
         case "upg5":
             if (tmp.value.softcap.upg5 === undefined) { tmp.value.softcap.upg5 = [] };
+            tmp.value.softcap.upg5[0] = { red: "", res: Decimal.pow(tmp.value.upgrades[4].effect ?? c.d0, c.d2), start: c.ee3, strength: c.d1 };
             break;
         case "upg6":
             if (tmp.value.softcap.upg6 === undefined) { tmp.value.softcap.upg6 = [] };
+            tmp.value.softcap.upg6[0] = { red: "", res: Decimal.mul(tmp.value.upgrades[5].effect ?? c.d0, c.d2), start: c.d2, strength: c.d1 };
             break;
         default:
             throw new Error(`updateSoftcap ${type} does not exist`);

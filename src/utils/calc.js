@@ -39,12 +39,15 @@ const c = {
     d0_95:       Decimal.fromComponents_noNormalize(1, 0, 0.95),
     d0_975:      Decimal.fromComponents_noNormalize(1, 0, 0.975),
     d1:          Decimal.dOne,
+    d1_0002:     Decimal.fromComponents_noNormalize(1, 0, 1.0002),
+    d1_0003:     Decimal.fromComponents_noNormalize(1, 0, 1.0003),
     d1_0004:     Decimal.fromComponents_noNormalize(1, 0, 1.0004),
     d1_0005:     Decimal.fromComponents_noNormalize(1, 0, 1.0005),
     d1_0009:     Decimal.fromComponents_noNormalize(1, 0, 1.0009),
     d1_001:      Decimal.fromComponents_noNormalize(1, 0, 1.001),
     d1_01:       Decimal.fromComponents_noNormalize(1, 0, 1.01),
     d1_02:       Decimal.fromComponents_noNormalize(1, 0, 1.02),
+    d1_03:       Decimal.fromComponents_noNormalize(1, 0, 1.03),
     d1_025:      Decimal.fromComponents_noNormalize(1, 0, 1.025),
     d1_05:       Decimal.fromComponents_noNormalize(1, 0, 1.05),
     d1_075:      Decimal.fromComponents_noNormalize(1, 0, 1.075),
@@ -53,6 +56,7 @@ const c = {
     d1_125:      Decimal.fromComponents_noNormalize(1, 0, 1.125),
     d8div7:      Decimal.fromComponents_noNormalize(1, 0, 8/7), // 1.142857
     d1_2:        Decimal.fromComponents_noNormalize(1, 0, 1.2),
+    d1_23301886: Decimal.fromComponents_noNormalize(1, 0, 1.233018862239667),
     d1_25:       Decimal.fromComponents_noNormalize(1, 0, 1.25),
     dcbrt2:      Decimal.fromComponents_noNormalize(1, 0, Math.cbrt(2)), // 1.259921
     d1_3:        Decimal.fromComponents_noNormalize(1, 0, 1.3),
@@ -98,7 +102,7 @@ const c = {
     d200:        Decimal.fromComponents_noNormalize(1, 0, 200),
     d250:        Decimal.fromComponents_noNormalize(1, 0, 250),
     d300:        Decimal.fromComponents_noNormalize(1, 0, 300),
-    logMaxNum:   Decimal.fromComponents_noNormalize(1, 0, Math.log10(2) * 1024), // 308.254716
+    logInf:      Decimal.fromComponents_noNormalize(1, 0, Math.log10(2) * 1024), // 308.254716
     d400:        Decimal.fromComponents_noNormalize(1, 0, 400),
     d500:        Decimal.fromComponents_noNormalize(1, 0, 500),
     e3:          Decimal.fromComponents_noNormalize(1, 0, 1000),
@@ -138,8 +142,11 @@ const c = {
     e100:        Decimal.fromComponents_noNormalize(1, 1, 100),
     e140:        Decimal.fromComponents_noNormalize(1, 1, 140),
     e200:        Decimal.fromComponents_noNormalize(1, 1, 200),
+    e250:        Decimal.fromComponents_noNormalize(1, 1, 250),
     e260:        Decimal.fromComponents_noNormalize(1, 1, 260),
-    maxNum:      Decimal.fromComponents_noNormalize(1, 1, Math.log10(2) * 1024), // 1.797e308 - e308.254716
+    ee3:         Decimal.fromComponents_noNormalize(1, 1, 1000),
+    e2500:       Decimal.fromComponents_noNormalize(1, 1, 2500),
+    inf:         Decimal.fromComponents_noNormalize(1, 1, Math.log10(2) * 1024), // 1.797e308 - e308.254716
     trueInf:     Decimal.dInf
 }
 
@@ -540,4 +547,28 @@ function expPoly(x, exp, poly, start, inverse) {
 function sumHarmonicSeries(x) {
     x = D(x)
     return x.ln().add(0.5772156649015329).add(Decimal.div(0.5, x)).sub(Decimal.div(1, (x.pow(2).mul(12)))).add(Decimal.div(1, (x.pow(4).mul(120))))
+}
+
+/**
+ * this only works fine on exponentials and higher
+ * @param {function} target 
+ * @param {function} cost 
+ * @param {Decimal} resource 
+ * @param {Decimal} bought 
+ */
+function buyMax(target, cost, resource, bought) {
+    if (target(resource).lt(Number.MAX_SAFE_INTEGER) && Decimal.lt(resource, Decimal.pow10(Number.MAX_SAFE_INTEGER))) {
+        let currentBought = target(resource).sub(9).floor().max(bought)
+        currCost = cost(currentBought)
+        for (let i = 0; i < 10; i++) {
+            if (resource.lt(currCost)) { break }
+            resource = resource.sub(currCost)
+            currentBought = currentBought.add(1)
+            bought = currentBought
+            currCost = cost(currentBought)
+        }
+    } else {
+        const currentBought = target(player.prestigePoints).floor().add(1).max(bought)
+        bought = currentBought
+    }
 }

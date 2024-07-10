@@ -285,14 +285,16 @@ const KUA_UPGRADES = {
     ]
 }
 
-function updateAllKua() {
-    updateKua("kua");
+function updateAllKua(delta) {
+    updateKua("kua", delta);
 }
 
-function updateKua(type) {
-    let scal, pow, sta, i, j, k;
+function updateKua(type, delta) {
+    let scal, pow, sta, i, j, k, generate;
     switch (type) {
         case "kua":
+            player.value.kua.timeInKua = Decimal.add(player.value.kua.timeInKua, delta);
+
             player.value.kua.best = Decimal.max(player.value.kua.amount, player.value.kua.best);
             player.value.kua.kshards.best = Decimal.max(player.value.kua.kshards.amount, player.value.kua.kshards.best);
             player.value.kua.kpower.best = Decimal.max(player.value.kua.kpower.amount, player.value.kua.kpower.best);
@@ -300,113 +302,88 @@ function updateKua(type) {
             tmp.value.kuaReq = c.e10;
             tmp.value.kuaMul = c.em4;
             tmp.value.kuaExp = c.d3;
-            tmp.value.kuaDiv = c.d1_5;
 
             if (getKuaUpgrade("s", 1)) {
                 tmp.value.kuaMul = tmp.value.kuaMul.mul(c.d1_5);
             }
+            
             if (player.value.achievements.includes(13)) {
                 tmp.value.kuaMul = tmp.value.kuaMul.mul(c.d1_5);
             }
 
             tmp.value.effectivePrai = Decimal.add(player.value.generators.prai.totalInKua, tmp.value.praiPending);
             tmp.value.kuaCanDo = tmp.value.effectivePrai.gte(tmp.value.kuaReq) && player.value.nerf.kuaActive.gain;
-            tmp.value.kuaPending = tmp.value.kuaCanDo ? tmp.value.effectivePrai.log(tmp.value.kuaReq).ln().div(tmp.value.kuaExp.div(tmp.value.kuaDiv)).add(c.d1).pow(tmp.value.kuaExp).sub(c.d1).pow10().mul(tmp.value.kuaMul) : c.d0;
+            tmp.value.kuaPending = tmp.value.kuaCanDo ? tmp.value.effectivePrai.log(tmp.value.kuaReq).ln().mul(c.d1_5).div(tmp.value.kuaExp).add(c.d1).pow(tmp.value.kuaExp).sub(c.d1).pow10().mul(tmp.value.kuaMul) : c.d0;
 
-            tmp.value.kuaEffects = { up4: c.d1, up5: c.d1, up6: c.d0, upg1Scaling: c.d1, upg1SuperScaling: c.d1, ptPower: c.d1, upg2Softcap: c.d1, kshardPrai: c.d1, kpower: c.d1, pts: c.d1 };
+            if (player.value.auto.kua) {
+                generate = tmp.value.kuaPending.mul(delta).mul(c.e2);
+                player.value.kua.amount = Decimal.add(player.value.kua.amount, generate);
+                player.value.kua.total = Decimal.add(player.value.kua.total, generate);
+            }
 
             player.value.kua.best = Decimal.max(player.value.kua.best, player.value.kua.amount);
 
-            k = D(player.value.kua.amount);
+            tmp.value.kuaEffects = { 
+                up4: c.d1, 
+                up5: c.d1, 
+                up6: c.d0, 
+                upg1Scaling: c.d1, 
+                upg1SuperScaling: c.d1, 
+                ptPower: c.d1, 
+                upg2Softcap: c.d1, 
+                kshardPrai: c.d1, 
+                kpower: c.d1, 
+                pts: c.d1 
+            };
+
+            k = player.value.kua.amount;
             if (getKuaUpgrade("s", 11)) {
-                k = k.max(c.d1).pow(KUA_UPGRADES.KShards[10].eff);
+                k = Decimal.max(k, c.d1).pow(KUA_UPGRADES.KShards[10].eff);
             }
 
             if (player.value.nerf.kuaActive.effects) {
-                i = c.d1;
-
-                if (k.neq(c.d0)) {
-                    j = k.log10().add(c.d4).div(c.d13).mul(c.d7).add(c.d1).cbrt().sub(c.d3).pow10().add(c.d1)
-                }
-
-                i = i.mul(j);
-                tmp.value.kuaEffects.up4 = i;
-
-                
-                i = c.d1;
-
-                if (Decimal.neq(player.value.kua.kshards.amount, c.d0)) {
-                    j = Decimal.pow(c.d20, Decimal.log10(player.value.kua.kshards.amount).add(c.d2).div(c.d13)).div(c.e2).add(c.d1)
-                }
-
-                i = i.mul(j);
-                tmp.value.kuaEffects.up5 = i;
-
-                
-                i = c.d0;
-
-                if (Decimal.gt(player.value.kua.kpower.amount, c.d1)) {
-                    j = Decimal.log10(player.value.kua.kpower.amount).div(c.d13).mul(c.d7).add(c.d1).cbrt().sub(c.d5).pow10()
-                } else {
-                    j = c.d0;
-                }
-
-                i = i.add(j);
-                tmp.value.kuaEffects.up6 = i;
-
-                i = c.d1;
-
-                j = Decimal.max(player.value.points, c.d0).add(c.d1).log10().pow(c.d0_6).div(c.d200).mul(k.max(c.d0).mul(c.e4).add(c.d1).pow(c.d2div3).sub(c.d1)).add(c.d1).log10().add(c.d1);
+                // * theres probably a better way to do this
+                // no requirements for this, no need to lump them in the ones with conditionals
+                tmp.value.kuaEffects.upg1Scaling     = Decimal.max(player.value.points, c.d0).add(c.d1).log10().pow(c.d0_6).div(c.d200).mul(Decimal.max(k, c.d0).mul(c.e4) .add(c.d1).pow(c.d2div3).sub(c.d1)).add(c.d1).log10().add(c.d1);
                 if (getKuaUpgrade("p", 3)) {
-                    j = Decimal.max(j, Decimal.max(player.value.points, c.d0).add(c.d1).pow(c.d0_022).mul(k.max(c.d0).mul(c.d10).add(c.d1).pow(c.d0_75).sub(c.d1)).add(c.d1).log10().add(c.d1));
-                } 
+                    tmp.value.kuaEffects.upg1Scaling = Decimal.max(player.value.points, c.d0).add(c.d1).pow(c.d0_022)                  .mul(Decimal.max(k, c.d0).mul(c.d10).add(c.d1).pow(c.d0_75) .sub(c.d1)).add(c.d1).log10().add(c.d1).max(tmp.value.kuaEffects.upg1Scaling);
+                }
+
+                tmp.value.kuaEffects.up4 = Decimal.gt(k, c.d0) 
+                    ? Decimal.log10(k).add(c.d4).div(c.d13).mul(c.d7).add(c.d1).cbrt().sub(c.d4).pow10().add(c.d1) 
+                    : c.d1
+
+                tmp.value.kuaEffects.up5 = Decimal.gt(player.value.kua.kshards.amount, c.d0)
+                    ? Decimal.pow(c.d20, Decimal.log10(player.value.kua.kshards.amount).add(c.d2).div(c.d13)).div(c.e3).add(c.d1)
+                    : c.d1
+
+                tmp.value.kuaEffects.up6 = Decimal.gt(player.value.kua.kpower.amount, c.d1)
+                    ? Decimal.log10(player.value.kua.kpower.amount).div(c.d13).mul(c.d7).add(c.d1).cbrt().sub(c.d6).pow10()
+                    : c.d0
                 
-                i = i.mul(j);
-                tmp.value.kuaEffects.upg1Scaling = i;
+                tmp.value.kuaEffects.upg1SuperScaling = getKuaUpgrade("p", 6)
+                    ? tmp.value.kuaEffects.upg1Scaling.sqrt().sub(c.d1).div(c.d16).add(c.d1)
+                    : c.d1
+                
+                tmp.value.kuaEffects.ptPower = getKuaUpgrade("p", 3)
+                    ? Decimal.max(k, c.d0).add(c.d1).log2().sqrt().mul(c.d0_02).add(c.d1) // 1 = ^1, 2 = ^1.02, 16 = ^1.04, 256 = ^1.06, 65,536 = ^1.08 ...
+                    : c.d1
 
-                if (getKuaUpgrade("p", 6)) {
-                    tmp.value.kuaEffects.upg1SuperScaling = tmp.value.kuaEffects.upg1Scaling.sqrt().sub(c.d1).div(c.d16).add(c.d1);
-                }
+                tmp.value.kuaEffects.upg2Softcap = getKuaUpgrade("s", 6)
+                    ? Decimal.max(k, c.e2).div(c.e2).pow(c.d7)
+                    : c.d1
+            
+                tmp.value.kuaEffects.kshardPrai = getKuaUpgrade("s", 10)
+                    ? Decimal.max(k, c.d10).log10().log10().div(c.d4).add(c.d1).pow(c.d2_5)
+                    : c.d1
 
-                i = c.d1;
-                if (getKuaUpgrade("p", 3)) {
-                    j = k.max(c.d0).add(c.d1).log2().sqrt().mul(c.d0_02).add(c.d1); // 1 = ^1, 2 = ^1.02, 16 = ^1.04, 256 = ^1.06, 65,536 = ^1.08 ...
-    
-                    i = i.mul(j);
-                }
-                tmp.value.kuaEffects.ptPower = i;
+                tmp.value.kuaEffects.kpower = getKuaUpgrade("s", 10)
+                    ? Decimal.max(k, c.d10).log10().sub(c.d1).div(c.d4).pow(c.d1_1).pow10()
+                    : c.d1
 
-                i = c.d1;
-                if (getKuaUpgrade("s", 6)) {
-                    j = k.max(c.e2).div(c.e2).pow(c.d7);
-    
-                    i = i.mul(j);
-                }
-                tmp.value.kuaEffects.upg2Softcap = i;
-
-                i = c.d1;
-                if (getKuaUpgrade("s", 10)) {
-                    j = k.max(c.d10).log10().log10().div(c.d4).add(c.d1).pow(c.d2_5);
-    
-                    i = i.mul(j);
-                }
-                tmp.value.kuaEffects.kshardPrai = i;
-
-                i = c.d1;
-                if (getKuaUpgrade("s", 10)) {
-                    j = k.max(c.d10).log10().sub(c.d1).div(c.d4).pow(c.d1_1).pow10();
-    
-                    i = i.mul(j);
-                }
-                tmp.value.kuaEffects.kpower = i;
-
-                i = c.d1;
-                if (getKuaUpgrade("s", 7)) {
-                    j = k.max(c.d1).mul(c.e3).cbrt().log10().pow(c.d1_1).mul(Decimal.max(player.value.generators.prai.timeInPRai, c.d0).add(c.d1).ln().mul(c.d2).add(c.d1).sqrt()).pow10();
-    
-                    i = i.mul(j);
-                }
-                tmp.value.kuaEffects.pts = i;
+                tmp.value.kuaEffects.pts = getKuaUpgrade("s", 7)
+                    ? Decimal.max(k, c.d1).mul(c.e3).cbrt().log10().pow(c.d1_1).mul(Decimal.max(player.value.generators.prai.timeInPRai, c.d0).add(c.d1).ln().mul(c.d2).add(c.d1).sqrt()).pow10()
+                    : c.d1
             }
 
             i = c.d0;
@@ -426,6 +403,13 @@ function updateKua(type) {
                 }
             }
             tmp.value.kuaPowerGeneration = i;
+
+            generate = tmp.value.kuaShardGeneration.mul(delta);
+            player.value.kua.kshards.amount = Decimal.add(player.value.kua.kshards.amount, generate);
+            player.value.kua.kshards.total = Decimal.add(player.value.kua.kshards.total, generate);
+            generate = tmp.value.kuaPowerGeneration.mul(delta);
+            player.value.kua.kpower.amount = Decimal.add(player.value.kua.kpower.amount, generate);
+            player.value.kua.kpower.total = Decimal.add(player.value.kua.kpower.total, generate);
 
             setAchievement(12, Decimal.gte(player.value.generators.prai.totalInKua, c.e12));
             setAchievement(13, Decimal.gte(player.value.kua.amount, c.d0_1));

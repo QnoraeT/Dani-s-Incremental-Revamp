@@ -82,7 +82,7 @@ function buyGenUPG(id){
     }
 }
 
-function updateAllStart() {
+function updateAllStart(delta) {
     if (tmp.value.upgrades === undefined) { 
         tmp.value.upgrades = [] 
         for (let i = player.value.generators.upgrades.length - 1; i >= 0; i--) {
@@ -90,15 +90,15 @@ function updateAllStart() {
         }
     };
 
-    updateStart("pr2");
-    updateStart("prai");
+    updateStart("pr2", delta);
+    updateStart("prai", delta);
     for (let i = player.value.generators.upgrades.length - 1; i >= 0; i--) {
         updateStart(i);
     }
 }
 
 const BASIC_UPGS = [
-    {
+    { // UP1
         get freeExtra() {
             let i = c.d0;
             return i;
@@ -146,13 +146,13 @@ const BASIC_UPGS = [
             return Decimal.gte(player.value.generators.pr2.best, c.d2);
         },
         get display() {
-            return `Increase point gain by ${format(this.calcEB, 2)}x`;
+            return `Increase point gain by ${format(this.calcEB, 3)}x`;
         },
         get totalDisp() {
             return `Total: ${format(this.effect(), 2)}x to point gain`;
         }
     },
-    {
+    { // UP2
         get freeExtra() {
             let i = c.d0;
             return i;
@@ -190,6 +190,11 @@ const BASIC_UPGS = [
             if (getKuaUpgrade("p", 7)) {
                 i = i.pow(c.d3);
             }
+            j = i;
+            sta = tmp.value.softcap.upg2[1].start;
+            pow = tmp.value.softcap.upg2[1].strength;
+            i = scale(i, 2.1, false, sta, pow, c.d0_75);
+            tmp.value.softcap.upg2[1].red = `/${format(j.div(i), 2)}`;
             return i;
         },
         get calcEB() {
@@ -206,7 +211,7 @@ const BASIC_UPGS = [
             return Decimal.gte(player.value.generators.pr2.best, c.d4);
         },
         get display() {
-            return `Decreases Upgrade 1's cost by ${format(this.calcEB, 2)}x`;
+            return `Decreases Upgrade 1's cost by ${format(this.calcEB, 3)}x`;
         },
         get totalDisp() {
             return `Total: /${format(this.effect(), 2)} to Upgrade 1's cost`;
@@ -260,10 +265,10 @@ const BASIC_UPGS = [
             return getKuaUpgrade('s', 5);
         },
         get display() {
-            return `Increases Upgrade 1's base by +${format(this.calcEB, 2)}`;
+            return `Increases Upgrade 1's base by +${format(this.calcEB, 3)}`;
         },
         get totalDisp() {
-            return `Total: +${format(this.effect(), 2)} to Upgrade 1's base`;
+            return `Total: +${format(this.effect(), 3)} to Upgrade 1's base`;
         }
     },
     {
@@ -281,9 +286,14 @@ const BASIC_UPGS = [
             return i;
         },
         effect(x = player.value.generators.upgrades[3].bought) {
-            let i = this.effective(x);
+            let i = this.effective(x), j, sta, pow;
 
             i = this.effectBase.pow(i);
+            j = i;
+            sta = tmp.value.softcap.upg4[0].start;
+            pow = tmp.value.softcap.upg4[0].strength;
+            i = scale(i, 2.1, false, sta, pow, c.d0_5);
+            tmp.value.softcap.upg4[0].red = `^${format(i.log(j), 3)}`;
             return i;
         },
         get calcEB() {
@@ -300,7 +310,7 @@ const BASIC_UPGS = [
             return Decimal.gte(player.value.generators.pr2.best, c.d12);
         },
         get display() {
-            return `Increase point gain by ${format(this.calcEB, 2)}x`;
+            return `Increase point gain by ${format(this.calcEB, 3)}x`;
         },
         get totalDisp() {
             return `Total: ${format(this.effect(), 2)}x to point gain`;
@@ -321,9 +331,14 @@ const BASIC_UPGS = [
             return i;
         },
         effect(x = player.value.generators.upgrades[4].bought) {
-            let i = this.effective(x);
+            let i = this.effective(x), j, sta, pow;
 
             i = this.effectBase.pow(i);
+            j = i;
+            sta = tmp.value.softcap.upg5[0].start;
+            pow = tmp.value.softcap.upg5[0].strength;
+            i = scale(i, 2.1, false, sta, pow, c.d0_5);
+            tmp.value.softcap.upg5[0].red = `^${format(i.log(j), 3)}`;
             return i;
         },
         get calcEB() {
@@ -340,7 +355,7 @@ const BASIC_UPGS = [
             return Decimal.gte(player.value.generators.pr2.best, c.d14);
         },
         get display() {
-            return `Decreases Upgrade 1's cost by ${format(this.calcEB, 2)}x`;
+            return `Decreases Upgrade 1's cost by ${format(this.calcEB, 3)}x`;
         },
         get totalDisp() {
             return `Total: /${format(this.effect(), 2)} to Upgrade 1's cost`;
@@ -361,9 +376,14 @@ const BASIC_UPGS = [
             return i
         },
         effect(x = player.value.generators.upgrades[5].bought) {
-            let i = this.effective(x);
+            let i = this.effective(x), j, sta, pow;
 
             i = this.effectBase.mul(i);
+            j = i;
+            sta = tmp.value.softcap.upg6[0].start;
+            pow = tmp.value.softcap.upg6[0].strength;
+            i = scale(i, 0, false, sta, pow, c.d0_25);
+            tmp.value.softcap.upg6[0].red = `/${format(j.div(i), 2)}`;
             return i
         },
         get calcEB() {
@@ -380,10 +400,10 @@ const BASIC_UPGS = [
             return Decimal.gte(player.value.generators.pr2.best, c.d18);
         },
         get display() {
-            return `Increases Upgrade 1's base by +${format(this.calcEB, 2)}`;
+            return `Increases Upgrade 1's base by +${format(this.calcEB, 3)}`;
         },
         get totalDisp() {
-            return `Total: +${format(this.effect(), 2)} to Upgrade 1's base`;
+            return `Total: +${format(this.effect(), 3)} to Upgrade 1's base`;
         }
     },
 ]
@@ -391,8 +411,8 @@ const BASIC_UPGS = [
  * this is expected to be ran from 5 -> 4 -> 3 -> ... !
  * @param {*} staID 
  */
-function updateStart(staID) { 
-    let scal, pow, sta, i, j;
+function updateStart(staID, delta) { 
+    let scal, pow, sta, i, j, generate;
     switch (staID) {
         case 0:
         case 1:
@@ -407,8 +427,8 @@ function updateStart(staID) {
                 {exp: 0, scale: [c.d5,   c.d1_55,  c.d1]},
                 {exp: 0, scale: [c.e3,   c.d1_25,  c.d1]},
                 {exp: 0, scale: [c.e10,  c.e2,     c.d1_05]},
-                {exp: 0, scale: [c.e13,  c.d1_05,  c.d1_0005]},
-                {exp: 0, scale: [c.e20,  c.d1_075, c.d1_0004]},
+                {exp: 0, scale: [c.e13,  c.d1_02,  c.d1_0003]},
+                {exp: 0, scale: [c.e20,  c.d1_03,  c.d1_0002]},
                 {exp: 0, scale: [c.e33,  c.d2,     c.d1_025]},
             ][staID];
 
@@ -504,7 +524,7 @@ function updateStart(staID) {
             tmp.value.upgrades[staID].effectBase = BASIC_UPGS[staID].effectBase;
             tmp.value.upgrades[staID].calculatedEB = BASIC_UPGS[staID].calcEB;
 
-            tmp.value.upgrades[staID].effectColor = `#FFFFFF`
+            tmp.value.upgrades[staID].effectColor = `#FFFFFF`;
             for (let i = tmp.value.softcap[`upg${staID + 1}`].length - 1; i >= 0; i--) {
                 if (Decimal.gte(tmp.value.upgrades[staID].effect, tmp.value.softcap[`upg${staID + 1}`][i].start)) {
                     tmp.value.upgrades[staID].effectColor = SOFT_ATTR[i].color;
@@ -512,7 +532,7 @@ function updateStart(staID) {
                 }
             }
 
-            tmp.value.upgrades[staID].costColor = `#FFFFFF`
+            tmp.value.upgrades[staID].costColor = `#FFFFFF`;
             for (let i = tmp.value.scaling[`upg${staID + 1}`].length - 1; i >= 0; i--) {
                 if (Decimal.gte(player.value.generators.upgrades[staID].bought, tmp.value.scaling[`upg${staID + 1}`][i].start)) {
                     tmp.value.upgrades[staID].costColor = SCALE_ATTR[i].color;
@@ -538,6 +558,8 @@ function updateStart(staID) {
             setAchievement(15, Decimal.gte(player.value.points, c.e80) && Decimal.eq(player.value.generators.upgrades[2].bought, c.d0));
             break;
         case "prai":
+            player.value.generators.prai.timeInPRai = Decimal.add(player.value.generators.prai.timeInPRai, delta);
+
             tmp.value.praiReq = c.e6;
             tmp.value.praiExp = c.d1div3;
             if (player.value.achievements.includes(19)) {
@@ -564,6 +586,14 @@ function updateStart(staID) {
             } else {
                 tmp.value.praiPending = c.d1;
                 tmp.value.praiNext = tmp.value.praiReq.sub(player.value.totalPointsInPRai).div(player.value.pps);
+            }
+
+            if (getKuaUpgrade("s", 1) && player.value.auto.prai) { 
+                generate = tmp.value.praiPending.mul(delta).mul(c.em4);
+                player.value.generators.prai.amount = Decimal.add(player.value.generators.prai.amount, generate);
+                player.value.generators.prai.total = Decimal.add(player.value.generators.prai.total, generate);
+                player.value.generators.prai.totalInPR2 = Decimal.add(player.value.generators.prai.totalInPR2, generate);
+                player.value.generators.prai.totalInKua = Decimal.add(player.value.generators.prai.totalInKua, generate);
             }
 
             j = c.d4;

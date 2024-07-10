@@ -29,10 +29,12 @@ function loadVue() {
                 buyKShardUpg,
                 buyKPowerUpg,
                 COL_CHALLENGES,
+                COL_RESEARCH,
                 challengeToggle,
                 completedChallenge,
                 inChallenge,
-                timesCompleted
+                timesCompleted,
+                selectResearch
             }
     }}).mount('#app')
 }
