@@ -116,16 +116,21 @@ function resetPlayer() {
     player.value = {
         chapter: 0,
         achievements: [],
+
         pps: c.d1,
         points: c.d0,
         totalPoints: c.d0,
         totalPointsInPRai: c.d0,
         bestPointsInCol: c.d0,
+        totalPointsInTax: c.d0,
+
         inChallenge: {}, 
+
         totalTime: 0, // timespeed doesn't affect this
         gameTime: c.d0, // timespeed will affect this (totalGameTime)
         timeSpeed: c.d1,
         setTimeSpeed: c.d1, // change this if you think the game is going too fast or slow, i won't judge you =P
+        
         version: 0,
         nerf: {
             upgradesActive: [true, true, true, true, true, true],

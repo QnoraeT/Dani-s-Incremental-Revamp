@@ -34,7 +34,8 @@ function loadVue() {
                 completedChallenge,
                 inChallenge,
                 timesCompleted,
-                selectResearch
+                selectResearch,
+                getColResLevel
             }
     }}).mount('#app')
 }
