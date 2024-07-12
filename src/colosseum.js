@@ -23,53 +23,49 @@ const COL_CHALLENGES = {
         cap: c.d1,
         show: true,
         get canComplete() { return Decimal.gte(player.value.bestPointsInCol, this.goal); },
-        get progress() { return Decimal.max(player.value.bestPointsInCol, c.d1).log10().div(this.goal.log10()).min(c.d1); },
+        get progress() { return Decimal.min(c.d1, player.value.bestPointsInCol.max(c.d1).log10().div(this.goal.log10())); },
         get progDisplay() { return `${format(player.value.bestPointsInCol)} / ${format(this.goal)} (${format(this.progress.mul(c.e2), 3)}%)`; }
     }
-}
-
-function getColResLevel(id) {
-    return COL_RESEARCH[id].scoreToLevel(player.value.col.research.xpTotal[id]);
 }
 
 const COL_RESEARCH = [
     {
         unlocked: true,
         name: "Dotgenous",
-        effectDesc(level) { return `Multiply point gain by ${format(this.effect(level), 2)}x.`; },
+        effectDesc(level) { return `Multiply point gain by ${format(this.effect(level), 3)}x.`; },
         effectDescLevel(level) { return `Multiply point gain by ${format(this.effect(Decimal.add(level, 1)).div(this.effect(level)), 3)}x for this level.`; },
         scoreReq: c.d2,
         effect(level) {
-            let effect = Decimal.sqrt(level).pow10();
+            let effect = Decimal.cbrt(level).div(24).add(1).ln().mul(24).pow10();
             return effect;
         },
         scoreToLevel(score) {
             if (Decimal.lt(score, this.scoreReq)) { return c.d0; }
-            let level = linearAdd(Decimal.div(score, this.scoreReq), this.scoreReq, this.scoreReq, true);
+            let level = Decimal.div(score, this.scoreReq).mul(8).add(1).sqrt().sub(1).div(2);
             return level;
         },
         levelToScore(level) {
-            let score = linearAdd(level, this.scoreReq, this.scoreReq, false).mul(this.scoreReq);
+            let score = Decimal.mul(level, Decimal.add(level, 1)).div(2).mul(this.scoreReq);
             return score;
         }
     },
     {
         unlocked: true,
         name: "Firsterious",
-        effectDesc(level) { return `Multiply PRai gain by ${format(this.effect(level), 2)}x.`; },
+        effectDesc(level) { return `Multiply PRai gain by ${format(this.effect(level), 3)}x.`; },
         effectDescLevel(level) { return `Multiply PRai gain by ${format(this.effect(Decimal.add(level, 1)).div(this.effect(level)), 3)}x for this level.`; },
         scoreReq: c.d10,
         effect(level) {
-            let effect = Decimal.cbrt(level).pow_base(4);
+            let effect = Decimal.cbrt(level).div(16).add(1).ln().mul(16).pow_base(2);
             return effect;
         },
         scoreToLevel(score) {
             if (Decimal.lt(score, this.scoreReq)) { return c.d0; }
-            let level = linearAdd(Decimal.div(score, this.scoreReq), this.scoreReq, this.scoreReq, true);
+            let level = Decimal.div(score, this.scoreReq).mul(8).add(1).sqrt().sub(1).div(2);
             return level;
         },
         levelToScore(level) {
-            let score = linearAdd(level, this.scoreReq, this.scoreReq, false).mul(this.scoreReq);
+            let score = Decimal.mul(level, Decimal.add(level, 1)).div(2).mul(this.scoreReq);
             return score;
         }
     },
@@ -77,19 +73,19 @@ const COL_RESEARCH = [
         unlocked: true,
         name: "Kyston",
         effectDesc(level) { return `Increase Kuaraniai gain exponent by +${format(this.effect(level), 3)}.`; },
-        effectDescLevel(level) { return `Increase Kuaraniai gain exponent by +${format(this.effect(Decimal.add(level, 1)).sub(this.effect(level)), 4)} for this level.`; },
+        effectDescLevel(level) { return `Increase Kuaraniai gain exponent by +${format(this.effect(Decimal.add(level, 1)).div(this.effect(level)), 3)} for this level.`; },
         scoreReq: c.e2,
         effect(level) {
-            let effect = sumHarmonicSeries(level).div(100);
+            let effect = Decimal.div(level, 250).add(1).ln();
             return effect;
         },
         scoreToLevel(score) {
             if (Decimal.lt(score, this.scoreReq)) { return c.d0; }
-            let level = linearAdd(Decimal.div(score, this.scoreReq), this.scoreReq, this.scoreReq, true);
+            let level = Decimal.div(score, this.scoreReq).mul(8).add(1).sqrt().sub(1).div(2);
             return level;
         },
         levelToScore(level) {
-            let score = linearAdd(level, this.scoreReq, this.scoreReq, false).mul(this.scoreReq);
+            let score = Decimal.mul(level, Decimal.add(level, 1)).div(2).mul(this.scoreReq);
             return score;
         }
     },
@@ -142,14 +138,12 @@ function updateCol(type, delta) {
     switch (type) {
         case "research":
             tmp.value.colResearchesAtOnce = 1;
-            tmp.value.colResearchesAllocated = 0;
             tmp.value.colResearchSpeed = c.d1;
             for (let i = 0; i < COL_RESEARCH.length; i++) {
                 if (player.value.col.research.enabled[i] === undefined) { player.value.col.research.enabled[i] = false; }
                 if (player.value.col.research.xpTotal[i] === undefined) { player.value.col.research.xpTotal[i] = c.d0; }
 
                 if (player.value.col.research.enabled[i]) {
-                    tmp.value.colResearchesAllocated++;
                     generate = tmp.value.colResearchSpeed.mul(delta);
                     player.value.col.research.xpTotal[i] = Decimal.add(player.value.col.research.xpTotal[i], generate)
                 }

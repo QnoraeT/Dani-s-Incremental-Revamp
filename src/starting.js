@@ -30,18 +30,23 @@ const PR2_EFF = [
     },
     {
         show: true,
+        when: c.d10,
+        get text() { return `unlock a new layer`}
+    },
+    {
+        show: true,
         when: c.d11,
         get text() { return `slow down Upgrade 3 cost by ${formatPerc(c.d10div9, 3)}`}
     },
     {
         show: true,
         when: c.d12,
-        get text() { return `unlock the Upgrade 4 autobuyer.`}
+        get text() { return `unlock the Upgrade 1 B-Side autobuyer.`}
     },
     {
         show: true,
         when: c.d14,
-        get text() { return `unlock the Upgrade 5 autobuyer.`}
+        get text() { return `unlock the Upgrade 2 B-Side autobuyer.`}
     },
     {
         show: true,
@@ -51,7 +56,7 @@ const PR2_EFF = [
     {
         show: true,
         when: c.d18,
-        get text() { return `unlock the Upgrade 6 autobuyer.`}
+        get text() { return `unlock the Upgrade 3 B-Side autobuyer.`}
     },
     {
         show: true,
@@ -78,6 +83,13 @@ function buyGenUPG(id){
 }
 
 function updateAllStart(delta) {
+    if (tmp.value.upgrades === undefined) { 
+        tmp.value.upgrades = [] 
+        for (let i = player.value.generators.upgrades.length - 1; i >= 0; i--) {
+            tmp.value.upgrades.push({})
+        }
+    };
+
     updateStart("pr2", delta);
     updateStart("prai", delta);
     for (let i = player.value.generators.upgrades.length - 1; i >= 0; i--) {

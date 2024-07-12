@@ -45,15 +45,15 @@
                         marginRight: `0.24vw`, 
                         marginLeft: `0.24vw`, 
                         backgroundColor: item.backgroundColor, 
-                        border: `0.24vw solid ${tab.currTab === item.staticName ? item.highlightColor : item.outlineColor}` 
+                        border: `0.24vw solid ${tab[0] === item.staticName ? item.highlightColor : item.outlineColor}` 
                     }"
-                    v-if="item.if" class="mediumText fontTrebuchetMS" @click="switchTab(true, item.staticName)">{{item.name}}</button>
+                    v-if="item.if" class="mediumText fontTrebuchetMS" @click="switchTab(item.staticName, 0)">{{item.name}}</button>
                 </div>
             </div>
         </div>
-        <div id="generators" v-if="tab.currTab === 'gen'">
+        <div id="generators" v-if="tab[0] === 'gen'">
             <div class="flex-container" style="flex-direction: column; justify-content: center; margin-top: 1vw; margin-bottom: 1vw;">
-                <span v-if="Decimal.gte(player.points, tmp.softcap.points[0].start.pow10())" style="text-align: center; font-size: 1.2vw; color:#f44">
+                <span v-if="player.points.gte(tmp.softcap.points[0].start)" style="text-align: center; font-size: 1.2vw; color:#f44">
                     Your points past {{format(tmp.softcap.points[0].start.pow10())}} is taxed by {{tmp.softcap.points[0].red}}!
                 </span>
                 <span v-if="player.col.inAChallenge" style="text-align: center; font-size: 1.6vw;" v-bind:style="{ color: player.col.completedAll ? '#0080FF' : '#FF4000' }">
@@ -140,7 +140,7 @@
                 </tr>
             </table>
         </div>
-        <div id="kuaraniai" v-if="tab.currTab === 'kua'">
+        <div id="kuaraniai" v-if="tab[0] === 'kua'">
             <div class="flex-container" style="margin-left: auto; margin-right: auto; flex-direction: column; justify-content: center;">
                 <button style="text-align: center; margin-top: 0.96vw; margin-left: auto; margin-right: auto; font-size: 1.0667vw" 
                 v-bind:class="{ nope: !tmp.kuaCanDo, ok: tmp.kuaCanDo }"
@@ -156,7 +156,7 @@
                     <div v-if="player.nerf.kuaActive.effects">
                         <li>Reduces Upgrade 1's scaling strength by {{formatPerc(tmp.kuaEffects.upg1Scaling, 3)}}</li> 
                         <li v-if="player.kua.kpower.upgrades >= 6">Reduces Upgrade 1's super scaling strength by {{formatPerc(tmp.kuaEffects.upg1SuperScaling, 3)}}</li>
-                        <li v-if="Decimal.gt(player.kua.amount, 0)"> Adds Upgrade 4, and makes it's base x{{format(tmp.kuaEffects.up4, 4)}}/bought. </li>
+                        <li v-if="Decimal.gt(player.kua.amount, 0)"> Adds Upgrade 1 B-Side, and makes it's base x{{format(tmp.kuaEffects.up4, 4)}}/bought. </li>
                         <li v-if="player.kua.kpower.upgrades >= 3">Raises Points gain to ^{{format(tmp.kuaEffects.ptPower, 4)}}</li>
                         <li v-if="player.kua.kpower.upgrades >= 6">Delays Upgrade 2's softcap by {{format(tmp.kuaEffects.upg2Softcap, 2)}}x</li>
                         <li v-if="player.kua.kshards.upgrades >= 7">Multiplies Point gain by {{format(tmp.kuaEffects.pts, 2)}}x</li>
@@ -173,7 +173,7 @@
                                     Generate {{format(tmp.kuaPowerGeneration, 3)}} Kuaraniai Power (KPower) per second.
                                 </li>
                                 <li v-if="player.kua.kshards.amount.gt(0)">
-                                    Adds Upgrade 5, and makes it's base x{{format(tmp.kuaEffects.up5, 4)}}/bought.
+                                    Adds Upgrade 2 B-Side, and makes it's base x{{format(tmp.kuaEffects.up5, 4)}}/bought.
                                 </li>
                                 <li v-if="player.kua.kshards.upgrades >= 2">
                                     Multiply PRai's effect by {{format(KUA_UPGRADES.KShards[1].eff, 2)}}x.
@@ -202,7 +202,7 @@
                             You have <b>{{format(player.kua.kpower.amount, 3)}}</b> Kuaraniai power.
                             <div v-if="player.nerf.kuaActive.kpower.effects">
                                 <li v-if="player.kua.kpower.amount.gt(0)">
-                                    Adds Upgrade 6, and makes it's base +{{format(tmp.kuaEffects.up6, 5)}}/bought.
+                                    Adds Upgrade 3 B-Side, and makes it's base +{{format(tmp.kuaEffects.up6, 5)}}/bought.
                                 </li>
                                 <li v-if="player.kua.kpower.upgrades >= 1">
                                     Increases Upgrade 2's base by +{{format(KUA_UPGRADES.KPower[0].eff, 3)}}.
@@ -232,16 +232,16 @@
                 </div>
             </div>
         </div>
-        <div id="colosseum" v-if="tab.currTab === 'col'">
+        <div id="colosseum" v-if="tab[0] === 'col'">
             <div class="flex-container" style="flex-direction: row; justify-content: center; font-size: 1.4vw; margin-bottom: 01vw;" v-if="Decimal.gte(timesCompleted('nk'), 1)">
-                <button @click="switchTab(false, 0, 1)" class="colButtonTab smallColBorder colButton fontVerdana">Challenges</button>
-                <button @click="switchTab(false, 1, 1)" class="colButtonTab smallColBorder colButton fontVerdana">Research</button>
+                <button @click="switchTab(0, 1)" class="colButtonTab smallColBorder colButton fontVerdana">Challenges</button>
+                <button @click="switchTab(1, 1)" class="colButtonTab smallColBorder colButton fontVerdana">Research</button>
             </div>
             <div class="flex-container" style="flex-direction: column; justify-content: center; margin-bottom: 1vw;">
                 <span style="color: #f40; text-align: center; font-size: 1.6vw;">You have <span style="font-size: 1.92vw;"><b>{{format(player.col.power, 2)}}</b></span> Colosseum Power. <span style="font-size: 1.2vw;">({{format(tmp.colosseumPowerGeneration, 2)}}/s)</span></span>
                 <span style="text-align: center; font-size: 1.6vw;" v-bind:style="{ color: player.col.completedAll ? '#0080FF' : '#FF4000' }">This will give you about <span style="font-size: 1.92vw;"><b>{{formatTime(player.col.maxTime, 3)}}</b></span> within challenges.</span>
             </div>
-            <div class="flex-container" style="flex-direction: row; justify-content: center; margin-top: 2.4vw;" v-if="tab.currTab[0] === 0">
+            <div class="flex-container" style="flex-direction: row; justify-content: center; margin-top: 2.4vw;" v-if="tab[1] === 0">
                 <div v-for="(item, index) in COL_CHALLENGES" class="flex-container">
                     <button v-if="item.show" v-bind:class="{ 
                         colButton: !completedChallenge(item.id) && !inChallenge(item.id), 
@@ -278,7 +278,7 @@
                     </button>
                 </div>
             </div>
-            <div style="background-color: #410; border: 0.2vw solid #ff4000; margin-left: auto; margin-right: auto; display: flex; justify-content: center; flex-direction: row; box-shadow: 0 0 0.8vw 0.24vw rgb(66, 17, 0); height: 40vw; width: 80vw" v-if="tab.currTab[0] === 1">
+            <div style="background-color: #410; border: 0.2vw solid #ff4000; margin-left: auto; margin-right: auto; display: flex; justify-content: center; flex-direction: row; box-shadow: 0 0 0.8vw 0.24vw rgb(66, 17, 0); height: 40vw; width: 80vw" v-if="tab[1] === 1">
                 <div style="display: flex; justify-content: center; flex-direction: row; flex-wrap: wrap; border: 0.24vw solid #ff4000; padding: 0.6vw; height: 38.8vw; width: 40vw">
                     <div v-for="(item, index) in COL_RESEARCH" class="flex-container">
                         <!-- set padding to 0vw because it auto-inserts padding -->
@@ -298,27 +298,22 @@
                             <span class="centered-text" style="height: 100%;">{{COL_RESEARCH[tab[2]].name}}</span>
                         </div>
                         <div class="whiteText" style="display: flex; justify-content: center; background-color: #521400; position: relative; width: 100%; height: 15%; font-size: 1.6vw">
-                            <span class="centered-text" style="top: 4%">Level: {{format(getColResLevel(tab[2]).floor(), 0)}}</span>
+                            <span class="centered-text" style="top: 4%">Level: {{format(COL_RESEARCH[tab[2]].scoreToLevel(player.col.research.xpTotal[tab[2]]).floor(), 0)}}</span>
                             <!-- i wish i made this better instead of having to do an extremely long formula T_T -->
-                            <span v-if="getColResLevel(tab[2]).lt(c.e12)" class="centered-text" style="top: 33.333%">XP: {{format(Decimal.sub(player.col.research.xpTotal[tab[2]], COL_RESEARCH[tab[2]].levelToScore(getColResLevel(tab[2]).floor())), 0)}} / {{format(COL_RESEARCH[tab[2]].levelToScore(getColResLevel(tab[2]).floor().add(1)).sub(COL_RESEARCH[tab[2]].levelToScore(getColResLevel(tab[2]).floor())), 0)}}</span>
-                            <span v-if="getColResLevel(tab[2]).gte(c.e12)" class="centered-text" style="top: 33.333%">Total XP: {{format(player.col.research.xpTotal[tab[2]], 0)}}</span>
+                            <span class="centered-text" style="top: 33.333%">XP: {{format(Decimal.sub(player.col.research.xpTotal[tab[2]], COL_RESEARCH[tab[2]].levelToScore(COL_RESEARCH[tab[2]].scoreToLevel(player.col.research.xpTotal[tab[2]]).floor())), 0)}} / {{format(COL_RESEARCH[tab[2]].levelToScore(COL_RESEARCH[tab[2]].scoreToLevel(player.col.research.xpTotal[tab[2]]).floor().add(1)).sub(COL_RESEARCH[tab[2]].levelToScore(COL_RESEARCH[tab[2]].scoreToLevel(player.col.research.xpTotal[tab[2]]).floor())), 0)}}</span>
                             <div style="top: 68.5%; height: 1vw; width: 35vw; position: relative;">
                                 <div style="position: absolute; top: 0; left: 0; border: 0.24vw solid #882200; background-color: #521400; height: 100%; width: 100%"></div>
-                                <div v-bind:style="{ width: `${getColResLevel(tab[2]).gte(c.e12) ? 100 : Decimal.div(Decimal.sub(player.col.research.xpTotal[tab[2]], COL_RESEARCH[tab[2]].levelToScore(getColResLevel(tab[2]).floor())), COL_RESEARCH[tab[2]].levelToScore(getColResLevel(tab[2]).floor().add(1)).sub(COL_RESEARCH[tab[2]].levelToScore(getColResLevel(tab[2]).floor()))).min(1).mul(100).toNumber()}%` }" style="position: absolute; top: 0; left: 0; border: 0.24vw solid #882200; background-color: #ff4000; height: 100%;"></div>
+                                <div v-bind:style="{ width: `${Decimal.div(Decimal.sub(player.col.research.xpTotal[tab[2]], COL_RESEARCH[tab[2]].levelToScore(COL_RESEARCH[tab[2]].scoreToLevel(player.col.research.xpTotal[tab[2]]).floor())), COL_RESEARCH[tab[2]].levelToScore(COL_RESEARCH[tab[2]].scoreToLevel(player.col.research.xpTotal[tab[2]]).floor().add(1)).sub(COL_RESEARCH[tab[2]].levelToScore(COL_RESEARCH[tab[2]].scoreToLevel(player.col.research.xpTotal[tab[2]]).floor()))).min(1).mul(100).toNumber()}%` }" style="position: absolute; top: 0; left: 0; border: 0.24vw solid #882200; background-color: #ff4000; height: 100%;"></div>
                             </div>
-                        </div>
-                        <div class="whiteText" style="display: flex; justify-content: center; background-color: #461100; position: relative; width: 100%; height: 15%; font-size: 1.2vw">
-                            <span class="centered-text" style="top: 10%">Effect: {{COL_RESEARCH[tab[2]].effectDesc(getColResLevel(tab[2]).floor())}}</span>
-                            <span class="centered-text" style="top: 35%">{{COL_RESEARCH[tab[2]].effectDescLevel(getColResLevel(tab[2]).floor())}}</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div id="options" v-if="tab.currTab === 'opt'">
+        <div id="options" v-if="tab[0] === 'opt'">
 
         </div>
-        <div id="stats" v-if="tab.currTab === 'stat'">
+        <div id="stats" v-if="tab[0] === 'stat'">
             <div class="flex-container" style="flex-direction: row; justify-content: center;">
                 <div v-for="(item, index) in tmp.scaleList" style="color: #fff">
                     <div v-bind:style="{ backgroundColor: SCALE_ATTR[index].color }" v-if="item.length > 0" style="
@@ -367,7 +362,7 @@
             </div>
         </div>
 
-        <div id="achievement" v-if="tab.currTab === 'ach'">
+        <div id="achievement" v-if="tab[0] === 'ach'">
             <table style="margin-left: auto; margin-right: auto;">
                 <tr v-for="n in ACHIEVEMENT_DATA.rows">
                     <td v-for="m in ACHIEVEMENT_DATA.cols" style="color: #fff">
