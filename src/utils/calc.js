@@ -525,28 +525,21 @@ function lerp(t, s, e, type, p) {
     return (s * (1 - t)) + (e * t);
 }
 
-/**
- * e ^ (((x + s) ^ p / (p * s ^ (p - 1))) - s / p)
- * @param {Decimal} x 
- * @param {Decimal} exp 
- * @param {Decimal} poly 
- * @param {Decimal} start 
- * @param {Boolean} inverse
- */
-function expPoly(x, exp, poly, start, inverse) {
-    x = D(x);
-    exp = D(exp);
-    poly = D(poly);
-    start = D(start);
-
+function smoothPoly(x, poly, start, inverse) {
     return inverse
-        ? x.log(exp).add(start.div(poly)).mul(poly.mul(start.pow(poly.sub(1)))).root(poly).sub(start)
-        : exp.pow(x.add(start).pow(poly).div(poly.mul(start.pow(poly.sub(1)))).sub(start.div(poly)))
+        ? Decimal.add(x, Decimal.div(start, poly)).mul(Decimal.mul(poly, Decimal.pow(start, Decimal.sub(poly, 1)))).root(poly).sub(start)
+        : Decimal.add(x, start).pow(poly).div(Decimal.mul(poly, Decimal.pow(start, Decimal.sub(poly, 1)))).sub(Decimal.div(start, poly))
+}
+
+function smoothExp(x, exp, inv) {
+    return inv
+        ? Decimal.mul(x, Decimal.ln(exp)).add(1).log(exp)
+        : Decimal.pow(exp, x).sub(1).div(Decimal.ln(exp))
 }
 
 function sumHarmonicSeries(x) {
-    x = D(x)
-    return x.ln().add(0.5772156649015329).add(Decimal.div(0.5, x)).sub(Decimal.div(1, (x.pow(2).mul(12)))).add(Decimal.div(1, (x.pow(4).mul(120))))
+    if (Decimal.lt(x, 1)) { return D(0) }
+    return Decimal.ln(x).add(0.5772156649015329).add(Decimal.div(0.5, x)).sub(Decimal.div(1, (x.pow(2).mul(12)))).add(Decimal.div(1, (x.pow(4).mul(120))))
 }
 
 /**
@@ -571,4 +564,20 @@ function buyMax(target, cost, resource, bought) {
         const currentBought = target(player.prestigePoints).floor().add(1).max(bought)
         bought = currentBought
     }
+}
+
+function linearAdd(num, base, growth, inverse) {
+    num = D(num)
+    base = D(base)
+    growth = D(growth)
+
+    if (base.eq(growth)) {
+        return inverse
+            ? num.div(base).mul(8).add(1).sqrt().sub(1).div(2)
+            : num.add(1).mul(num).div(2).mul(base)
+    }
+
+    return inverse
+        ? growth.sub(base.mul(2)).pow(2).add(num.mul(growth).mul(8)).sqrt().sub(growth).sub(base.mul(2)).div(growth.mul(2))
+        : growth.mul(num).add(base.mul(2)).mul(num.add(1)).div(2)
 }

@@ -98,34 +98,57 @@ const otherGameStuffIg = {
 let game = Vue.ref({});
 let player = Vue.ref({});
 const tmp = Vue.ref({});
-const tab = [0, 0, 0];
+const tab = Vue.ref({
+    currTab: "gen",
+    gen: [0],
+    opt: [0],
+    stat: [0],
+    ach: [0],
+    kua: [0],
+    col: [0, 0],
+    tax: [0],
+})
 let fpsList = [];
 let lastFPSCheck = 0;
 let lastSave = 0;
 let saveTime = 30000;
 let currentSave = 0;
 
-function switchTab(t, id) {
-    tab[id] = t;
-    if (id >= tab.length) {
-        throw new Error("tried to tab out of bounds");
+function switchTab(isTab, whatTab, index) {
+    if (isTab) {
+        tab.value.currTab = whatTab
+    } else {
+        tab.value[currTab][index] = whatTab
     }
+    // tab[id] = t;
+    // if (id >= tab.length) {
+    //     throw new Error("tried to tab out of bounds");
+    // }
+    // // set this to 0 because we don't want anyone peeking into other layers' unaccessible areas early (e.g. Kua Blessings while still in start of Col)
+    // for (let TA = id + 1; TA <= (tab.length - 1); ++TA) {
+    //     tab[TA] = 0;
+    // }
 }
 
 function resetPlayer() {
     player.value = {
         chapter: 0,
         achievements: [],
+        
         pps: c.d1,
         points: c.d0,
         totalPoints: c.d0,
         totalPointsInPRai: c.d0,
         bestPointsInCol: c.d0,
+        totalPointsInTax: c.d0,
+
         inChallenge: {}, 
         totalTime: 0, // timespeed doesn't affect this
+
         gameTime: c.d0, // timespeed will affect this (totalGameTime)
         timeSpeed: c.d1,
         setTimeSpeed: c.d1, // change this if you think the game is going too fast or slow, i won't judge you =P
+
         version: 0,
         nerf: {
             upgradesActive: [true, true, true, true, true, true],
@@ -244,8 +267,12 @@ function updatePlayerData(player) {
         player.value.version = 0;
     }
     if (player.value.version === 0) {
-
+        player.value.totalPointsInTax = c.d0
         // player.value.version = 1;
+    }
+    if (player.value.version === 1) {
+
+        // player.value.version = 2;
     }
 }
 
@@ -398,28 +425,23 @@ function calcPointsPerSecond() {
         i = i.mul(tmp.value.kuaEffects.pts);
     } 
 
-    tmp.value.softcap.points[0].red = `/${format(c.d1, 2)}`
-    if (Decimal.add(player.value.points, i).gte(tmp.value.softcap.points[0].start.pow10())) {
-        let oldpps = i
-        let oldPts = Decimal.max(player.value.points, 1)
-        let newPts = 
-            scale(
-                scale(
-                    Decimal.log10(oldPts), 0.2, true, tmp.value.softcap.points[0].start, tmp.value.softcap.points[0].strength, c.d0_8
-                )
-                .pow10().add(i).log10(), 0.2, false, tmp.value.softcap.points[0].start, tmp.value.softcap.points[0].strength, c.d0_8
-            )
-            .pow10()
-
-        i = newPts.sub(oldPts).max(tmp.value.softcap.points[0].start.pow10())
-        tmp.value.softcap.points[0].red = `/${format(Decimal.div(oldpps, i), 2)}`
-    }
-
     return i;
 }
 
 let vueLoaded = false;
 let runGame = [true, true];
+
+function initTmp() {
+    tmp.value.scaleSoftcapNames = { points: "Points", upg1: "Upgrade 1", upg2: "Upgrade 2", upg3: "Upgrade 3", upg4: "Upgrade 4", upg5: "Upgrade 5", upg6: "Upgrade 6", praiGain: "PRai Gain", praiEffect: "PRai Effect", pr2: "PR2" };
+    tmp.value.upgrades = [] 
+    for (let i = player.value.generators.upgrades.length - 1; i >= 0; i--) {
+        tmp.value.upgrades.push({})
+        updateScaling(`upg${i + 1}`);
+        updateSoftcap(`upg${i + 1}`);
+    }
+    updateSoftcap("points");
+
+}
 
 function loadGame() {
     lastFPSCheck = 0;
@@ -443,13 +465,13 @@ function loadGame() {
         console.log("reset");
     }
 
+    // init tmp
+    initTmp()
+    
     if (!vueLoaded) {
         loadVue();
         vueLoaded = true;
     }
-
-    // init tmp
-    tmp.value.scaleSoftcapNames = { points: "Points", upg1: "Upgrade 1", upg2: "Upgrade 2", upg3: "Upgrade 3", upg4: "Upgrade 4", upg5: "Upgrade 5", upg6: "Upgrade 6", praiGain: "PRai Gain", praiEffect: "PRai Effect", pr2: "PR2" };
 
     window.requestAnimationFrame(gameLoop);
 
@@ -483,6 +505,26 @@ function loadGame() {
                 updateSoftcap("points")
                 player.value.pps = calcPointsPerSecond();
                 generate = Decimal.mul(player.value.pps, gameDelta);
+
+                // i hate that i have to do it here
+                tmp.value.softcap.points[0].red = `/${format(c.d1, 2)}`
+                if (Decimal.add(player.value.points, generate).gte(tmp.value.softcap.points[0].start.pow10())) {
+                    let oldGen = generate;
+                    let oldPts = Decimal.max(player.value.points, 1);
+                    let newPts = 
+                        scale(
+                            scale(
+                                oldPts.log10(), 0.2, true, tmp.value.softcap.points[0].start, tmp.value.softcap.points[0].strength, c.d0_8
+                            )
+                            .pow10().add(generate).log10(), 0.2, false, tmp.value.softcap.points[0].start, tmp.value.softcap.points[0].strength, c.d0_8
+                        )
+                        .pow10()
+            
+                    generate = newPts.sub(oldPts).max(tmp.value.softcap.points[0].start.pow10())
+                    player.value.pps = generate.div(gameDelta)
+                    tmp.value.softcap.points[0].red = `/${format(Decimal.div(oldGen, generate), 2)}`
+                }
+
                 player.value.points = Decimal.add(player.value.points, generate);
                 player.value.totalPointsInPRai = Decimal.add(player.value.totalPointsInPRai, generate);
                 player.value.totalPoints = Decimal.add(player.value.totalPoints, generate);
