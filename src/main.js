@@ -98,17 +98,27 @@ const otherGameStuffIg = {
 let game = Vue.ref({});
 let player = Vue.ref({});
 const tmp = Vue.ref({});
-const tab = [0, 0, 0];
+const tab = {
+    currTab: "gen",
+    gen: [0],
+    opt: [0],
+    stat: [0],
+    ach: [0],
+    kua: [0],
+    col: [0, 0],
+    tax: [0],
+}
 let fpsList = [];
 let lastFPSCheck = 0;
 let lastSave = 0;
 let saveTime = 30000;
 let currentSave = 0;
 
-function switchTab(t, id) {
-    tab[id] = t;
-    if (id >= tab.length) {
-        throw new Error("tried to tab out of bounds");
+function switchTab(isTab, whatTab, index) {
+    if (isTab) {
+        tab.currTab = whatTab
+    } else {
+        tab[tab.currTab][index] = whatTab
     }
 }
 
@@ -130,7 +140,7 @@ function resetPlayer() {
         gameTime: c.d0, // timespeed will affect this (totalGameTime)
         timeSpeed: c.d1,
         setTimeSpeed: c.d1, // change this if you think the game is going too fast or slow, i won't judge you =P
-        
+
         version: 0,
         nerf: {
             upgradesActive: [true, true, true, true, true, true],
@@ -448,11 +458,6 @@ function loadGame() {
         console.log("reset");
     }
 
-    if (!vueLoaded) {
-        loadVue();
-        vueLoaded = true;
-    }
-
     // init tmp
     tmp.value.scaleSoftcapNames = { points: "Points", upg1: "Upgrade 1", upg2: "Upgrade 2", upg3: "Upgrade 3", upg4: "Upgrade 4", upg5: "Upgrade 5", upg6: "Upgrade 6", praiGain: "PRai Gain", praiEffect: "PRai Effect", pr2: "PR2" };
 
@@ -539,6 +544,13 @@ function loadGame() {
             console.log("Game saving has been paused. It's likely that your save is broken or the programmer (TearonQ) is an idiot? Don't call them that, though.");
             return;
         }
+
+        // TODO: make this garbage better, hacky workaround for Vue trying to draw to the DOM before tmp gets loaded, didn't happen before when tab was an Array and not an Object for who knows what, this is stupid, but we'll (i'll) have to deal with it i guess 
+        if (!vueLoaded) {
+            loadVue();
+            vueLoaded = true;
+        }
+
         // do not change order at all
         oldTimeStamp = timeStamp;
         window.requestAnimationFrame(gameLoop);

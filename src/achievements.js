@@ -30,7 +30,7 @@ const ACH_DEF_COLORS = {
 const ACHIEVEMENT_DATA = {
     rows: 4,
     cols: 8,
-    // get status() = if its "canComplete" (true) or "unable" (anything else, this uses the description of why it can't be c.d1), if the achievement is already in player then it will be always marked as "complete"
+    // get status() = if its "canComplete" (true) or "unable" (anything else, this uses the description of why it can't be 1), if the achievement is already in player then it will be always marked as "complete"
     0: {
         get name() { return `Starting off?`; },
         get desc() { return `Get ${format(c.d1)} UP1.`; },
@@ -59,7 +59,7 @@ const ACHIEVEMENT_DATA = {
         get name() { return `Are you rich now?`; },
         get desc() { return `Have at least ${format(c.d10)} PRai.`; },
         type: `points`,
-        get reward() { return `You unlock a new prestige layer, and UP1's scaling starts 2.5 later.`; },
+        get reward() { return `You unlock a new prestige layer, and UP1's scaling starts ${c.d2_5} later.`; },
         show: true,
         status: true
     },
@@ -141,6 +141,7 @@ const ACHIEVEMENT_DATA = {
             if (player.value.achievements.includes(30)) {
                 pow = pow.add(c.d0_05);
             }
+
             let eff = Decimal.max(tmp.value.upgrades[1].effect, c.d1);
             if (getKuaUpgrade("p", 7)) {
                 eff = eff.root(c.d3);
@@ -160,7 +161,7 @@ const ACHIEVEMENT_DATA = {
         get show() { return player.value.kua.unlocked; },
         status: true
     },
-    14: {
+    14: { // ! Unable
         get name() { return `Does every incremental game need to have a challenge like this? Probably.`; },
         get desc() { return `Complete Colosseum Challenge 'No Kuaraniai.'`; },
         get type() { return `col`; },
@@ -219,8 +220,8 @@ const ACHIEVEMENT_DATA = {
         status: true
     },
     20: { // ! Unable
-        get name() { return `Screw it, we don't need the new mechanics.`; },
-        get desc() { return `Buy a total of 20 Kuaraniai upgrades while having no Colosseum Power and no completed challenges.`; },
+        get name() { return `In a time crunch.`; },
+        get desc() { return `Complete a challenge's requirement with less than ${formatTime(c.d10)} to spare.`; },
         get type() { return `col`; },
         get reward() { return `PRai gain is multiplied by ${format(c.d10)}x.`; },
         get show() { return player.value.col.unlocked; },
@@ -295,7 +296,7 @@ const ACHIEVEMENT_DATA = {
         get show() { return player.value.col.unlocked; },
         status: true
     },
-    28: { // TODO: Get, Effect, Eff
+    28: { // ! Unable
         get name() { return `Ruining the point`; },
         get desc() { return `Complete \"Sabotaged Upgrades\" on difficulty 1 without buying any upgrade.`; },
         get type() { return `col`; },
@@ -324,7 +325,7 @@ const ACHIEVEMENT_DATA = {
         status: true
     },
     31: { // ! Unable
-        get name() { return `Heaven`; },
+        get name() { return `Heaven ...?`; },
         get desc() { return `Unlock Kuaraniai Blessings.`; },
         get type() { return `kb`; },
         reward: ``,

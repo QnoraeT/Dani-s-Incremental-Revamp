@@ -292,5 +292,5 @@ function challengeToggle(id) {
 }
 
 function selectResearch(id) {
-    switchTab(id, 2)
+    switchTab(false, id, 1)
 }
