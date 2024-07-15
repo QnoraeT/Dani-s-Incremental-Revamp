@@ -79,9 +79,9 @@ function buyGenUPG(id){
 
 function updateAllStart(delta) {
     if (tmp.value.upgrades === undefined) { 
-        tmp.value.upgrades = [] 
+        tmp.value.upgrades = [];
         for (let i = player.value.generators.upgrades.length - 1; i >= 0; i--) {
-            tmp.value.upgrades.push({})
+            tmp.value.upgrades.push({});
         }
     };
 
@@ -566,12 +566,16 @@ function updateStart(staID, delta) {
                 i = D(player.value.totalPointsInPRai);
                 i = i.max(c.d0).div(tmp.value.praiReq).pow(tmp.value.praiExp).sub(c.d1).mul(tmp.value.praiExp).add(c.d1).dilate(tmp.value.praiDil);
                 i = i.mul(player.value.generators.pr2.effect);
+                if (player.value.achievements.includes(20)) {
+                    i = i.mul(c.d5);
+                }
                 if (player.value.achievements.includes(23)) {
                     i = i.mul(ACHIEVEMENT_DATA[23].eff);
                 }
                 if (getKuaUpgrade("s", 8)) {
                     i = i.mul(KUA_UPGRADES.KShards[7].eff);
                 }
+                i = i.mul(getColResEffect(1));
                 tmp.value.praiPending = i.floor();
 
                 i = tmp.value.praiPending.add(c.d1).floor();
@@ -640,7 +644,7 @@ function updateStart(staID, delta) {
             i = i.add(player.value.generators.pr2.freeExtra);
             tmp.value.pr2Effective = i
 
-            j = D(c.d0_05);
+            j = c.d0_05;
             if (getKuaUpgrade("s", 5)) {
                 j = j.mul(c.d2);
             }

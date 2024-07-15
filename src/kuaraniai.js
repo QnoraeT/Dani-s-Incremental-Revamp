@@ -303,6 +303,8 @@ function updateKua(type, delta) {
             tmp.value.kuaMul = c.em4;
             tmp.value.kuaExp = c.d3;
 
+            tmp.value.kuaExp = tmp.value.kuaExp.add(getColResEffect(2));
+
             if (getKuaUpgrade("s", 1)) {
                 tmp.value.kuaMul = tmp.value.kuaMul.mul(c.d1_5);
             }

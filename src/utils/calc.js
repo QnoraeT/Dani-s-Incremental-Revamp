@@ -3,6 +3,7 @@
 const c = {
     d0:          Decimal.dZero,
     em4:         Decimal.fromComponents_noNormalize(1, 0, 0.0001),
+    d0_0025:     Decimal.fromComponents_noNormalize(1, 0, 0.0025),
     em2:         Decimal.fromComponents_noNormalize(1, 0, 0.01),
     d0_015:      Decimal.fromComponents_noNormalize(1, 0, 0.015),
     d0_02:       Decimal.fromComponents_noNormalize(1, 0, 0.02),
@@ -23,6 +24,7 @@ const c = {
     d0_3:        Decimal.fromComponents_noNormalize(1, 0, 0.3),
     d1div3:      Decimal.fromComponents_noNormalize(1, 0, 1/3), // 0.333333
     d0_35:       Decimal.fromComponents_noNormalize(1, 0, 0.35), 
+    d0_36:       Decimal.fromComponents_noNormalize(1, 0, 0.36), 
     d0_4:        Decimal.fromComponents_noNormalize(1, 0, 0.4),
     d5div12:     Decimal.fromComponents_noNormalize(1, 0, 5/12), // 0.416667
     d0_5:        Decimal.fromComponents_noNormalize(1, 0, 0.5),
@@ -406,6 +408,12 @@ function intRand(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+function expQuadCostGrowth(x, a, b, c, exp, inv) {
+    return inv
+        ? inverseQuad(Decimal.layeradd10(x, -exp).log10(), Decimal.log10(a), Decimal.log10(b), Decimal.log10(c))
+        : Decimal.pow(a, Decimal.pow(x, 2)).mul(Decimal.pow(b, x)).mul(c).layeradd10(exp);
+}
+
 /**
  * 
  * @param {Decimal} x the value before the quadratic polynomial
@@ -573,7 +581,7 @@ function linearAdd(num, base, growth, inverse) {
 
     if (base.eq(growth)) {
         return inverse
-            ? num.div(base).mul(8).add(1).sqrt().sub(1).div(2)
+            ? num.mul(8).add(base).sqrt().div(base.sqrt().mul(2)).sub(0.5)
             : num.add(1).mul(num).div(2).mul(base)
     }
 

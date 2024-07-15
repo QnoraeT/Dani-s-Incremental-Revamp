@@ -182,7 +182,7 @@
                                     Multiply PRai gain by {{format(KUA_UPGRADES.KShards[7].eff, 2)}}x.
                                 </li>
                                 <li v-if="player.kua.kshards.upgrades >= 9">
-                                    Delays Upgrade 2's cost growth (before scalings) by +{{format(KUA_UPGRADES.KShards[8].eff, 2)}} purchases.
+                                    Delays Upgrade 2's cost growth (after scaling costs) by +{{format(KUA_UPGRADES.KShards[8].eff, 2)}} purchases.
                                 </li>
                             </div>
                         </div>
@@ -279,33 +279,70 @@
                 </div>
             </div>
             <div style="background-color: #410; border: 0.2vw solid #ff4000; margin-left: auto; margin-right: auto; display: flex; justify-content: center; flex-direction: row; box-shadow: 0 0 0.8vw 0.24vw rgb(66, 17, 0); height: 40vw; width: 80vw" v-if="tab[tab.currTab][0] === 1">
-                <div style="display: flex; justify-content: center; flex-direction: row; flex-wrap: wrap; border: 0.24vw solid #ff4000; padding: 0.6vw; height: 38.8vw; width: 40vw">
+                <div style="display: flex; justify-content: center; flex-direction: row; flex-wrap: wrap; border: 0.24vw solid #ff4000; padding: 0.6vw; height: 38.8vw; width: 50%">
                     <div v-for="(item, index) in COL_RESEARCH" class="flex-container">
                         <!-- set padding to 0vw because it auto-inserts padding -->
                         <button v-if="item.unlocked" @click="selectResearch(index)" style="width: 10vw; height: 4vw; margin-left: 0.24vw; margin-right: 0.24vw; padding: 0vw" class="smallColBorder colButton fontVerdana">
-                            <div class="whiteText" style="display: flex; justify-content: center; background-color: #631900; position: relative; width: 100%; height: 50%; font-size: 1vw;">
+                            <div class="whiteText" style="display: flex; justify-content: center; background-color: #631900; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw;">
                                 <span class="centered-text" style="height: 100%;">{{item.name}}</span>
                             </div>
-                            <div class="whiteText" style="display: flex; justify-content: center; background-color: #7a1f00; position: relative; width: 100%; height: 50%; font-size: 1vw">
+                            <div class="whiteText" style="display: flex; justify-content: center; background-color: #7a1f00; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw">
                                 <span class="centered-text" style="height: 100%;">Level: {{format(item.scoreToLevel(player.col.research.xpTotal[index]).floor(), 0)}}</span>
+                            </div>
+                            <div style="height: 15%; width: 100%; position: relative;">
+                                <div style="position: absolute; top: 0; left: 0; background-color: #521400; height: 100%; width: 100%"></div>
+                                <div v-bind:style="{ backgroundColor: player.col.research.enabled[index] ? '#ffc000' : '#ff4000', width: `${getColResLevel(index).gte(c.e12) ? 100 : Decimal.div(Decimal.sub(player.col.research.xpTotal[index], item.levelToScore(getColResLevel(index).floor())), item.levelToScore(getColResLevel(index).floor().add(1)).sub(item.levelToScore(getColResLevel(index).floor()))).min(1).mul(100).toNumber()}%` }" style="position: absolute; top: 0; left: 0; height: 100%;"></div>
                             </div>
                         </button>
                     </div>
                 </div>
-                <div style="display: flex; justify-content: center; flex-direction: row; border: 0.24vw solid #ff4000; height: 40vw; width: 40vw">
+                <div style="display: flex; justify-content: center; flex-direction: row; border: 0.24vw solid #ff4000; height: 40vw; width: 50%">
                     <div style="width: 100%; height: 100%;">
                         <div class="whiteText" style="display: flex; justify-content: center; background-color: #461100; position: relative; width: 100%; height: 20%; font-size: 2.4vw;">
                             <span class="centered-text" style="height: 100%;">{{COL_RESEARCH[tab[tab.currTab][1]].name}}</span>
                         </div>
                         <div class="whiteText" style="display: flex; justify-content: center; background-color: #521400; position: relative; width: 100%; height: 15%; font-size: 1.6vw">
-                            <span class="centered-text" style="top: 4%">Level: {{format(COL_RESEARCH[tab[tab.currTab][1]].scoreToLevel(player.col.research.xpTotal[tab[tab.currTab][1]]).floor(), 0)}}</span>
+                            <span class="centered-text" style="top: 4%">Level: {{format(getColResLevel(tab[tab.currTab][1]).floor(), 0)}}</span>
                             <!-- i wish i made this better instead of having to do an extremely long formula T_T -->
-                            <span class="centered-text" style="top: 33.333%">XP: {{format(Decimal.sub(player.col.research.xpTotal[tab[tab.currTab][1]], COL_RESEARCH[tab[tab.currTab][1]].levelToScore(COL_RESEARCH[tab[tab.currTab][1]].scoreToLevel(player.col.research.xpTotal[tab[tab.currTab][1]]).floor())), 0)}} / {{format(COL_RESEARCH[tab[tab.currTab][1]].levelToScore(COL_RESEARCH[tab[tab.currTab][1]].scoreToLevel(player.col.research.xpTotal[tab[tab.currTab][1]]).floor().add(1)).sub(COL_RESEARCH[tab[tab.currTab][1]].levelToScore(COL_RESEARCH[tab[tab.currTab][1]].scoreToLevel(player.col.research.xpTotal[tab[tab.currTab][1]]).floor())), 0)}}</span>
+                            <span v-if="getColResLevel(tab[tab.currTab][1]).lt(c.e12)" class="centered-text" style="top: 33.333%">XP: {{format(Decimal.sub(player.col.research.xpTotal[tab[tab.currTab][1]], COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor())), 0)}} / {{format(COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor().add(1)).sub(COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor())), 0)}}</span>
+                            <span v-if="getColResLevel(tab[tab.currTab][1]).gte(c.e12)" class="centered-text" style="top: 33.333%">Total XP: {{format(player.col.research.xpTotal[tab[tab.currTab][1]], 0)}}</span>
                             <div style="top: 68.5%; height: 1vw; width: 35vw; position: relative;">
                                 <div style="position: absolute; top: 0; left: 0; border: 0.24vw solid #882200; background-color: #521400; height: 100%; width: 100%"></div>
-                                <div v-bind:style="{ width: `${Decimal.div(Decimal.sub(player.col.research.xpTotal[tab[tab.currTab][1]], COL_RESEARCH[tab[tab.currTab][1]].levelToScore(COL_RESEARCH[tab[tab.currTab][1]].scoreToLevel(player.col.research.xpTotal[tab[tab.currTab][1]]).floor())), COL_RESEARCH[tab[tab.currTab][1]].levelToScore(COL_RESEARCH[tab[tab.currTab][1]].scoreToLevel(player.col.research.xpTotal[tab[tab.currTab][1]]).floor().add(1)).sub(COL_RESEARCH[tab[tab.currTab][1]].levelToScore(COL_RESEARCH[tab[tab.currTab][1]].scoreToLevel(player.col.research.xpTotal[tab[tab.currTab][1]]).floor()))).min(1).mul(100).toNumber()}%` }" style="position: absolute; top: 0; left: 0; border: 0.24vw solid #882200; background-color: #ff4000; height: 100%;"></div>
+                                <div v-bind:style="{ backgroundColor: player.col.research.enabled[tab[tab.currTab][1]] ? '#ffc000' : '#ff4000', width: `${getColResLevel(tab[tab.currTab][1]).gte(c.e12) ? 100 : Decimal.div(Decimal.sub(player.col.research.xpTotal[tab[tab.currTab][1]], COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor())), COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor().add(1)).sub(COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor()))).min(1).mul(100).toNumber()}%` }" style="position: absolute; top: 0; left: 0; border: 0.24vw solid #882200; height: 100%;"></div>
                             </div>
                         </div>
+                        <div class="whiteText" style="display: flex; justify-content: center; background-color: #461100; position: relative; width: 100%; height: 44%; font-size: 1.2vw">
+                            <span class="centered-text" style="top: 0.5vw">{{COL_RESEARCH[tab[tab.currTab][1]].effectDesc(getColResLevel(tab[tab.currTab][1]).floor())}}</span>
+                            <span class="centered-text" style="top: 2vw">{{COL_RESEARCH[tab[tab.currTab][1]].effectDescLevel(getColResLevel(tab[tab.currTab][1]).floor())}}</span>
+                        </div>
+                        <div class="whiteText" style="display: flex; justify-content: center; background-color: #521400; position: relative; width: 100%; height: 6%; font-size: 1.44vw">
+                            <span class="centered-text" style="top: 10%">You currently have allocated {{tmp.colResearchesAllocated}} / {{tmp.colResearchesAtOnce}} researches.</span>
+                        </div>
+                        <div class="whiteText" style="display: flex; justify-content: center; background-color: #461100; position: relative; width: 100%; height: 15%;">
+                            <button @click="allocColResearch(tab[tab.currTab][1])" class="smallColBorder colButton fontVerdana whiteText" style="width: 50%; height: 80%; top: 10%; font-size: 1vw; position: relative">
+                                {{player.col.research.enabled[tab[tab.currTab][1]] ? 'Stop' : 'Start'}} researching {{COL_RESEARCH[tab[tab.currTab][1]].name}}.
+                                <br>{{tmp.colResearchesAtOnce - tmp.colResearchesAllocated <= 0 ? `You can't allocate anymore researches.` : `You can allocate ${tmp.colResearchesAtOnce - tmp.colResearchesAllocated} more ${tmp.colResearchesAtOnce - tmp.colResearchesAllocated === 1 ? 'research' : 'researches'}.`}}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="taxation" v-if="tab.currTab === 'tax'">
+            <div class="flex-container" style="flex-direction: column; justify-content: center; margin-bottom: 1vw;">
+                <span style="color: #fc0; text-align: center; font-size: 1.6vw;">You have <span style="font-size: 1.92vw;"><b>{{format(player.tax.amount, 3)}}</b></span> taxed coins, which boost your points gain by <b>{{format(tmp.taxPtsEff, 2)}}x.</b></span>
+                <button class="whiteText smallTaxBorder taxButton fontVerdana" style="height: 5vw; width: 25vw; font-size: 1.0667vw; margin-left: auto; margin-right: auto; margin-top: 1.5vw">
+                    Gain <span style="font-size: 1.2vw"><b>{{format(tmp.taxPending, 3)}}</b></span> taxed coins upon taxation.
+                    <br>You will do a Colosseum reset. 
+                </button>
+                <div style="margin-top: 1vw; background-color: #430; border: 0.48vw solid #ffd000; margin-left: auto; margin-right: auto; display: flex; justify-content: center; flex-direction: row; flex-wrap: wrap; padding: 0.6vw; box-shadow: 0 0 0.8vw 0.24vw rgb(66, 55, 0); height: 40vw; width: 80vw">
+                    <div v-for="(item, index) in TAX_UPGRADES" class="flex-container">
+                        <!-- set padding to 0vw because it auto-inserts padding -->
+                        <button v-if="item.unlocked" style="width: 12vw; height: 6vw; margin-left: 0.24vw; margin-right: 0.24vw; padding: 0vw" class="smallColBorder colButton fontVerdana">
+                            <div class="whiteText" style="display: flex; justify-content: center; background-color: #634900; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw;">
+                                <span class="centered-text" style="height: 100%;">{{item.name}}</span>
+                            </div>
+                        </button>
                     </div>
                 </div>
             </div>

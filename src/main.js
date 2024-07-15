@@ -237,7 +237,11 @@ function resetPlayer() {
         },
         tax: {
             unlocked: false,
-            taxed: c.d0
+            taxed: c.d0,
+            totalTax: c.d0,
+            bestTax: c.d0,
+            times: c.d0,
+            upgrades: []
         },
         settings: {
             notation: "Mixed Scientific",
@@ -261,6 +265,10 @@ function updatePlayerData(player) {
     if (player.value.version === 0) {
 
         // player.value.version = 1;
+    }
+    if (player.value.version === 1) {
+
+        // player.value.version = 2;
     }
 }
 
@@ -380,6 +388,19 @@ function reset(layer, override) {
                 reset("kua", true);
             }
             break;
+        case "tax":
+            if (tmp.value.kuaCanDo || override) {
+                if (!override) {
+                    player.value.kua.amount = Decimal.add(player.value.kua.amount, tmp.value.taxPending);
+                    player.value.kua.total = Decimal.add(player.value.kua.total, tmp.value.taxPending);
+                    player.value.kua.times = Decimal.add(player.value.kua.times, c.d1);
+                }
+
+                player.value.totalPointsInTax = c.d0
+                updateCol("col");
+                reset("col", true);
+            }
+            break;
         default:
             throw new Error(`uhh i don't think ${what} is resettable`)
     }
@@ -413,22 +434,8 @@ function calcPointsPerSecond() {
         i = i.mul(tmp.value.kuaEffects.pts);
     } 
 
-    tmp.value.softcap.points[0].red = `/${format(c.d1, 2)}`
-    if (Decimal.add(player.value.points, i).gte(tmp.value.softcap.points[0].start.pow10())) {
-        let oldpps = i
-        let oldPts = Decimal.max(player.value.points, 1)
-        let newPts = 
-            scale(
-                scale(
-                    Decimal.log10(oldPts), 0.2, true, tmp.value.softcap.points[0].start, tmp.value.softcap.points[0].strength, c.d0_8
-                )
-                .pow10().add(i).log10(), 0.2, false, tmp.value.softcap.points[0].start, tmp.value.softcap.points[0].strength, c.d0_8
-            )
-            .pow10()
-
-        i = newPts.sub(oldPts).max(tmp.value.softcap.points[0].start.pow10())
-        tmp.value.softcap.points[0].red = `/${format(Decimal.div(oldpps, i), 2)}`
-    }
+    i = i.mul(getColResEffect(0));
+    i = i.mul(tmp.value.taxPtsEff);
 
     return i;
 }
@@ -493,9 +500,30 @@ function loadGame() {
                 updateSoftcap("points")
                 player.value.pps = calcPointsPerSecond();
                 generate = Decimal.mul(player.value.pps, gameDelta);
+
+                // i hate that i have to do it here, skipping issues at ~e200,000 (1,000,000x timespeed)
+                tmp.value.softcap.points[0].red = `/${format(c.d1, 2)}`;
+                if (Decimal.add(player.value.points, generate).gte(tmp.value.softcap.points[0].start.pow10())) {
+                    let oldGen = generate;
+                    let oldPts = Decimal.max(player.value.points, tmp.value.softcap.points[0].start.pow10());
+                    let newPts = 
+                        scale(
+                            scale(
+                                oldPts.log10(), 0.2, true, tmp.value.softcap.points[0].start, tmp.value.softcap.points[0].strength, c.d0_8
+                            )
+                            .pow10().add(generate).log10(), 0.2, false, tmp.value.softcap.points[0].start, tmp.value.softcap.points[0].strength, c.d0_8
+                        )
+                        .pow10()
+
+                    generate = newPts.sub(oldPts).max(tmp.value.softcap.points[0].start.pow10());
+                    player.value.pps = generate.div(gameDelta);
+                    tmp.value.softcap.points[0].red = `/${format(Decimal.div(oldGen, generate), 2)}`
+                }
+                
                 player.value.points = Decimal.add(player.value.points, generate);
                 player.value.totalPointsInPRai = Decimal.add(player.value.totalPointsInPRai, generate);
                 player.value.totalPoints = Decimal.add(player.value.totalPoints, generate);
+                player.value.totalPointsInTax = Decimal.add(player.value.totalPointsInTax, generate);
                 player.value.bestPointsInCol = Decimal.max(player.value.bestPointsInCol, player.value.points);
 
                 setAchievement(17, Decimal.gte(player.value.points, c.e24) && Decimal.eq(player.value.generators.upgrades[0].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[1].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[2].bought, c.d0));

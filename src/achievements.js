@@ -223,7 +223,7 @@ const ACHIEVEMENT_DATA = {
         get name() { return `In a time crunch.`; },
         get desc() { return `Complete a challenge's requirement with less than ${formatTime(c.d10)} to spare.`; },
         get type() { return `col`; },
-        get reward() { return `PRai gain is multiplied by ${format(c.d10)}x.`; },
+        get reward() { return `PRai gain is multiplied by ${format(c.d5)}x.`; },
         get show() { return player.value.col.unlocked; },
         status: true
     },

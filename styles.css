@@ -121,6 +121,22 @@ body {
   border: 0.48vw solid #ff9775;
 }
 
+.smallTaxBorder {
+  border: 0.2vw solid #ffd900;
+}
+
+.smallTaxBorder:hover {
+  border: 0.2vw solid #fff2a7;
+}
+
+.normTaxBorder {
+  border: 0.48vw solid #ffd900;
+}
+
+.normTaxBorder:hover {
+  border: 0.48vw solid #fff2a7;
+}
+
 .normColBorderProg {
   border: 0.48vw solid #fffb00;
 }
@@ -245,6 +261,17 @@ body {
 .colButtonComp:hover {
   background-color: #187a00;
   box-shadow: 0 0 1.2vw 0.4vw #188f00;
+}
+
+.taxButton {
+  transition-duration: 0.2s;
+  background-color: #634c00;
+  box-shadow: 0 0 0.8vw 0.24vw rgb(66, 54, 0);
+}
+
+.taxButton:hover {
+  background-color: #7a6800;
+  box-shadow: 0 0 1.2vw 0.4vw #8f7a00;
 }
 
 .kuaButton:hover {

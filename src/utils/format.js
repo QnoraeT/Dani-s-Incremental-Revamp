@@ -51,7 +51,7 @@ function format(number, dec = 0, expdec = 3) {
     } else if (n.lt("10^^7")) {
         return `e${format(n.log10(), dec, expdec)}`;
     } else {
-        return `F${format(n.slog(10), dec, expdec)}`;
+        return `F${format(n.slog(), Math.max(dec, 3), expdec)}`;
     }
 }
 

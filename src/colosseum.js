@@ -19,7 +19,7 @@ const COL_CHALLENGES = {
         goal: c.e25,
         get goalDesc() { return `Reach ${format(this.goal)} Points.`},
         desc: `All Kuaraniai resources and upgrades are disabled.`,
-        reward: `Unlock another tab in this tab, and every KPower Upgrade past #10 unlocks a new challenge.`,
+        reward: `Unlock another tab in Colosseum.`,
         cap: c.d1,
         show: true,
         get canComplete() { return Decimal.gte(player.value.bestPointsInCol, this.goal); },
@@ -30,6 +30,22 @@ const COL_CHALLENGES = {
 
 function getColResLevel(id) {
     return COL_RESEARCH[id].scoreToLevel(player.value.col.research.xpTotal[id]);
+}
+
+function getColResEffect(id) {
+    return COL_RESEARCH[id].effect(getColResLevel(id).floor());
+}
+
+function allocColResearch(id) {
+    if (player.value.col.research.enabled[id]) {
+        tmp.value.colResearchesAllocated -= 1;
+        player.value.col.research.enabled[id] = false;
+    } else {
+        if (tmp.value.colResearchesAllocated < tmp.value.colResearchesAtOnce) {
+            tmp.value.colResearchesAllocated += 1;
+            player.value.col.research.enabled[id] = true;
+        }
+    }
 }
 
 const COL_RESEARCH = [
@@ -45,11 +61,11 @@ const COL_RESEARCH = [
         },
         scoreToLevel(score) {
             if (Decimal.lt(score, this.scoreReq)) { return c.d0; }
-            let level = linearAdd(Decimal.div(score, this.scoreReq), this.scoreReq, this.scoreReq, true);
+            let level = linearAdd(score, this.scoreReq, this.scoreReq, true);
             return level;
         },
         levelToScore(level) {
-            let score = linearAdd(level, this.scoreReq, this.scoreReq, false).mul(this.scoreReq);
+            let score = linearAdd(level, this.scoreReq, this.scoreReq, false);
             return score;
         }
     },
@@ -65,11 +81,11 @@ const COL_RESEARCH = [
         },
         scoreToLevel(score) {
             if (Decimal.lt(score, this.scoreReq)) { return c.d0; }
-            let level = linearAdd(Decimal.div(score, this.scoreReq), this.scoreReq, this.scoreReq, true);
+            let level = linearAdd(score, this.scoreReq, this.scoreReq, true);
             return level;
         },
         levelToScore(level) {
-            let score = linearAdd(level, this.scoreReq, this.scoreReq, false).mul(this.scoreReq);
+            let score = linearAdd(level, this.scoreReq, this.scoreReq, false);
             return score;
         }
     },
@@ -77,7 +93,7 @@ const COL_RESEARCH = [
         unlocked: true,
         name: "Kyston",
         effectDesc(level) { return `Increase Kuaraniai gain exponent by +${format(this.effect(level), 3)}.`; },
-        effectDescLevel(level) { return `Increase Kuaraniai gain exponent by +${format(this.effect(Decimal.add(level, 1)).div(this.effect(level)), 4)} for this level.`; },
+        effectDescLevel(level) { return `+${format(this.effect(Decimal.add(level, 1)).sub(this.effect(level)), 4)} Kuaraniai gain exponent for this level.`; },
         scoreReq: c.e2,
         effect(level) {
             let effect = sumHarmonicSeries(level).div(100);
@@ -85,11 +101,11 @@ const COL_RESEARCH = [
         },
         scoreToLevel(score) {
             if (Decimal.lt(score, this.scoreReq)) { return c.d0; }
-            let level = linearAdd(Decimal.div(score, this.scoreReq), this.scoreReq, this.scoreReq, true);
+            let level = linearAdd(score, this.scoreReq, this.scoreReq, true);
             return level;
         },
         levelToScore(level) {
-            let score = linearAdd(level, this.scoreReq, this.scoreReq, false).mul(this.scoreReq);
+            let score = linearAdd(level, this.scoreReq, this.scoreReq, false);
             return score;
         }
     },
@@ -111,7 +127,6 @@ function inChallenge(id) {
 }
 
 function challengeDepth(id) {
-    if (!inChallenge(id)) { return c.d0; }
     return player.value.inChallenge[id].depth;
 }
 
@@ -141,6 +156,7 @@ function updateCol(type, delta) {
     let scal, pow, sta, i, j, generate;
     switch (type) {
         case "research":
+            // no reason for this to be a Decimal, there should not be >1.797e308 researches
             tmp.value.colResearchesAtOnce = 1;
             tmp.value.colResearchesAllocated = 0;
             tmp.value.colResearchSpeed = c.d1;
@@ -205,6 +221,8 @@ function updateCol(type, delta) {
             } else {
                 player.value.col.time = player.value.col.maxTime;
             }
+
+            setAchievement(14, Decimal.gte(timesCompleted("nk"), c.d1));
             break;
         default:
             throw new Error(`Colosseum area of the game does not contain ${type}`);
@@ -278,7 +296,8 @@ function challengeToggle(id) {
             if (player.value.col.completed[id] === undefined) {
                 player.value.col.completed[id] = c.d0;
             }
-            player.value.col.completed[id] = player.value.col.completed[id].add(c.d1);
+            player.value.col.completed[id] = Decimal.add(player.value.col.completed[id], c.d1).min(COL_CHALLENGES[id].cap);
+            setAchievement(20, Decimal.lte(player.value.col.time, c.d10));
         }
 
         let layerExited = player.value.col.challengeOrder.layer[player.value.col.challengeOrder.chalID.indexOf(id)];
@@ -292,5 +311,5 @@ function challengeToggle(id) {
 }
 
 function selectResearch(id) {
-    switchTab(false, id, 1)
+    switchTab(false, id, 1);
 }
