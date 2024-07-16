@@ -221,7 +221,7 @@ const ACHIEVEMENT_DATA = {
     },
     20: { // ! Unable
         get name() { return `In a time crunch.`; },
-        get desc() { return `Complete a challenge's requirement with less than ${formatTime(c.d10)} to spare.`; },
+        get desc() { return `Fully complete a challenge with less than ${formatTime(c.d10)} to spare.`; },
         get type() { return `col`; },
         get reward() { return `PRai gain is multiplied by ${format(c.d5)}x.`; },
         get show() { return player.value.col.unlocked; },
@@ -330,6 +330,14 @@ const ACHIEVEMENT_DATA = {
         get type() { return `kb`; },
         reward: ``,
         get show() { return player.value.col.unlocked; },
+        status: true
+    },
+    32: { 
+        get name() { return `There wasn't any point in doing that.`; },
+        get desc() { return `Reach ${format(c.e100)} points in No Kuaraniai.`; },
+        get type() { return `col`; },
+        reward: ``,
+        get show() { return player.value.tax.unlocked; },
         status: true
     },
 }

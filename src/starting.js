@@ -34,12 +34,12 @@ const PR2_EFF = [
         get text() { return `slow down Upgrade 3 cost by ${formatPerc(c.d10div9, 3)}`}
     },
     {
-        show: true,
+        get show() { return Decimal.gt(player.value.kua.amount, c.d1); },
         when: c.d12,
         get text() { return `unlock the Upgrade 4 autobuyer.`}
     },
     {
-        show: true,
+        get show() { return Decimal.gt(player.value.kua.amount, c.d1); },
         when: c.d14,
         get text() { return `unlock the Upgrade 5 autobuyer.`}
     },
@@ -49,7 +49,7 @@ const PR2_EFF = [
         get text() { return `decrease Upgrade 2's superscaling strength by ${formatPerc(c.d8div7, 3)}`}
     },
     {
-        show: true,
+        get show() { return Decimal.gt(player.value.kua.amount, c.d1); },
         when: c.d18,
         get text() { return `unlock the Upgrade 6 autobuyer.`}
     },
@@ -379,6 +379,12 @@ const BASIC_UPGS = [
             pow = tmp.value.softcap.upg6[0].strength;
             i = scale(i, 0, false, sta, pow, c.d0_25);
             tmp.value.softcap.upg6[0].red = `/${format(j.div(i), 2)}`;
+
+            j = i;
+            sta = tmp.value.softcap.upg6[1].start;
+            pow = tmp.value.softcap.upg6[1].strength;
+            i = scale(i, 0.2, false, sta, pow, c.d0_1);
+            tmp.value.softcap.upg6[1].red = `/${format(j.div(i), 2)}`;
             return i
         },
         get calcEB() {
@@ -429,15 +435,11 @@ function updateStart(staID, delta) {
 
             if (staID === 0) {
                 if (getKuaUpgrade("s", 7)) {
-                    tmp.value.upgrades[staID].costBase.scale[0] = tmp.value.upgrades[staID].costBase.scale[0].sub(c.d0_05);
+                    tmp.value.upgrades[staID].costBase.scale[1] = tmp.value.upgrades[staID].costBase.scale[1].sub(c.d0_05);
                 }
             }
+
             scal = D(player.value.generators.upgrades[staID].bought);
-            if (staID === 2) {
-                if (getKuaUpgrade("s", 7)) {
-                    scal = scal.div(c.d10div9);
-                }
-            }
             scal = doAllScaling(scal, tmp.value.scaling[`upg${staID + 1}`], false);
             if (staID === 0) {
                 if (player.value.achievements.includes(17)) {
@@ -462,9 +464,12 @@ function updateStart(staID, delta) {
                 if (player.value.achievements.includes(17)) {
                     scal = scal.div(ACHIEVEMENT_DATA[17].eff);
                 }
+                if (Decimal.gte(player.value.generators.pr2.amount, c.d11)) {
+                    scal = scal.div(c.d10div9);
+                }
             }
-
-            tmp.value.upgrades[staID].cost = Decimal.pow(tmp.value.upgrades[staID].costBase.scale[2], scal.pow(c.d2)).mul(Decimal.pow(tmp.value.upgrades[staID].costBase.scale[1], scal)).mul(tmp.value.upgrades[staID].costBase.scale[0]).layeradd10(tmp.value.upgrades[staID].costBase.exp);
+            
+            tmp.value.upgrades[staID].cost = expQuadCostGrowth(scal, tmp.value.upgrades[staID].costBase.scale[2], tmp.value.upgrades[staID].costBase.scale[1], tmp.value.upgrades[staID].costBase.scale[0], tmp.value.upgrades[staID].costBase.exp, false);
 
             if (staID === 0) {
                 tmp.value.upgrades[staID].cost = tmp.value.upgrades[staID].cost.div(tmp.value.upgrades[1].effect ?? c.d1);
@@ -479,9 +484,12 @@ function updateStart(staID, delta) {
                     i = i.mul(tmp.value.upgrades[1].effect ?? c.d1);
                 }
 
-                scal = inverseQuad(i.layeradd10(-tmp.value.upgrades[staID].costBase.exp).log10(), tmp.value.upgrades[staID].costBase.scale[2].log10(), tmp.value.upgrades[staID].costBase.scale[1].log10(), tmp.value.upgrades[staID].costBase.scale[0].log10());
+                scal = expQuadCostGrowth(i, tmp.value.upgrades[staID].costBase.scale[2], tmp.value.upgrades[staID].costBase.scale[1], tmp.value.upgrades[staID].costBase.scale[0], tmp.value.upgrades[staID].costBase.exp, true);
 
                 if (staID === 2) {
+                    if (Decimal.gte(player.value.generators.pr2.amount, c.d11)) {
+                        scal = scal.mul(c.d10div9);
+                    }
                     if (player.value.achievements.includes(17)) {
                         scal = scal.mul(ACHIEVEMENT_DATA[17].eff);
                     }
@@ -506,11 +514,6 @@ function updateStart(staID, delta) {
                     }
                 }
                 scal = doAllScaling(scal, tmp.value.scaling[`upg${staID + 1}`], true);
-                if (staID === 2) {
-                    if (getKuaUpgrade("s", 7)) {
-                        scal = scal.mul(c.d10div9);
-                    }
-                }
                 tmp.value.upgrades[staID].target = scal;
             }
 

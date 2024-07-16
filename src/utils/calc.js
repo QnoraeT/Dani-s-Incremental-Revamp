@@ -4,6 +4,7 @@ const c = {
     d0:          Decimal.dZero,
     em4:         Decimal.fromComponents_noNormalize(1, 0, 0.0001),
     d0_0025:     Decimal.fromComponents_noNormalize(1, 0, 0.0025),
+    em3:         Decimal.fromComponents_noNormalize(1, 0, 0.001),
     em2:         Decimal.fromComponents_noNormalize(1, 0, 0.01),
     d0_015:      Decimal.fromComponents_noNormalize(1, 0, 0.015),
     d0_02:       Decimal.fromComponents_noNormalize(1, 0, 0.02),
@@ -25,6 +26,7 @@ const c = {
     d1div3:      Decimal.fromComponents_noNormalize(1, 0, 1/3), // 0.333333
     d0_35:       Decimal.fromComponents_noNormalize(1, 0, 0.35), 
     d0_36:       Decimal.fromComponents_noNormalize(1, 0, 0.36), 
+    d0_375:      Decimal.fromComponents_noNormalize(1, 0, 0.375), 
     d0_4:        Decimal.fromComponents_noNormalize(1, 0, 0.4),
     d5div12:     Decimal.fromComponents_noNormalize(1, 0, 5/12), // 0.416667
     d0_5:        Decimal.fromComponents_noNormalize(1, 0, 0.5),

@@ -126,7 +126,7 @@ const KUA_UPGRADES = {
         },
         { // 10
             get desc() {
-                return `Kuaraniai buffs KShard's PRai effect and increases KPower gain.`;
+                return `Kuaraniai buffs KShard's PRai effect boost and increases KPower gain.`;
             },
             get cost() {
                 return c.e13;
@@ -318,7 +318,7 @@ function updateKua(type, delta) {
             tmp.value.kuaPending = tmp.value.kuaCanDo ? tmp.value.effectivePrai.log(tmp.value.kuaReq).ln().mul(c.d1_5).div(tmp.value.kuaExp).add(c.d1).pow(tmp.value.kuaExp).sub(c.d1).pow10().mul(tmp.value.kuaMul) : c.d0;
 
             if (player.value.auto.kua) {
-                generate = tmp.value.kuaPending.mul(delta).mul(c.e2);
+                generate = tmp.value.kuaPending.mul(delta);
                 player.value.kua.amount = Decimal.add(player.value.kua.amount, generate);
                 player.value.kua.total = Decimal.add(player.value.kua.total, generate);
             }

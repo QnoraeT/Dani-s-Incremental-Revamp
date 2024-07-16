@@ -89,6 +89,58 @@ const NEXT_UNLOCKS = {
     },
 }
 
+const STAGES = [
+    {
+        name: "Main Tab",
+        get progress() { return Decimal.log(tmp.effectivePrai, 2.5e9).min(Decimal.log(player.points, 4.6e43)); },
+        get colors() { 
+            return {
+                name: ``,
+                progress: ``,
+                progressBarBase: ``,
+                progressBarFill: ``
+            } 
+        }
+    },
+    {
+        name: "Kuaraniai",
+        get progress() { return Decimal.log(player.kua.amount, 100) }
+    }
+]
+
+{/* <button @click="switchTab(false, 0, 1);" style="width: 100%; height: 5vw; margin-left: 0.24vw; margin-right: 0.24vw; margin-bottom: 0.6vw; padding: 0vw; border: 0.24vw solid #c4c4c4;" class="fontVerdana">
+<div class="whiteText" style="display: flex; justify-content: center; background-color: #505050; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw;">
+    <span class="centered-text" style="height: 100%;">Main Tab</span>
+</div>
+<div class="whiteText" style="display: flex; justify-content: center; background-color: #707070; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw">
+    <span class="centered-text" style="height: 100%;">{{format(Decimal.log(tmp.effectivePrai, 2.5e9).min(Decimal.log(player.points, 4.6e43)).min(1).mul(100), 2)}}% complete</span>
+</div>
+<div style="height: 15%; width: 100%; position: relative;">
+    <div style="position: absolute; top: 0; left: 0; background-color: #464646; height: 100%; width: 100%"></div>
+    <div v-bind:style="{ width: `${Decimal.log(tmp.effectivePrai, 2.5e9).min(Decimal.log(player.points, 4.6e43)).min(1).mul(100).toNumber()}%` }" style="background-color: #ccc; position: absolute; top: 0; left: 0; height: 100%;"></div>
+</div>
+</button>
+<button @click="switchTab(false, 1, 1);" style="width: 100%; height: 5vw; margin-left: 0.24vw; margin-right: 0.24vw; margin-bottom: 0.6vw; padding: 0vw; border: 0.24vw solid #ab00df;" class="fontVerdana">
+<div class="whiteText" style="display: flex; justify-content: center; background-color: #220058; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw;">
+    <span class="centered-text" style="height: 100%;">Kuaraniai</span>
+</div>
+<div class="whiteText" style="display: flex; justify-content: center; background-color: #3f0069; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw">
+    <span class="centered-text" style="height: 100%;">{{format(Decimal.log(player.kua.amount, 100).min(1).mul(100), 2)}}% complete</span>
+</div>
+<div style="height: 15%; width: 100%; position: relative;">
+    <div style="position: absolute; top: 0; left: 0; background-color: #360063; height: 100%; width: 100%"></div>
+    <div v-bind:style="{ width: `${Decimal.log(player.kua.amount, 100).min(1).mul(100).toNumber()}%` }" style="background-color: #9727ff; position: absolute; top: 0; left: 0; height: 100%;"></div>
+</div>
+</button>
+</div>
+<div v-if="tab[tab.currTab][1] === 0" style="display: flex; justify-content: center; flex-direction: column; align-items: center; justify-content: center; border: 0.24vw solid #f5f5f5; background-color: #333; height: 39.6vw; width: 50%">
+<span class="whiteText" style="font-size: 1vw">Total Points: {{format(player.totalPoints, 2)}}</span>
+</div>
+<div v-if="tab[tab.currTab][1] === 1" style="display: flex; justify-content: center; flex-direction: column; align-items: center; justify-content: center; border: 0.24vw solid #9d00f8; background-color: #2d0052; height: 39.6vw; width: 50%">
+<span class="whiteText" style="font-size: 1vw">Total Points: {{format(player.totalPoints, 2)}}</span>
+</div> */}
+
+
 const otherGameStuffIg = {
     FPS: 0,
     sessionTime: 0,
@@ -377,6 +429,9 @@ function reset(layer, override) {
                 player.value.auto.upgrades[0] = false;
                 player.value.auto.upgrades[1] = false;
                 player.value.auto.upgrades[2] = false;
+                player.value.auto.upgrades[3] = false;
+                player.value.auto.upgrades[4] = false;
+                player.value.auto.upgrades[5] = false;
                 player.value.auto.prai = false;
                 player.value.generators.upgrades[3].bought = c.d0;
                 player.value.generators.upgrades[4].bought = c.d0;
@@ -389,11 +444,11 @@ function reset(layer, override) {
             }
             break;
         case "tax":
-            if (tmp.value.kuaCanDo || override) {
+            if (tmp.value.taxCanDo || override) {
                 if (!override) {
-                    player.value.kua.amount = Decimal.add(player.value.kua.amount, tmp.value.taxPending);
-                    player.value.kua.total = Decimal.add(player.value.kua.total, tmp.value.taxPending);
-                    player.value.kua.times = Decimal.add(player.value.kua.times, c.d1);
+                    player.value.tax.taxed = Decimal.add(player.value.tax.taxed, tmp.value.taxPending);
+                    player.value.tax.totalTax = Decimal.add(player.value.tax.totalTax, tmp.value.taxPending);
+                    player.value.tax.times = Decimal.add(player.value.tax.times, c.d1);
                 }
 
                 player.value.totalPointsInTax = c.d0
@@ -509,9 +564,9 @@ function loadGame() {
                     let newPts = 
                         scale(
                             scale(
-                                oldPts.log10(), 0.2, true, tmp.value.softcap.points[0].start, tmp.value.softcap.points[0].strength, c.d0_8
+                                oldPts.log10(), 0.2, true, tmp.value.softcap.points[0].start, tmp.value.softcap.points[0].strength, c.d0_75
                             )
-                            .pow10().add(generate).log10(), 0.2, false, tmp.value.softcap.points[0].start, tmp.value.softcap.points[0].strength, c.d0_8
+                            .pow10().add(generate).log10(), 0.2, false, tmp.value.softcap.points[0].start, tmp.value.softcap.points[0].strength, c.d0_75
                         )
                         .pow10()
 

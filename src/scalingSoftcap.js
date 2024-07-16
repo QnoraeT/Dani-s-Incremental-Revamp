@@ -163,6 +163,7 @@ function updateSoftcap(type) {
         case "upg6":
             if (tmp.value.softcap.upg6 === undefined) { tmp.value.softcap.upg6 = [] };
             tmp.value.softcap.upg6[0] = { red: "", res: Decimal.mul(tmp.value.upgrades[5].effect ?? c.d0, c.d2), start: c.d2, strength: c.d1 };
+            tmp.value.softcap.upg6[1] = { red: "", res: Decimal.mul(tmp.value.upgrades[5].effect ?? c.d0, c.d2), start: c.d10, strength: c.d1 };
             break;
         default:
             throw new Error(`updateSoftcap ${type} does not exist`);

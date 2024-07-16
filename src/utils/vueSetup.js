@@ -34,10 +34,10 @@ function loadVue() {
                 completedChallenge,
                 inChallenge,
                 timesCompleted,
-                selectResearch,
                 getColResLevel,
                 allocColResearch,
-                TAX_UPGRADES
+                TAX_UPGRADES,
+                getTaxUpgrade
             }
     }}).mount('#app')
 }

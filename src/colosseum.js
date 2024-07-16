@@ -138,13 +138,18 @@ function exitChallenge(id) {
     }
     player.value.col.challengeOrder.layer.pop();
     player.value.inChallenge[id].entered = false;
-    player.value.generators.pr2 = player.value.col.saved[id].pr2;
-    player.value.generators.prai = player.value.col.saved[id].prai;
-    player.value.kua = player.value.col.saved[id].kua;
-    player.value.auto.upg1 = player.value.col.saved[id].auto.upg1;
-    player.value.auto.upg2 = player.value.col.saved[id].auto.upg2;
-    player.value.auto.upg3 = player.value.col.saved[id].auto.upg3;
-    player.value.auto.prai = player.value.col.saved[id].auto.prai;
+
+    let savedColData = player.value.col.saved[id]
+    player.value.bestPointsInCol = savedColData.main.bestPointsInCol
+    player.value.kua = savedColData.kua;
+    player.value.generators.pr2 = savedColData.pr2;
+    player.value.generators.prai = savedColData.prai;
+    player.value.auto.prai = savedColData.auto.prai;
+    for (let i = 0; i < 6; i++) {
+        player.value.auto.upgrades[i] = savedColData.auto.upgrades[i];
+        player.value.generators.upgrades[i].bought = savedColData.main.upgrades[i].bought;
+        player.value.generators.upgrades[i].best = savedColData.main.upgrades[i].best;
+    }
 }
 
 function updateAllCol(delta) {
@@ -242,7 +247,37 @@ function challengeToggle(id) {
         }
 
         let obj = {
+            main: {
+                bestPointsInCol: player.value.bestPointsInCol,
+                upgrades: [
+                    { 
+                        best: player.value.generators.upgrades[0].best,
+                        bought: player.value.generators.upgrades[0].bought
+                    },
+                    { 
+                        best: player.value.generators.upgrades[1].best,
+                        bought: player.value.generators.upgrades[1].bought
+                    },
+                    { 
+                        best: player.value.generators.upgrades[2].best,
+                        bought: player.value.generators.upgrades[2].bought
+                    },
+                    { 
+                        best: player.value.generators.upgrades[3].best,
+                        bought: player.value.generators.upgrades[3].bought
+                    },
+                    { 
+                        best: player.value.generators.upgrades[4].best,
+                        bought: player.value.generators.upgrades[4].bought
+                    },
+                    { 
+                        best: player.value.generators.upgrades[5].best,
+                        bought: player.value.generators.upgrades[5].bought
+                    },
+                ]
+            },
             kua: {
+                unlocked: player.value.kua.unlocked,
                 amount: player.value.kua.amount,
                 best: player.value.kua.best,
                 timeInKua: player.value.kua.timeInKua,
@@ -282,11 +317,10 @@ function challengeToggle(id) {
             },
             auto: {
                 prai: player.value.auto.prai,
-                upg3: player.value.auto.upg3,
-                upg2: player.value.auto.upg2,
-                upg1: player.value.auto.upg1
+                upgrades: [player.value.auto.upgrades[0], player.value.auto.upgrades[1], player.value.auto.upgrades[2], player.value.auto.upgrades[3], player.value.auto.upgrades[4], player.value.auto.upgrades[5], player.value.auto.upgrades[6]]
             }
         }
+
         player.value.col.saved[id] = obj;
         player.value.col.challengeOrder.chalID.push(COL_CHALLENGES[id].id);
         player.value.col.challengeOrder.layer.push(COL_CHALLENGES[id].layer);
@@ -308,8 +342,4 @@ function challengeToggle(id) {
             exitChallenge(player.value.col.challengeOrder.chalID[i]);
         }
     }
-}
-
-function selectResearch(id) {
-    switchTab(false, id, 1);
 }
