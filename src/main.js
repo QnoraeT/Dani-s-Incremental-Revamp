@@ -70,81 +70,179 @@ const NEXT_UNLOCKS = {
     pr2: {
         get shown() { return Decimal.gte(player.value.generators.prai.best, c.d3) },
         get done() { return Decimal.gte(player.value.generators.prai.best, c.d10) },
-        color: `#ffffff`
+        color: "#ffffff"
     },
     kua: {
         get shown() { return Decimal.gte(player.value.generators.pr2.best, c.d3) },
         get done() { return Decimal.gte(player.value.generators.pr2.best, c.d10) },
-        color: `#7958ff`
+        color: "#7958ff"
     },
     col: {
         get shown() { return player.value.kua.kpower.upgrades >= 2 },
         get done() { return Decimal.gte(player.value.kua.amount, c.e2) },
-        color: `#ff3600`
+        color: "#ff3600"
     },
     tax: {
         get shown() { return Decimal.gte(player.value.points, c.e250) },
         get done() { return Decimal.gte(player.value.kua.amount, c.inf) },
-        color: `#f0d000`
+        color: "#f0d000"
     },
 }
 
 const STAGES = [
     {
         name: "Main Tab",
-        get progress() { return Decimal.log(tmp.effectivePrai, 2.5e9).min(Decimal.log(player.points, 4.6e43)); },
+        get progress() { return Decimal.log(tmp.value.effectivePrai, 1e10).min(Decimal.max(player.value.points, 1).log(4.6e43)); },
         get colors() { 
             return {
-                name: ``,
-                progress: ``,
-                progressBarBase: ``,
-                progressBarFill: ``
+                border: "#c4c4c4",
+                name: "#505050",
+                progress: "#707070",
+                progressBarBase: "#464646",
+                progressBarFill: "#cccccc"
             } 
+        },
+        get list() {
+            let arr = [];
+            arr.push(`Total Points: ${format(player.value.totalPoints, 2)}\n`);
+            arr.push("<--- Upgrades --- >");
+            for (let i = 0; i < BASIC_UPGS.length; i++) {
+                if (BASIC_UPGS[i].shown) {
+                    arr.push(`Best Upgrade ${i + 1}: ${format(player.value.generators.upgrades[i].best)}\n`);
+                }
+            }
+            arr.push("<--- PRai --- >");
+            arr.push(`Total Points in PRai: ${format(player.value.totalPointsInPRai, 2)}\n`);
+            arr.push(`Total PRai: ${format(player.value.generators.prai.total, 2)}\n`);
+            if (Decimal.gte(player.value.generators.prai.best, 3)) {
+                arr.push(`Total PRai in PR2: ${format(player.value.generators.prai.totalInPR2, 2)}\n`);
+                arr.push(`Best PRai in PR2: ${format(player.value.generators.prai.bestInPR2, 2)}\n`);
+            }
+            if (Decimal.gte(player.value.generators.pr2.best, 10)) {
+                arr.push(`Effective PRai in Kuaraniai: ${format(player.value.generators.prai.totalInKua, 2)}\n`);
+            }
+            arr.push(`PRai resets: ${format(player.value.generators.prai.times)}\n`);
+            arr.push(`Time in PRai reset: ${formatTime(player.value.generators.prai.timeInPRai, 2)}\n`);
+            if (Decimal.gte(player.value.generators.prai.best, 3)) {
+                arr.push("<--- PR2 --- >")
+                arr.push(`PR2 resets: ${format(player.value.generators.pr2.amount)}\n`);
+                arr.push(`Best PR2: ${format(player.value.generators.pr2.best)}\n`);
+            }
+            return arr;
         }
     },
     {
         name: "Kuaraniai",
-        get progress() { return Decimal.log(player.kua.amount, 100) }
-    }
+        get progress() { return Decimal.div(player.value.kua.amount, 100) },
+        get colors() { 
+            return {
+                border: "#ab00df",
+                name: "#220058",
+                progress: "#3f0069",
+                progressBarBase: "#360063",
+                progressBarFill: "#9727ff"
+            } 
+        },
+        get list() {
+            let arr = [];
+            arr.push(`Effective PRai in Kuaraniai: ${format(player.value.generators.prai.totalInKua, 2)}\n`);
+            arr.push(`Total Kuaraniai: ${format(player.value.kua.total, 4)}`);
+            arr.push(`Best Kuaraniai: ${format(player.value.kua.best, 4)}`);
+            arr.push(`Kuaraniai resets: ${format(player.value.kua.times)}`);
+            arr.push(`Time in Kua reset: ${formatTime(player.value.kua.timeInKua, 2)}`);
+            arr.push("<--- Kuaraniai Shards --- >");
+            arr.push(`Total KShards: ${format(player.value.kua.kshards.total, 3)}`);
+            arr.push(`Best KShards: ${format(player.value.kua.kshards.best, 3)}`);
+            arr.push(`KShard Upgrades: ${player.value.kua.kshards.upgrades}`);
+            arr.push("<--- Kuaraniai Power --- >");
+            arr.push(`Total KPower: ${format(player.value.kua.kpower.total, 3)}`);
+            arr.push(`Best KPower: ${format(player.value.kua.kpower.best, 3)}`);
+            arr.push(`KShard Upgrades: ${player.value.kua.kpower.upgrades}`);
+            return arr;
+        }
+    },
+    {
+        name: "Colosseum",
+        get progress() { return timesCompleted("nk") ? c.d1 : (inChallenge("nk") ? COL_CHALLENGES.nk.progress : c.d0) },
+        get colors() { 
+            return {
+                border: "#ff4000",
+                name: "#661f00",
+                progress: "#882300",
+                progressBarBase: "#742500",
+                progressBarFill: "#ff5822"
+            } 
+        },
+        get list() {
+            let arr = [];
+            arr.push(`Total Colosseum Power: ${format(player.value.col.totalPower, 4)}`);
+            arr.push(`Best Colosseum Power: ${format(player.value.col.bestPower, 4)}`);
+            arr.push(`Total Challenge Completions: ${format(Decimal.add(timesCompleted("nk"), 0))}`);
+            return arr;
+        }
+    },
+    {
+        name: "Taxation",
+        get progress() { return Decimal.add(tmp.value.taxPending, player.value.tax.taxed).div(20) },
+        get colors() { 
+            return {
+                border: "#c7b500",
+                name: "#5a4700",
+                progress: "#705f00",
+                progressBarBase: "#453c00",
+                progressBarFill: "#ffd600"
+            } 
+        },
+        get list() {
+            let arr = [];
+            arr.push(`Total Taxed Coins: ${format(player.value.tax.totalTax, 3)}`);
+            arr.push(`Best Taxed Coins: ${format(player.value.tax.bestTax, 3)}`);
+            arr.push(`Taxation Resets: ${format(player.value.tax.times)}`);
+            return arr;
+        }
+    },
 ]
-
-{/* <button @click="switchTab(false, 0, 1);" style="width: 100%; height: 5vw; margin-left: 0.24vw; margin-right: 0.24vw; margin-bottom: 0.6vw; padding: 0vw; border: 0.24vw solid #c4c4c4;" class="fontVerdana">
-<div class="whiteText" style="display: flex; justify-content: center; background-color: #505050; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw;">
-    <span class="centered-text" style="height: 100%;">Main Tab</span>
-</div>
-<div class="whiteText" style="display: flex; justify-content: center; background-color: #707070; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw">
-    <span class="centered-text" style="height: 100%;">{{format(Decimal.log(tmp.effectivePrai, 2.5e9).min(Decimal.log(player.points, 4.6e43)).min(1).mul(100), 2)}}% complete</span>
-</div>
-<div style="height: 15%; width: 100%; position: relative;">
-    <div style="position: absolute; top: 0; left: 0; background-color: #464646; height: 100%; width: 100%"></div>
-    <div v-bind:style="{ width: `${Decimal.log(tmp.effectivePrai, 2.5e9).min(Decimal.log(player.points, 4.6e43)).min(1).mul(100).toNumber()}%` }" style="background-color: #ccc; position: absolute; top: 0; left: 0; height: 100%;"></div>
-</div>
-</button>
-<button @click="switchTab(false, 1, 1);" style="width: 100%; height: 5vw; margin-left: 0.24vw; margin-right: 0.24vw; margin-bottom: 0.6vw; padding: 0vw; border: 0.24vw solid #ab00df;" class="fontVerdana">
-<div class="whiteText" style="display: flex; justify-content: center; background-color: #220058; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw;">
-    <span class="centered-text" style="height: 100%;">Kuaraniai</span>
-</div>
-<div class="whiteText" style="display: flex; justify-content: center; background-color: #3f0069; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw">
-    <span class="centered-text" style="height: 100%;">{{format(Decimal.log(player.kua.amount, 100).min(1).mul(100), 2)}}% complete</span>
-</div>
-<div style="height: 15%; width: 100%; position: relative;">
-    <div style="position: absolute; top: 0; left: 0; background-color: #360063; height: 100%; width: 100%"></div>
-    <div v-bind:style="{ width: `${Decimal.log(player.kua.amount, 100).min(1).mul(100).toNumber()}%` }" style="background-color: #9727ff; position: absolute; top: 0; left: 0; height: 100%;"></div>
-</div>
-</button>
-</div>
-<div v-if="tab[tab.currTab][1] === 0" style="display: flex; justify-content: center; flex-direction: column; align-items: center; justify-content: center; border: 0.24vw solid #f5f5f5; background-color: #333; height: 39.6vw; width: 50%">
-<span class="whiteText" style="font-size: 1vw">Total Points: {{format(player.totalPoints, 2)}}</span>
-</div>
-<div v-if="tab[tab.currTab][1] === 1" style="display: flex; justify-content: center; flex-direction: column; align-items: center; justify-content: center; border: 0.24vw solid #9d00f8; background-color: #2d0052; height: 39.6vw; width: 50%">
-<span class="whiteText" style="font-size: 1vw">Total Points: {{format(player.totalPoints, 2)}}</span>
-</div> */}
-
 
 const otherGameStuffIg = {
     FPS: 0,
     sessionTime: 0,
     delta: 0
+}
+
+function setAutosaveInterval() {
+    let i = window.prompt('Set your new auto-saving interval in seconds. Set it to Infinity if you want to disable auto-saving.'); 
+
+    if (i === '') {
+        alert('Your set autosave interval is empty...')
+        return;
+    }
+
+    if (isNaN(i)) { 
+        alert('Your set autosave interval is not a number...');
+        return;
+    } 
+
+    if (i < 1) { 
+        alert('Your set autosave interval is way too fast or negative...'); 
+        return;
+    }
+
+    if (i >= 1e10) {
+        i = 1e10;
+    }
+
+    player.value.settings.autoSaveInterval = i * 1000; 
+}
+
+function exportSave() {
+	let str = btoa(JSON.stringify(game));
+	const el = document.createElement("textarea");
+	el.value = str;
+	document.body.appendChild(el);
+	el.select();
+    el.setSelectionRange(0, 99999);
+	document.execCommand("copy");
+	document.body.removeChild(el);
 }
 
 let game = Vue.ref({});
@@ -160,17 +258,17 @@ const tab = {
     col: [0, 0],
     tax: [0],
 }
+
 let fpsList = [];
 let lastFPSCheck = 0;
 let lastSave = 0;
-let saveTime = 30000;
 let currentSave = 0;
 
 function switchTab(isTab, whatTab, index) {
     if (isTab) {
-        tab.currTab = whatTab
+        tab.currTab = whatTab;
     } else {
-        tab[tab.currTab][index] = whatTab
+        tab[tab.currTab][index] = whatTab;
     }
 }
 
@@ -305,6 +403,7 @@ function resetPlayer() {
             // available: "Parallax" "Dots" "ChapterBased" "TabBased" "CharacterBased"
             musicVolume: 0.00, // likely will not be used
             sfxVolume: 0.00, // likely will not be used
+            autoSaveInterval: 30000
         }
     }
 }
@@ -332,7 +431,7 @@ function resetTheFrickingGame() {
 function saveTheFrickingGame() {
     try {
         game.value[currentSave].player = player.value;
-        localStorage.setItem(saveID, JSON.stringify(game));
+        localStorage.setItem(saveID, btoa(JSON.stringify(game)));
         return "Game was saved!";
     } catch (e) {
         console.warn("Something went wrong while trying to save the game!!");
@@ -505,12 +604,12 @@ function loadGame() {
     game.value = {
         0: {
             name: "Save #1",
-            mode: "normal",
+            mode: [0],
             player: player
         }
     };
 
-    let loadgame = JSON.parse(localStorage.getItem(saveID)); 
+    let loadgame = JSON.parse(atob(localStorage.getItem(saveID))); 
     if (loadgame !== null) {
         game.value = loadgame._value; 
         player.value = game.value[currentSave].player;
@@ -584,7 +683,7 @@ function loadGame() {
                 setAchievement(17, Decimal.gte(player.value.points, c.e24) && Decimal.eq(player.value.generators.upgrades[0].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[1].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[2].bought, c.d0));
                 setAchievement(22, Decimal.gte(player.value.points, c.e80) && Decimal.eq(player.value.generators.upgrades[0].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[1].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[2].bought, c.d0));
                 setAchievement(24, Decimal.gte(player.value.points, c.e33) && Decimal.eq(player.value.generators.upgrades[0].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[1].bought, c.d0));
-                setAchievement(25, Decimal.gte(player.value.points, c.e260) && Decimal.lt(player.value.kua.timeInKua, 5));
+                setAchievement(25, Decimal.gte(player.value.points, c.e260) && Decimal.lt(player.value.kua.timeInKua, c.d5));
 
                 if (Decimal.gte(player.value.generators.pr2.best, c.d10)) {
                     player.value.kua.unlocked = true;
@@ -598,7 +697,7 @@ function loadGame() {
                     player.value.tax.unlocked = true;
                 }
 
-                if (timeStamp > lastSave + saveTime) {
+                if (timeStamp > lastSave + player.value.settings.autoSaveInterval) {
                     console.log(saveTheFrickingGame());
                     lastSave = timeStamp;
                 }

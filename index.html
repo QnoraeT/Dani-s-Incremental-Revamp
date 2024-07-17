@@ -14,23 +14,18 @@
     <script src="src/main.js"></script>
     <script src="src/nerfs.js"></script>
     <script src="src/scalingSoftcap.js"></script>
+
     <script src="src/taxation.js"></script>
     <script src="src/colosseum.js"></script>
     <script src="src/kuaraniai.js"></script>
     <script src="src/starting.js"></script>
+
     <script src="src/utils/vueSetup.js"></script>
 </head>
 <body onload="loadGame()">
     <!-- I HATE HTML IT SUCKS -->
-    <canvas id="canvas" style="  
-    height: 100vh;
-    width: 100vw;
-    position: absolute;
-    top: 0vw;
-    left: 0vw;
-    z-index: -2;">
-
-    </canvas>
+    <!-- i love how bad i am at this :3 -->
+    <canvas id="canvas" style="height: 100vh; width: 100vw; position: absolute; top: 0vw; left: 0vw; z-index: -2;"></canvas>
 	<div id="app" class="fontVerdana">
         <div class="flex-container" style="background-color: #ffffff20;">
             <div style="flex-grow: 1; flex-basis: 0; text-align: left; text-shadow: #ffffff 0vw 0vw 0.4vw;" class="bigText whiteText grayShadow"> {{format(player.points, 3)}}</div>
@@ -351,48 +346,57 @@
             </div>
         </div>
         <div id="options" v-if="tab.currTab === 'opt'">
-
+            <div class="flex-container" style="flex-direction: row; justify-content: center;">
+                <button @click="console.log(saveTheFrickingGame())" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw">
+                    Save manually.
+                </button>
+                <button @click="setAutosaveInterval();" v-bind:class="{ nope: player.settings.autoSaveInterval >= 1e10, ok: player.settings.autoSaveInterval < 1e10 }" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; height: 8vw; width: 16vw">
+                    Autosave Interval: {{formatTime(player.settings.autoSaveInterval >= 1e10 ? Infinity : (player.settings.autoSaveInterval / 1000), 3)}}
+                </button>
+                <button @click="exportSave()" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw">
+                    Export save to clipboard.
+                </button>
+            </div>
         </div>
         <div id="stats" v-if="tab.currTab === 'stat'">
             <div class="flex-container" style="flex-direction: column; justify-content: center;">
-                <!-- <div class="flex-container" style="padding: 0.5vw; border: 0.4vw solid #a3a3a3; flex-direction: column; justify-content: center; align-items: center; ">
-                    <span class="whiteText" style="font-size: 1.5vw"><b>Main Tab ({{format(Decimal.log(tmp.effectivePrai, 2.5e9).min(Decimal.log(player.points, 4.6e43)).min(1).mul(100), 2)}}% complete, {{format(Decimal.log10(player.points).log(400).min(1).mul(100), 2)}}% to endgame.)</b></span>
-                    <span class="whiteText" style="font-size: 1.1vw">Total Points: {{format(player.totalPoints, 2)}}</span>
-                </div> -->
-                <!-- <div style="background-color: rgb(31, 31, 31); border: 0.4vw solid #e0e0e0; margin-left: auto; margin-right: auto; display: flex; justify-content: center; flex-direction: row; box-shadow: 0 0 0.8vw 0.24vw rgb(29, 29, 29); height: 40vw; width: 80vw; margin-bottom: 1vw;">
-                    <div style="display: flex; justify-content: flex-start; flex-flow: wrap; padding: 0.6vw; height: 38.8vw; width: 50%; flex-direction: column; align-items: center; flex-wrap: nowrap;">
-                        <button @click="switchTab(false, 0, 1);" style="width: 100%; height: 5vw; margin-left: 0.24vw; margin-right: 0.24vw; margin-bottom: 0.6vw; padding: 0vw; border: 0.24vw solid #c4c4c4;" class="fontVerdana">
-                            <div class="whiteText" style="display: flex; justify-content: center; background-color: #505050; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw;">
-                                <span class="centered-text" style="height: 100%;">Main Tab</span>
-                            </div>
-                            <div class="whiteText" style="display: flex; justify-content: center; background-color: #707070; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw">
-                                <span class="centered-text" style="height: 100%;">{{format(Decimal.log(tmp.effectivePrai, 2.5e9).min(Decimal.log(player.points, 4.6e43)).min(1).mul(100), 2)}}% complete</span>
-                            </div>
-                            <div style="height: 15%; width: 100%; position: relative;">
-                                <div style="position: absolute; top: 0; left: 0; background-color: #464646; height: 100%; width: 100%"></div>
-                                <div v-bind:style="{ width: `${Decimal.log(tmp.effectivePrai, 2.5e9).min(Decimal.log(player.points, 4.6e43)).min(1).mul(100).toNumber()}%` }" style="background-color: #ccc; position: absolute; top: 0; left: 0; height: 100%;"></div>
-                            </div>
-                        </button>
-                        <button @click="switchTab(false, 1, 1);" style="width: 100%; height: 5vw; margin-left: 0.24vw; margin-right: 0.24vw; margin-bottom: 0.6vw; padding: 0vw; border: 0.24vw solid #ab00df;" class="fontVerdana">
-                            <div class="whiteText" style="display: flex; justify-content: center; background-color: #220058; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw;">
-                                <span class="centered-text" style="height: 100%;">Kuaraniai</span>
-                            </div>
-                            <div class="whiteText" style="display: flex; justify-content: center; background-color: #3f0069; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw">
-                                <span class="centered-text" style="height: 100%;">{{format(Decimal.log(player.kua.amount, 100).min(1).mul(100), 2)}}% complete</span>
-                            </div>
-                            <div style="height: 15%; width: 100%; position: relative;">
-                                <div style="position: absolute; top: 0; left: 0; background-color: #360063; height: 100%; width: 100%"></div>
-                                <div v-bind:style="{ width: `${Decimal.log(player.kua.amount, 100).min(1).mul(100).toNumber()}%` }" style="background-color: #9727ff; position: absolute; top: 0; left: 0; height: 100%;"></div>
-                            </div>
-                        </button>
+                <div style="background-color: rgb(31, 31, 31); border: 0.4vw solid #e0e0e0; margin-left: auto; margin-right: auto; display: flex; justify-content: flex-start; flex-direction: column; box-shadow: 0 0 0.8vw 0.24vw rgb(29, 29, 29); height: 40vw; width: 80vw; margin-bottom: 1vw;">
+                    <div style="display: flex; justify-content: flex-start; flex-flow: wrap; flex-direction: column; align-items: center; flex-wrap: nowrap; width: 100%; height: 2.5vw">
+                        <span class="whiteText">{{format(Decimal.max(player.points, 10).log10().div(400).min(1).mul(100), 2)}}% to ENDGAME</span>
+                        <div style="width: 100%; position: relative; height: 100%;">
+                            <div style="background-color: #404040; position: absolute; top: 0; left: 0; height: 100%; width: 100%"></div>
+                            <div v-bind:style="{ width: `${Decimal.max(player.points, 10).log10().div(400).min(1).mul(100).toNumber()}%` }" style="background-color: #ffffff; position: absolute; top: 0; left: 0; height: 100%;"></div>
+                        </div>
                     </div>
-                    <div v-if="tab[tab.currTab][1] === 0" style="display: flex; justify-content: center; flex-direction: column; align-items: center; justify-content: center; border: 0.24vw solid #f5f5f5; background-color: #333; height: 39.6vw; width: 50%">
-                        <span class="whiteText" style="font-size: 1vw">Total Points: {{format(player.totalPoints, 2)}}</span>
+                    <div style="display: flex; justify-content: flex-start; flex-direction: row;">
+                        <div class="flex-container" style="justify-content: flex-start; flex-flow: wrap; flex-direction: column; align-items: center; flex-wrap: nowrap; width: 50%">
+                            <div v-for="(item, index) in STAGES" class="flex-container" style="padding: 0.6vw; padding-bottom: 0vw ; width: 100%">
+                                <button @click="switchTab(false, index, 1);" v-bind:style="{ border: `0.24vw solid ${item.colors.border}` }" style="width: 100%; height: 5vw; margin-left: 0.5vw; margin-right: 0.5vw; padding: 0vw;" class="fontVerdana">
+                                    <div v-bind:style="{ backgroundColor: item.colors.name }" class="whiteText" style="display: flex; justify-content: center; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw;">
+                                        <span class="centered-text" style="height: 100%;">{{item.name}}</span>
+                                    </div>
+                                    <div v-bind:style="{ backgroundColor: item.colors.progress }" class="whiteText" style="display: flex; justify-content: center; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw">
+                                        <span class="centered-text" style="height: 100%;">{{format(item.progress.min(1).mul(100), 2)}}% complete</span>
+                                    </div>
+                                    <div style="height: 15%; width: 100%; position: relative;">
+                                        <div v-bind:style="{ backgroundColor: item.colors.progressBarBase }" style="position: absolute; top: 0; left: 0; height: 100%; width: 100%"></div>
+                                        <div v-bind:style="{ backgroundColor: item.colors.progressBarFill, width: `${item.progress.min(1).mul(100).toNumber()}%` }" style="position: absolute; top: 0; left: 0; height: 100%;"></div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex-container" style="justify-content: flex-start; flex-flow: wrap; flex-direction: column; align-items: center; flex-wrap: nowrap; width: 50%; padding-top: 0.6vw">
+                            <div v-for="(item, index) in STAGES" class="flex-container" style="width: 100%">
+                                <div v-if="tab[tab.currTab][1] === index" v-bind:style="{ border: `0.24vw solid ${item.colors.border}`, backgroundColor: item.colors.name }" style="display: flex; justify-content: center; flex-direction: column; align-items: center; justify-content: center; height: 36.1vw; width: 39.2vw">
+                                    <div v-for="(item2, index2) in item.list" class="flex-container" style="flex-direction: column; align-items: center; flex-wrap: nowrap;">
+                                        <span class="whiteText" style="font-size: 1vw">{{item2}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div v-if="tab[tab.currTab][1] === 1" style="display: flex; justify-content: center; flex-direction: column; align-items: center; justify-content: center; border: 0.24vw solid #9d00f8; background-color: #2d0052; height: 39.6vw; width: 50%">
-                        <span class="whiteText" style="font-size: 1vw">Total Points: {{format(player.totalPoints, 2)}}</span>
-                    </div>
-                </div> -->
+                </div>
+
                 <div class="flex-container" style="flex-direction: row; justify-content: center;">
                     <div v-for="(item, index) in tmp.scaleList" style="color: #fff">
                         <div v-bind:style="{ backgroundColor: SCALE_ATTR[index].color }" v-if="item.length > 0" style="

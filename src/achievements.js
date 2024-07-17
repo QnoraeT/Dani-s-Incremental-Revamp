@@ -340,6 +340,14 @@ const ACHIEVEMENT_DATA = {
         get show() { return player.value.tax.unlocked; },
         status: true
     },
+    33: { 
+        get name() { return `smort`; },
+        get desc() { return `Reach Level ${format(c.e2)} in Dotgenous.`; },
+        get type() { return `col`; },
+        reward: ``,
+        get show() { return player.value.tax.unlocked; },
+        status: true
+    },
 }
 
 function setAchievement(id, bool) {

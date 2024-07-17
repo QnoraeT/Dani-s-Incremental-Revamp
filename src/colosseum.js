@@ -193,6 +193,7 @@ function updateCol(type, delta) {
             generate = tmp.value.colosseumPowerGeneration.mul(delta);
             player.value.col.power = Decimal.add(player.value.col.power, generate);
             player.value.col.totalPower = Decimal.add(player.value.col.totalPower, generate);
+            player.value.col.bestPower = Decimal.max(player.value.col.bestPower, player.value.col.power);
 
             i = Decimal.max(player.value.col.power, c.e2).log10().mul(c.d20);
             player.value.col.maxTime = i;
