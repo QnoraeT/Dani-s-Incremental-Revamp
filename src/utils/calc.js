@@ -114,6 +114,7 @@ const c = {
     d2500:       Decimal.fromComponents_noNormalize(1, 0, 2500),
     d8500:       Decimal.fromComponents_noNormalize(1, 0, 8500),
     e4:          Decimal.fromComponents_noNormalize(1, 0, 10000),
+    d36288:      Decimal.fromComponents_noNormalize(1, 0, 36288),
     d5e4:        Decimal.fromComponents_noNormalize(1, 0, 50000),
     e5:          Decimal.fromComponents_noNormalize(1, 0, 100000),
     e6:          Decimal.fromComponents_noNormalize(1, 0, 1000000),

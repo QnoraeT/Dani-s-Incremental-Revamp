@@ -165,6 +165,9 @@
                             You have <b>{{format(player.kua.kshards.amount, 3)}}</b> Kuaraniai shards.
                             <div v-if="player.nerf.kuaActive.kshards.effects">
                                 <li>
+                                    Boosts PRai gain by {{format(tmp.kuaEffects.kshardPassive, 3)}}x.
+                                </li>
+                                <li>
                                     Generate {{format(tmp.kuaPowerGeneration, 3)}} Kuaraniai Power (KPower) per second.
                                 </li>
                                 <li v-if="player.kua.kshards.amount.gt(0)">
@@ -196,6 +199,9 @@
                         <div style="text-align: center; font-size: 1.28vw;" v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI) / 4, 1.0, 1.0) }">
                             You have <b>{{format(player.kua.kpower.amount, 3)}}</b> Kuaraniai power.
                             <div v-if="player.nerf.kuaActive.kpower.effects">
+                                <li>
+                                    Boosts Point gain by {{format(tmp.kuaEffects.kpowerPassive, 3)}}x.
+                                </li>
                                 <li v-if="player.kua.kpower.amount.gt(0)">
                                     Adds Upgrade 3 B-Side, and makes it's base +{{format(tmp.kuaEffects.up6, 5)}}/bought.
                                 </li>
@@ -356,22 +362,25 @@
                 <button @click="exportSave()" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw">
                     Export save to clipboard.
                 </button>
+                <button @click="importSave()" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw">
+                    Import save.
+                </button>
             </div>
         </div>
         <div id="stats" v-if="tab.currTab === 'stat'">
             <div class="flex-container" style="flex-direction: column; justify-content: center;">
                 <div style="background-color: rgb(31, 31, 31); border: 0.4vw solid #e0e0e0; margin-left: auto; margin-right: auto; display: flex; justify-content: flex-start; flex-direction: column; box-shadow: 0 0 0.8vw 0.24vw rgb(29, 29, 29); height: 40vw; width: 80vw; margin-bottom: 1vw;">
                     <div style="display: flex; justify-content: flex-start; flex-flow: wrap; flex-direction: column; align-items: center; flex-wrap: nowrap; width: 100%; height: 2.5vw">
-                        <span class="whiteText">{{format(Decimal.max(player.points, 10).log10().div(400).min(1).mul(100), 2)}}% to ENDGAME</span>
+                        <span class="whiteText" style="font-size: 1.2vw">{{format(Decimal.max(player.points, 10).log10().log(400).min(1).mul(100), 2)}}% to ENDGAME</span>
                         <div style="width: 100%; position: relative; height: 100%;">
                             <div style="background-color: #404040; position: absolute; top: 0; left: 0; height: 100%; width: 100%"></div>
-                            <div v-bind:style="{ width: `${Decimal.max(player.points, 10).log10().div(400).min(1).mul(100).toNumber()}%` }" style="background-color: #ffffff; position: absolute; top: 0; left: 0; height: 100%;"></div>
+                            <div v-bind:style="{ width: `${Decimal.max(player.points, 10).log10().log(400).min(1).mul(100).toNumber()}%` }" style="background-color: #ffffff; position: absolute; top: 0; left: 0; height: 100%;"></div>
                         </div>
                     </div>
                     <div style="display: flex; justify-content: flex-start; flex-direction: row;">
                         <div class="flex-container" style="justify-content: flex-start; flex-flow: wrap; flex-direction: column; align-items: center; flex-wrap: nowrap; width: 50%">
-                            <div v-for="(item, index) in STAGES" class="flex-container" style="padding: 0.6vw; padding-bottom: 0vw ; width: 100%">
-                                <button @click="switchTab(false, index, 1);" v-bind:style="{ border: `0.24vw solid ${item.colors.border}` }" style="width: 100%; height: 5vw; margin-left: 0.5vw; margin-right: 0.5vw; padding: 0vw;" class="fontVerdana">
+                            <div v-for="(item, index) in STAGES" class="flex-container" style="padding: 0.6vw; padding-bottom: 0vw; width: 100%">
+                                <button v-if="item.show" @click="switchTab(false, index, 1);" v-bind:style="{ border: `0.24vw solid ${item.colors.border}` }" style="width: 100%; height: 5vw; margin-left: 0.5vw; margin-right: 0.5vw; padding: 0vw;" class="fontVerdana">
                                     <div v-bind:style="{ backgroundColor: item.colors.name }" class="whiteText" style="display: flex; justify-content: center; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw;">
                                         <span class="centered-text" style="height: 100%;">{{item.name}}</span>
                                     </div>
@@ -450,21 +459,21 @@
             <table style="margin-left: auto; margin-right: auto;">
                 <tr v-for="n in ACHIEVEMENT_DATA.rows">
                     <td v-for="m in ACHIEVEMENT_DATA.cols" style="color: #fff">
-                        <div v-if="ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].show" v-bind:style="{ 
+                        <div v-if="ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].show" v-bind:style="{ 
                             backgroundColor: 
                                 ACH_DEF_COLORS
-                                [ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].type]
+                                [ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].type]
                                 [player.achievements.includes(((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1) 
                                     ? 'complete'
-                                    : (ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status
+                                    : (ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status
                                         ? 'canComplete'
                                         : 'unable')],
                             border: `0.24vw solid ${
                                 colorChange(ACH_DEF_COLORS
-                                [ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].type]
+                                [ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].type]
                                 [player.achievements.includes(((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1) 
                                     ? 'complete'
-                                    : (ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status
+                                    : (ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status
                                         ? 'canComplete'
                                         : 'unable')], 0.5, 1)}`,
                             marginRight: `0.24vw`, 
@@ -473,12 +482,12 @@
                             height: `4vw`,
                         }" style="font-size: 1.1vw; height: 4vw; width: 4vw; margin-right: 0.24vw; margin-left: 0.24vw; " class="tooltip">
                         <span class="tooltiptext">
-                            <span style="font-size: 0.7vw">#{{((n - 1) * ACHIEVEMENT_DATA.cols) + m}}</span> {{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].name}}
-                            <br>{{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].desc}}
-                            <br>{{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward===''?'':`Reward: ${ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward}`}}
-                            <br>{{ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status === true
+                            <span style="font-size: 0.7vw">#{{((n - 1) * ACHIEVEMENT_DATA.cols) + m}}</span> {{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].name}}
+                            <br>{{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].desc}}
+                            <br>{{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward===''?'':`Reward: ${ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward}`}}
+                            <br>{{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status === true
                                     ? ''
-                                    : ACHIEVEMENT_DATA[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status}}
+                                    : ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status}}
                         </span>
                         </div>
                     </td>

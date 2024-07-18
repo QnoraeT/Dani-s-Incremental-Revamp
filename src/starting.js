@@ -34,12 +34,12 @@ const PR2_EFF = [
         get text() { return `slow down Upgrade 3 cost by ${formatPerc(c.d10div9, 3)}`}
     },
     {
-        get show() { return Decimal.gt(player.value.kua.amount, c.d1); },
+        get show() { return Decimal.gt(player.value.kua.amount, c.em4); },
         when: c.d12,
         get text() { return `unlock the Upgrade 4 autobuyer.`}
     },
     {
-        get show() { return Decimal.gt(player.value.kua.amount, c.d1); },
+        get show() { return Decimal.gt(player.value.kua.amount, c.em4); },
         when: c.d14,
         get text() { return `unlock the Upgrade 5 autobuyer.`}
     },
@@ -49,7 +49,7 @@ const PR2_EFF = [
         get text() { return `decrease Upgrade 2's superscaling strength by ${formatPerc(c.d8div7, 3)}`}
     },
     {
-        get show() { return Decimal.gt(player.value.kua.amount, c.d1); },
+        get show() { return Decimal.gt(player.value.kua.amount, c.em4); },
         when: c.d18,
         get text() { return `unlock the Upgrade 6 autobuyer.`}
     },
@@ -102,7 +102,7 @@ const BASIC_UPGS = [
             let i = c.d1_5;
             i = i.add(tmp.value.upgrades[2].effect ?? c.d0);
             i = i.add(tmp.value.upgrades[5].effect ?? c.d0);
-            if (player.value.achievements.includes(22)) {
+            if (ifAchievement(22)) {
                 i = i.mul(c.d1_01);
             }
             return i;
@@ -110,8 +110,8 @@ const BASIC_UPGS = [
         effective(x) {
             let i = D(x);
             i = i.add(this.freeExtra);
-            if (player.value.achievements.includes(16)) {
-                i = i.mul(ACHIEVEMENT_DATA[16].eff);
+            if (ifAchievement(16)) {
+                i = i.mul(getAchievementEffect(16));
             }
             return i;
         },
@@ -163,7 +163,7 @@ const BASIC_UPGS = [
             if (getKuaUpgrade("p", 1)) {
                 i = i.add(KUA_UPGRADES.KPower[0].eff);
             }
-            if (player.value.achievements.includes(22)) {
+            if (ifAchievement(22)) {
                 i = i.mul(c.d1_01);
             }
             return i;
@@ -212,14 +212,14 @@ const BASIC_UPGS = [
             return `Total: /${format(this.effect(), 2)} to Upgrade 1's cost`;
         }
     },
-    {
+    { // UP3
         get freeExtra() {
             let i = c.d0;
             return i;
         },
         get effectBase() {
             let i = c.em2;
-            if (player.value.achievements.includes(22)) {
+            if (ifAchievement(22)) {
                 i = i.mul(c.d1_01);
             }
             return i;
@@ -230,7 +230,7 @@ const BASIC_UPGS = [
             if (getKuaUpgrade("p", 2)) {
                 i = i.mul(KUA_UPGRADES.KPower[1].eff);
             }
-            if (player.value.achievements.includes(15)) {
+            if (ifAchievement(15)) {
                 i = i.mul(c.d1_01);
             }
             return i;
@@ -266,7 +266,7 @@ const BASIC_UPGS = [
             return `Total: +${format(this.effect(), 3)} to Upgrade 1's base`;
         }
     },
-    {
+    { // UP4
         get freeExtra() {
             let i = c.d0;
             return i;
@@ -311,7 +311,7 @@ const BASIC_UPGS = [
             return `Total: ${format(this.effect(), 2)}x to point gain`;
         }
     },
-    {
+    { // UP5
         get freeExtra() {
             let i = c.d0;
             return i;
@@ -356,7 +356,7 @@ const BASIC_UPGS = [
             return `Total: /${format(this.effect(), 2)} to Upgrade 1's cost`;
         }
     },
-    {
+    { // UP6
         get freeExtra() {
             let i = c.d0;
             return i
@@ -442,16 +442,16 @@ function updateStart(staID, delta) {
             scal = D(player.value.generators.upgrades[staID].bought);
             scal = doAllScaling(scal, tmp.value.scaling[`upg${staID + 1}`], false);
             if (staID === 0) {
-                if (player.value.achievements.includes(17)) {
-                    scal = scal.div(ACHIEVEMENT_DATA[17].eff);
+                if (ifAchievement(17)) {
+                    scal = scal.div(getAchievementEffect(17));
                 }
                 if (getKuaUpgrade("p", 10)) {
                     scal = scal.div(KUA_UPGRADES.KPower[9].eff)
                 }
             }
             if (staID === 1) {
-                if (player.value.achievements.includes(17)) {
-                    scal = scal.div(ACHIEVEMENT_DATA[17].eff);
+                if (ifAchievement(17)) {
+                    scal = scal.div(getAchievementEffect(17));
                 }
                 if (getKuaUpgrade("s", 9)) {
                     scal = scal.sub(KUA_UPGRADES.KShards[8].eff);
@@ -461,8 +461,8 @@ function updateStart(staID, delta) {
                 }
             }
             if (staID === 2) {
-                if (player.value.achievements.includes(17)) {
-                    scal = scal.div(ACHIEVEMENT_DATA[17].eff);
+                if (ifAchievement(17)) {
+                    scal = scal.div(getAchievementEffect(17));
                 }
                 if (Decimal.gte(player.value.generators.pr2.amount, c.d11)) {
                     scal = scal.div(c.d10div9);
@@ -490,8 +490,8 @@ function updateStart(staID, delta) {
                     if (Decimal.gte(player.value.generators.pr2.amount, c.d11)) {
                         scal = scal.mul(c.d10div9);
                     }
-                    if (player.value.achievements.includes(17)) {
-                        scal = scal.mul(ACHIEVEMENT_DATA[17].eff);
+                    if (ifAchievement(17)) {
+                        scal = scal.mul(getAchievementEffect(17));
                     }
                 }
                 if (staID === 1) {
@@ -501,16 +501,16 @@ function updateStart(staID, delta) {
                     if (getKuaUpgrade("s", 9)) {
                         scal = scal.add(KUA_UPGRADES.KShards[8].eff);
                     }
-                    if (player.value.achievements.includes(17)) {
-                        scal = scal.mul(ACHIEVEMENT_DATA[17].eff);
+                    if (ifAchievement(17)) {
+                        scal = scal.mul(getAchievementEffect(17));
                     }
                 }
                 if (staID === 0) {
                     if (getKuaUpgrade("p", 10)) {
                         scal = scal.mul(KUA_UPGRADES.KPower[9].eff)
                     }
-                    if (player.value.achievements.includes(17)) {
-                        scal = scal.mul(ACHIEVEMENT_DATA[17].eff);
+                    if (ifAchievement(17)) {
+                        scal = scal.mul(getAchievementEffect(17));
                     }
                 }
                 scal = doAllScaling(scal, tmp.value.scaling[`upg${staID + 1}`], true);
@@ -548,8 +548,8 @@ function updateStart(staID, delta) {
             setAchievement(0,  Decimal.gte(player.value.generators.upgrades[0].bought, c.d1));
             setAchievement(1,  Decimal.gte(player.value.generators.upgrades[0].bought, c.d20));
             setAchievement(10, Decimal.gte(player.value.generators.upgrades[0].bought, c.e2));
-            setAchievement(16, Decimal.gte(player.value.generators.upgrades[0].bought, c.e2)   && Decimal.eq(player.value.generators.prai.totalInKua, c.d0));
-            setAchievement(21, Decimal.gte(player.value.generators.upgrades[0].bought, c.d300) && Decimal.eq(player.value.generators.prai.totalInKua, c.d0));
+            setAchievement(16, Decimal.gte(player.value.generators.upgrades[0].bought, c.e2)   && Decimal.eq(player.value.generators.prai.totalInKua, c.d0) && Decimal.gte(player.value.generators.prai.timeInPRai, c.d1));
+            setAchievement(21, Decimal.gte(player.value.generators.upgrades[0].bought, c.d300) && Decimal.eq(player.value.generators.prai.totalInKua, c.d0) && Decimal.gte(player.value.generators.prai.timeInPRai, c.d1));
             setAchievement(23, Decimal.gte(player.value.generators.upgrades[0].bought, c.d300) && Decimal.eq(player.value.generators.upgrades[1].bought, c.d0));
             setAchievement(5,  Decimal.gte(tmp.value.upgrades[1].effect, c.d15));
             setAchievement(18, Decimal.gte(tmp.value.upgrades[1].effect, c.e17));
@@ -560,7 +560,7 @@ function updateStart(staID, delta) {
 
             tmp.value.praiReq = c.e6;
             tmp.value.praiExp = c.d1div3;
-            if (player.value.achievements.includes(19)) {
+            if (ifAchievement(19)) {
                 tmp.value.praiExp = c.d0_35;
             }
             tmp.value.praiDil = c.d0_9;
@@ -569,11 +569,11 @@ function updateStart(staID, delta) {
                 i = D(player.value.totalPointsInPRai);
                 i = i.max(c.d0).div(tmp.value.praiReq).pow(tmp.value.praiExp).sub(c.d1).mul(tmp.value.praiExp).add(c.d1).dilate(tmp.value.praiDil);
                 i = i.mul(player.value.generators.pr2.effect);
-                if (player.value.achievements.includes(20)) {
+                if (ifAchievement(20)) {
                     i = i.mul(c.d5);
                 }
-                if (player.value.achievements.includes(23)) {
-                    i = i.mul(ACHIEVEMENT_DATA[23].eff);
+                if (ifAchievement(23)) {
+                    i = i.mul(getAchievementEffect(23));
                 }
                 if (getKuaUpgrade("s", 8)) {
                     i = i.mul(KUA_UPGRADES.KShards[7].eff);
@@ -586,7 +586,7 @@ function updateStart(staID, delta) {
                 i = i.log10().root(tmp.value.praiDil).pow10().sub(c.d1).div(tmp.value.praiExp).add(c.d1).root(tmp.value.praiExp).mul(tmp.value.praiReq);
                 tmp.value.praiNext = i.sub(player.value.totalPointsInPRai);
             } else {
-                tmp.value.praiPending = c.d1;
+                tmp.value.praiPending = player.value.totalPointsInPRai.max(c.e6).div(c.e6).log(c.e3).add(c.d1).min(c.d10); // hidden thing, usually 1 but when ppl decide to go further, they should get rewarded somehow
                 tmp.value.praiNext = tmp.value.praiReq.sub(player.value.totalPointsInPRai).div(player.value.pps);
             }
 
@@ -599,14 +599,14 @@ function updateStart(staID, delta) {
             }
 
             j = c.d4;
-            if (player.value.achievements.includes(6)) {
+            if (ifAchievement(6)) {
                 j = j.mul(c.d2_5);
             }
 
             tmp.value.praiEffDil = c.d0_975;
             i = D(player.value.generators.prai.amount);
             i = i.mul(j).add(c.d1).dilate(tmp.value.praiEffDil);
-            if (player.value.achievements.includes(10)) {
+            if (ifAchievement(10)) {
                 i = i.mul(c.d2);
             }
             if (getKuaUpgrade("p", 2)) {
@@ -619,7 +619,7 @@ function updateStart(staID, delta) {
 
             i = Decimal.add(player.value.generators.prai.amount, tmp.value.praiPending);
             i = i.mul(j).add(c.d1).dilate(tmp.value.praiEffDil);
-            if (player.value.achievements.includes(10)) {
+            if (ifAchievement(10)) {
                 i = i.mul(c.d2);
             }
             if (getKuaUpgrade("p", 2)) {
@@ -659,16 +659,16 @@ function updateStart(staID, delta) {
             player.value.generators.pr2.effect = i;
 
             tmp.value.pr2CostDiv = c.d1;
-            if (player.value.achievements.includes(8)) {
+            if (ifAchievement(8)) {
                 tmp.value.pr2CostDiv = tmp.value.pr2CostDiv.mul(c.d1_5);
             }
 
             scal = D(player.value.generators.pr2.amount);
             scal = doAllScaling(scal, tmp.value.scaling.pr2, false);
-            player.value.generators.pr2.cost = scal.add(c.d4).factorial().mul(c.d5div12).div(tmp.value.pr2CostDiv);
+            player.value.generators.pr2.cost = scal.add(c.d9).factorial().div(c.d36288).div(tmp.value.pr2CostDiv);
 
             if (Decimal.gte(player.value.generators.prai.amount, c.d10)) {
-                scal = inverseFact(Decimal.mul(player.value.generators.prai.amount, tmp.value.pr2CostDiv).div(c.d5div12)).sub(c.d4);
+                scal = inverseFact(Decimal.mul(player.value.generators.prai.amount, tmp.value.pr2CostDiv).mul(c.d36288)).sub(c.d9);
                 scal = doAllScaling(scal, tmp.value.scaling.pr2, true);
                 player.value.generators.pr2.target = scal;
             } else {

@@ -179,24 +179,26 @@ function updateCol(type, delta) {
             break;
 
         case "col":
-            if (Decimal.lte(player.value.col.time, 0) && player.value.col.inAChallenge) {
+            if (Decimal.lte(player.value.col.time, c.d0) && player.value.col.inAChallenge) {
                 for (let i = player.value.col.challengeOrder.chalID.length - 1; i >= 0; i--) {
                     exitChallenge(player.value.col.challengeOrder.chalID[i]);
                 }
             }
 
-            tmp.value.colPow = c.d0_4;
+            if (player.value.col.unlocked) {
+                tmp.value.colPow = c.d0_4;
 
-            i = Decimal.max(player.value.kua.best, c.e2).div(c.e2).pow(tmp.value.colPow);
-            tmp.value.colosseumPowerGeneration = i;
+                i = Decimal.max(player.value.kua.best, c.e2).div(c.e2).pow(tmp.value.colPow);
+                tmp.value.colosseumPowerGeneration = i;
 
-            generate = tmp.value.colosseumPowerGeneration.mul(delta);
-            player.value.col.power = Decimal.add(player.value.col.power, generate);
-            player.value.col.totalPower = Decimal.add(player.value.col.totalPower, generate);
-            player.value.col.bestPower = Decimal.max(player.value.col.bestPower, player.value.col.power);
+                generate = tmp.value.colosseumPowerGeneration.mul(delta);
+                player.value.col.power = Decimal.add(player.value.col.power, generate);
+                player.value.col.totalPower = Decimal.add(player.value.col.totalPower, generate);
+                player.value.col.bestPower = Decimal.max(player.value.col.bestPower, player.value.col.power);
 
-            i = Decimal.max(player.value.col.power, c.e2).log10().mul(c.d20);
-            player.value.col.maxTime = i;
+                i = Decimal.max(player.value.col.power, c.e2).log10().mul(c.d20);
+                player.value.col.maxTime = i;
+            }
 
             player.value.col.inAChallenge = false;
             let k = 0;

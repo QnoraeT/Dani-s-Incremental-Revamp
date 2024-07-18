@@ -92,7 +92,8 @@ const NEXT_UNLOCKS = {
 const STAGES = [
     {
         name: "Main Tab",
-        get progress() { return Decimal.log(tmp.value.effectivePrai, 1e10).min(Decimal.max(player.value.points, 1).log(4.6e43)); },
+        show: true,
+        get progress() { return Decimal.log(tmp.value.effectivePrai, c.e10).min(Decimal.max(player.value.points, c.d1).log(4.6e43)); },
         get colors() { 
             return {
                 border: "#c4c4c4",
@@ -133,7 +134,8 @@ const STAGES = [
     },
     {
         name: "Kuaraniai",
-        get progress() { return Decimal.div(player.value.kua.amount, 100) },
+        get show() { return player.value.kua.unlocked; },
+        get progress() { return Decimal.add(player.value.kua.amount, tmp.value.kuaPending).max(c.em4).mul(c.e4).log(c.e6) },
         get colors() { 
             return {
                 border: "#ab00df",
@@ -163,7 +165,8 @@ const STAGES = [
     },
     {
         name: "Colosseum",
-        get progress() { return timesCompleted("nk") ? c.d1 : (inChallenge("nk") ? COL_CHALLENGES.nk.progress : c.d0) },
+        get show() { return player.value.col.unlocked; },
+        get progress() { return timesCompleted("nk") ? c.d1 : (inChallenge("nk") ? COL_CHALLENGES.nk.progress : c.d0); },
         get colors() { 
             return {
                 border: "#ff4000",
@@ -183,7 +186,8 @@ const STAGES = [
     },
     {
         name: "Taxation",
-        get progress() { return Decimal.add(tmp.value.taxPending, player.value.tax.taxed).div(20) },
+        get show() { return player.value.tax.unlocked; },
+        get progress() { return Decimal.add(tmp.value.taxPending, player.value.tax.taxed).div(20); },
         get colors() { 
             return {
                 border: "#c7b500",
@@ -366,6 +370,16 @@ function resetPlayer() {
                 total: c.d0,
                 best: c.d0,
                 upgrades: 0
+            },
+            enhancers: {
+                unlocked: false,
+                sources: [c.d0, c.d0, c.d0],
+                enhancers: [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
+                enhancePow: [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
+                xpSpread: c.d1,
+                inExtraction: 0,
+                extractionXP: [c.d0, c.d0, c.d0],
+                upgrades: []
             }
         },
         col: {
@@ -414,8 +428,17 @@ function updatePlayerData(player) {
         player.value.version = 0;
     }
     if (player.value.version === 0) {
-
-        // player.value.version = 1;
+        player.value.kua.enhancers = {
+            unlocked: false,
+            sources: [c.d0, c.d0, c.d0],
+            enhancers: [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
+            enhancePow: [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
+            xpSpread: c.d1,
+            inExtraction: 0,
+            extractionXP: [c.d0, c.d0, c.d0],
+            upgrades: []
+        }
+        player.value.version = 1;
     }
     if (player.value.version === 1) {
 
@@ -474,10 +497,9 @@ function reset(layer, override) {
                 }
 
                 for (let i = 0; i < 2; i++) {
-                    player.value.generators.prai.amount = c.d0;
-                    player.value.generators.prai.total = c.d0;
-                    player.value.generators.prai.totalInPR2 = c.d0;
-                    player.value.generators.prai.bestInPR2 = c.d0;
+                    player.value.generators.prai.amount = player.value.generators.pr2.amount;
+                    player.value.generators.prai.totalInPR2 = player.value.generators.pr2.amount;
+                    player.value.generators.prai.bestInPR2 = player.value.generators.pr2.amount;
                     updateStart("pr2");
                     reset("prai", true);
                 }
@@ -499,7 +521,7 @@ function reset(layer, override) {
                 player.value.generators.prai.total = c.d0;
                 player.value.generators.prai.totalInPR2 = c.d0;
                 player.value.generators.prai.bestInPR2 = c.d0;
-                if (player.value.achievements.includes(11)) {
+                if (ifAchievement(11)) {
                     player.value.generators.prai.amount = c.d10;
                     player.value.generators.prai.total = c.d10;
                     player.value.generators.prai.totalInPR2 = c.d10;
@@ -538,6 +560,13 @@ function reset(layer, override) {
                 player.value.generators.pr2.best = c.d0;
                 player.value.generators.pr2.amount = c.d0;
                 player.value.bestPointsInCol = c.d0;
+                player.value.kua.enhancers.sources = [c.d0, c.d0, c.d0],
+                player.value.kua.enhancers.enhancers = [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
+                player.value.kua.enhancers.enhancePow = [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
+                player.value.kua.enhancers.xpSpread = c.d1,
+                player.value.kua.enhancers.inExtraction = 0,
+                player.value.kua.enhancers.extractionXP = [c.d0, c.d0, c.d0],
+                player.value.kua.enhancers.upgrades = []
                 updateKua("kua");
                 reset("kua", true);
             }
@@ -566,20 +595,20 @@ function calcPointsPerSecond() {
     i = i.mul(tmp.value.upgrades[3].effect);
     i = i.mul(player.value.generators.prai.effect);
     i = i.mul(player.value.generators.pr2.effect);
-    if (player.value.achievements.includes(4)) {
+    if (ifAchievement(4)) {
         i = i.mul(c.d2);
     }
-    if (player.value.achievements.includes(11)) {
+    if (ifAchievement(11)) {
         i = i.mul(c.d2);
     }
-    if (player.value.achievements.includes(12)) {
-        i = i.mul(ACHIEVEMENT_DATA[12].eff);
+    if (ifAchievement(12)) {
+        i = i.mul(getAchievementEffect(12));
     }
-    if (player.value.achievements.includes(13)) {
-        i = i.mul(ACHIEVEMENT_DATA[13].eff);
+    if (ifAchievement(13)) {
+        i = i.mul(getAchievementEffect(13));
     }
-    if (player.value.achievements.includes(25)) {
-        i = i.mul(ACHIEVEMENT_DATA[25].eff);
+    if (ifAchievement(25)) {
+        i = i.mul(getAchievementEffect(25));
     }
     if (getKuaUpgrade("p", 3)) {
         i = i.pow(tmp.value.kuaEffects.ptPower);
@@ -609,9 +638,8 @@ function loadGame() {
         }
     };
 
-    let loadgame = JSON.parse(atob(localStorage.getItem(saveID))); 
-    if (loadgame !== null) {
-        game.value = loadgame._value; 
+    if (localStorage.getItem(saveID) !== null) {
+        game.value = JSON.parse(atob(localStorage.getItem(saveID)))._value; 
         player.value = game.value[currentSave].player;
         updatePlayerData(player);
     } else {
@@ -621,6 +649,7 @@ function loadGame() {
 
     // init tmp
     tmp.value.scaleSoftcapNames = { points: "Points", upg1: "Upgrade 1", upg2: "Upgrade 2", upg3: "Upgrade 3", upg4: "Upgrade 4", upg5: "Upgrade 5", upg6: "Upgrade 6", praiGain: "PRai Gain", praiEffect: "PRai Effect", pr2: "PR2" };
+    fixAchievements();
 
     window.requestAnimationFrame(gameLoop);
 
@@ -680,10 +709,10 @@ function loadGame() {
                 player.value.totalPointsInTax = Decimal.add(player.value.totalPointsInTax, generate);
                 player.value.bestPointsInCol = Decimal.max(player.value.bestPointsInCol, player.value.points);
 
-                setAchievement(17, Decimal.gte(player.value.points, c.e24) && Decimal.eq(player.value.generators.upgrades[0].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[1].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[2].bought, c.d0));
-                setAchievement(22, Decimal.gte(player.value.points, c.e80) && Decimal.eq(player.value.generators.upgrades[0].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[1].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[2].bought, c.d0));
+                setAchievement(17, Decimal.gte(player.value.points, c.e24) && Decimal.eq(player.value.generators.upgrades[0].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[1].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[2].bought, c.d0) && Decimal.gte(player.value.generators.prai.timeInPRai, c.d1));
+                setAchievement(22, Decimal.gte(player.value.points, c.e80) && Decimal.eq(player.value.generators.upgrades[0].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[1].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[2].bought, c.d0) && Decimal.gte(player.value.generators.prai.timeInPRai, c.d1));
                 setAchievement(24, Decimal.gte(player.value.points, c.e33) && Decimal.eq(player.value.generators.upgrades[0].bought, c.d0) && Decimal.eq(player.value.generators.upgrades[1].bought, c.d0));
-                setAchievement(25, Decimal.gte(player.value.points, c.e260) && Decimal.lt(player.value.kua.timeInKua, c.d5));
+                setAchievement(25, Decimal.gte(player.value.points, c.e260) && Decimal.gte(player.value.kua.timeInKua, c.d1) && Decimal.lt(player.value.kua.timeInKua, c.d5));
 
                 if (Decimal.gte(player.value.generators.pr2.best, c.d10)) {
                     player.value.kua.unlocked = true;

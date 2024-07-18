@@ -53,7 +53,7 @@ const KUA_UPGRADES = {
                 return i;
             },
             get cost() {
-                return c.d4;
+                return c.d2;
             },
             show: true
         },
@@ -285,13 +285,69 @@ const KUA_UPGRADES = {
     ]
 }
 
+// player.value.kua.enhancers.sources = [c.d0, c.d0, c.d0],
+// player.value.kua.enhancers.enhancers = [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
+// player.value.kua.enhancers.enhancePow = [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
+// player.value.kua.enhancers.xpSpread = c.d1,
+// player.value.kua.enhancers.inExtraction = 0,
+// player.value.kua.enhancers.extractionXP = [c.d0, c.d0, c.d0],
+// player.value.kua.enhancers.upgrades = []
+
+const KUA_ENHANCERS = {
+    sources: [
+        {
+            cost(level) {
+                let cost = Decimal.pow(1e6, smoothExp(Decimal.max(level, 0).add(1), 1.05, false)).mul(1e18)
+                return cost
+            },
+            target(amount) {
+                let levels = smoothExp(Decimal.max(amount, 1e18).div(1e18).log(1e6), 1.05, true).sub(1)
+                return levels
+            }
+        },
+        {
+            cost(level) {
+                let cost = Decimal.pow(1e3, smoothExp(Decimal.max(level, 0).add(1), 1.025, false)).mul(1e9)
+                return cost
+            },
+            target(amount) {
+                let levels = smoothExp(Decimal.max(amount, 1e9).div(1e9).log(1e3), 1.025, true).sub(1)
+                return levels
+            }
+        },
+        {
+            cost(level) {
+                let cost = Decimal.pow(10, smoothPoly(Decimal.max(level, 0).add(1), 2, 50, false)).mul(0.01)
+                return cost
+            },
+            target(amount) {
+                let levels = smoothPoly(Decimal.max(amount, 0.01).div(0.01).log(10), 2, 50, true).sub(1)
+                return levels
+            }
+        },
+    ],
+    enhances: [
+        {
+            color: "#ffffff",
+            effect(xp, pow) {
+                let effect = 0
+                return effect
+            }
+        }
+    ]
+}
+
 function updateAllKua(delta) {
+    updateKua("enhancers", delta);
     updateKua("kua", delta);
 }
 
 function updateKua(type, delta) {
     let scal, pow, sta, i, j, k, generate;
     switch (type) {
+        case "enhancers":
+
+            break;
         case "kua":
             player.value.kua.timeInKua = Decimal.add(player.value.kua.timeInKua, delta);
 
@@ -309,7 +365,7 @@ function updateKua(type, delta) {
                 tmp.value.kuaMul = tmp.value.kuaMul.mul(c.d1_5);
             }
             
-            if (player.value.achievements.includes(13)) {
+            if (ifAchievement(13)) {
                 tmp.value.kuaMul = tmp.value.kuaMul.mul(c.d1_5);
             }
 
@@ -350,6 +406,11 @@ function updateKua(type, delta) {
                 if (getKuaUpgrade("p", 3)) {
                     tmp.value.kuaEffects.upg1Scaling = Decimal.max(player.value.points, c.d0).add(c.d1).pow(c.d0_022)                  .mul(Decimal.max(k, c.d0).mul(c.d10).add(c.d1).pow(c.d0_75) .sub(c.d1)).add(c.d1).log10().add(c.d1).max(tmp.value.kuaEffects.upg1Scaling);
                 }
+
+                let exp = c.d1;
+                if (Decimal.gte(k, c.em2)) { exp = exp.mul(c.d2_5) }
+                tmp.value.kuaEffects.kshardPassive = Decimal.add(player.value.kua.kshards.total, c.d1).log10().pow(exp);
+                tmp.value.kuaEffects.kpowerPassive = Decimal.add(player.value.kua.kpower.total, c.d1).log10().pow(exp);
 
                 tmp.value.kuaEffects.up4 = Decimal.gt(k, c.d0) 
                     ? Decimal.log10(k).add(c.d4).div(c.d13).mul(c.d7).add(c.d1).cbrt().sub(c.d4).pow10().add(c.d1) 

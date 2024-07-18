@@ -29,11 +29,11 @@ function updateScaling(type) {
             tmp.value.scaling.upg1[0] = { res: player.value.generators.upgrades[0].bought, start: c.d20,  strength: c.d1, bp: c.d2, type: 0 };
             tmp.value.scaling.upg1[1] = { res: player.value.generators.upgrades[0].bought, start: c.e2,   strength: c.d1, bp: c.d3, type: 0 };
             tmp.value.scaling.upg1[2] = { res: player.value.generators.upgrades[0].bought, start: c.d250, strength: c.d1, bp: c.d4, type: 1 };
-            if (player.value.achievements.includes(3)) {
+            if (ifAchievement(3)) {
                 tmp.value.scaling.upg1[0].start = tmp.value.scaling.upg1[0].start.add(c.d2_5);
             }
-            if (player.value.achievements.includes(7)) {
-                tmp.value.scaling.upg1[0].strength = tmp.value.scaling.upg1[0].strength.div(ACHIEVEMENT_DATA[7].eff);
+            if (ifAchievement(7)) {
+                tmp.value.scaling.upg1[0].strength = tmp.value.scaling.upg1[0].strength.div(getAchievementEffect(7));
             }
             if (Decimal.gte(player.value.generators.pr2.amount, c.d7)) {
                 tmp.value.scaling.upg1[0].strength = tmp.value.scaling.upg1[0].strength.div(c.d10div9);
@@ -141,7 +141,7 @@ function updateSoftcap(type) {
                 tmp.value.softcap.upg2[0].strength = tmp.value.softcap.upg2[0].strength.div(c.d1_5);
             }
 
-            if (player.value.achievements.includes(18)) {
+            if (ifAchievement(18)) {
                 tmp.value.softcap.upg2[0].strength = tmp.value.softcap.upg2[0].strength.mul(c.d0_95);
             }
 

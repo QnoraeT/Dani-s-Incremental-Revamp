@@ -59,7 +59,7 @@ const TAX_UPGRADES = [
         type: 0,
         implemented: false,
         cost: c.d2,
-        desc: `Boost Upgrade 3's base by +${format(c.em3, 4)} and decrease it's linear scaling from ${format(c.e3, 1)} to ${format(c.e2, 1)}.`,
+        desc: `Boost Upgrade 3's base by +${format(c.em3, 4)} and decrease it's linear scaling from ${format(c.e2, 1)} to ${format(c.d10, 1)}.`,
         show: true
     },
     {
