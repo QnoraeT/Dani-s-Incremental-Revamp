@@ -54,18 +54,17 @@ const COL_RESEARCH = [
         name: "Dotgenous",
         effectDesc(level) { return `Multiply point gain by ${format(this.effect(level), 2)}x.`; },
         effectDescLevel(level) { return `Multiply point gain by ${format(this.effect(Decimal.add(level, 1)).div(this.effect(level)), 3)}x for this level.`; },
-        scoreReq: c.d2,
         effect(level) {
             let effect = Decimal.sqrt(level).pow10();
             return effect;
         },
         scoreToLevel(score) {
-            if (Decimal.lt(score, this.scoreReq)) { return c.d0; }
-            let level = linearAdd(score, this.scoreReq, this.scoreReq, true);
+            if (Decimal.lt(score, c.d2)) { return c.d0; }
+            let level = linearAdd(score, c.d2, c.d2, true);
             return level;
         },
         levelToScore(level) {
-            let score = linearAdd(level, this.scoreReq, this.scoreReq, false);
+            let score = linearAdd(level, c.d2, c.d2, false);
             return score;
         }
     },
@@ -74,18 +73,17 @@ const COL_RESEARCH = [
         name: "Firsterious",
         effectDesc(level) { return `Multiply PRai gain by ${format(this.effect(level), 2)}x.`; },
         effectDescLevel(level) { return `Multiply PRai gain by ${format(this.effect(Decimal.add(level, 1)).div(this.effect(level)), 3)}x for this level.`; },
-        scoreReq: c.d10,
         effect(level) {
-            let effect = Decimal.cbrt(level).pow_base(4);
+            let effect = Decimal.cbrt(level).pow_base(c.d4);
             return effect;
         },
         scoreToLevel(score) {
-            if (Decimal.lt(score, this.scoreReq)) { return c.d0; }
-            let level = linearAdd(score, this.scoreReq, this.scoreReq, true);
+            if (Decimal.lt(score, c.d10)) { return c.d0; }
+            let level = linearAdd(score, c.d10, c.d10, true);
             return level;
         },
         levelToScore(level) {
-            let score = linearAdd(level, this.scoreReq, this.scoreReq, false);
+            let score = linearAdd(level, c.d10, c.d10, false);
             return score;
         }
     },
@@ -94,18 +92,17 @@ const COL_RESEARCH = [
         name: "Kyston",
         effectDesc(level) { return `Increase Kuaraniai gain exponent by +${format(this.effect(level), 3)}.`; },
         effectDescLevel(level) { return `+${format(this.effect(Decimal.add(level, 1)).sub(this.effect(level)), 4)} Kuaraniai gain exponent for this level.`; },
-        scoreReq: c.e2,
         effect(level) {
-            let effect = sumHarmonicSeries(level).div(100);
+            let effect = sumHarmonicSeries(level).div(c.e2);
             return effect;
         },
         scoreToLevel(score) {
-            if (Decimal.lt(score, this.scoreReq)) { return c.d0; }
-            let level = linearAdd(score, this.scoreReq, this.scoreReq, true);
+            if (Decimal.lt(score, c.e2)) { return c.d0; }
+            let level = linearAdd(score, c.e2, c.d20, true);
             return level;
         },
         levelToScore(level) {
-            let score = linearAdd(level, this.scoreReq, this.scoreReq, false);
+            let score = linearAdd(level, c.e2, c.d20, false);
             return score;
         }
     },
@@ -297,6 +294,16 @@ function challengeToggle(id) {
                     best: player.value.kua.kpower.best,
                     total: player.value.kua.kpower.total,
                     upgrades: player.value.kua.kpower.upgrades
+                },
+                enhancers: {
+                    unlocked: player.value.kua.enhancers.unlocked,
+                    sources: player.value.kua.enhancers.sources,
+                    enhancers: player.value.kua.enhancers.enhancers,
+                    enhancePow: player.value.kua.enhancers.enhancePow,
+                    xpSpread: player.value.kua.enhancers.xpSpread,
+                    inExtraction: player.value.kua.enhancers.inExtraction,
+                    extractionXP: player.value.kua.enhancers.extractionXP,
+                    upgrades: player.value.kua.enhancers.upgrades
                 }
             },
             pr2: {

@@ -592,3 +592,11 @@ function linearAdd(num, base, growth, inverse) {
         ? growth.sub(base.mul(2)).pow(2).add(num.mul(growth).mul(8)).sqrt().sub(growth).sub(base.mul(2)).div(growth.mul(2))
         : growth.mul(num).add(base.mul(2)).mul(num.add(1)).div(2)
 }
+
+function logPowSoftcap(num, start, inv) {
+    num = Decimal.log10(num);
+    start = Decimal.log10(start);
+    return inv
+        ? Decimal.sub(num, start).div(Decimal.ln(start)).add(start).div(start).pow_base(start)
+        : Decimal.log(num, start).mul(start).sub(start).mul(Decimal.ln(start)).add(start)
+}

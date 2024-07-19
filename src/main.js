@@ -323,6 +323,8 @@ function resetPlayer() {
             pr2: false,
             kua: false,
             kuaUpgrades: false,
+            tax: false,
+            kuaSources: false
         },
         generators: {
             upgrades: [
@@ -441,8 +443,13 @@ function updatePlayerData(player) {
         player.value.version = 1;
     }
     if (player.value.version === 1) {
+        player.value.auto.tax = false
+        player.value.auto.kuaSources = false
+        player.value.version = 2;
+    }
+    if (player.value.version === 2) {
 
-        // player.value.version = 2;
+        // player.value.version = 3;
     }
 }
 
@@ -619,6 +626,7 @@ function calcPointsPerSecond() {
 
     i = i.mul(getColResEffect(0));
     i = i.mul(tmp.value.taxPtsEff);
+    i = i.mul(tmp.value.kuaEffects.kpowerPassive)
 
     return i;
 }

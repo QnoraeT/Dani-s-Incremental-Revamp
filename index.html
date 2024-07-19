@@ -136,7 +136,11 @@
             </table>
         </div>
         <div id="kuaraniai" v-if="tab.currTab === 'kua'">
-            <div class="flex-container" style="margin-left: auto; margin-right: auto; flex-direction: column; justify-content: center;">
+            <div class="flex-container" style="flex-direction: row; justify-content: center; font-size: 1.4vw; margin-bottom: 1vw;" v-if="Decimal.gte(player.kua.total, 0.01)">
+                <button @click="switchTab(false, 0, 0)" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 10vw; height: 3vw; font-size: 1vw" class="kuaButton2 fontVerdana whiteText">Main</button>
+                <button @click="switchTab(false, 1, 0)" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 10vw; height: 3vw; font-size: 1vw" class="kuaButton2 fontVerdana whiteText">Enhancers</button>
+            </div>
+            <div class="flex-container" style="margin-left: auto; margin-right: auto; flex-direction: column; justify-content: center;" v-if="tab[tab.currTab][0] === 0">
                 <button style="text-align: center; margin-top: 0.96vw; margin-left: auto; margin-right: auto; font-size: 1.0667vw" 
                 v-bind:class="{ nope: !tmp.kuaCanDo, ok: tmp.kuaCanDo }"
                 class="whiteText thinlargeButton fontVerdana kuaButton" id="kuaGain" @click="reset('kua')">
@@ -234,7 +238,7 @@
             </div>
         </div>
         <div id="colosseum" v-if="tab.currTab === 'col'">
-            <div class="flex-container" style="flex-direction: row; justify-content: center; font-size: 1.4vw; margin-bottom: 01vw;" v-if="Decimal.gte(timesCompleted('nk'), 1)">
+            <div class="flex-container" style="flex-direction: row; justify-content: center; font-size: 1.4vw; margin-bottom: 1vw;" v-if="Decimal.gte(timesCompleted('nk'), 1)">
                 <button @click="switchTab(false, 0, 0)" class="colButtonTab smallColBorder colButton fontVerdana">Challenges</button>
                 <button @click="switchTab(false, 1, 0)" class="colButtonTab smallColBorder colButton fontVerdana">Research</button>
             </div>
@@ -353,16 +357,16 @@
         </div>
         <div id="options" v-if="tab.currTab === 'opt'">
             <div class="flex-container" style="flex-direction: row; justify-content: center;">
-                <button @click="console.log(saveTheFrickingGame())" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw">
+                <button @click="console.log(saveTheFrickingGame())" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw; font-size: 1vw;">
                     Save manually.
                 </button>
-                <button @click="setAutosaveInterval();" v-bind:class="{ nope: player.settings.autoSaveInterval >= 1e10, ok: player.settings.autoSaveInterval < 1e10 }" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; height: 8vw; width: 16vw">
+                <button @click="setAutosaveInterval();" v-bind:class="{ nope: player.settings.autoSaveInterval >= 1e10, ok: player.settings.autoSaveInterval < 1e10 }" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; height: 8vw; width: 16vw; font-size: 1vw;">
                     Autosave Interval: {{formatTime(player.settings.autoSaveInterval >= 1e10 ? Infinity : (player.settings.autoSaveInterval / 1000), 3)}}
                 </button>
-                <button @click="exportSave()" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw">
+                <button @click="exportSave()" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw; font-size: 1vw;">
                     Export save to clipboard.
                 </button>
-                <button @click="importSave()" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw">
+                <button @click="importSave()" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw; font-size: 1vw;">
                     Import save.
                 </button>
             </div>

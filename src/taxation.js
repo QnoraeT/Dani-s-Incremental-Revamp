@@ -87,7 +87,15 @@ function updateTax(type, delta) {
             tmp.value.taxCanDo = Decimal.gte(player.value.totalPointsInTax, c.inf);
             tmp.value.taxPending = tmp.value.taxCanDo ? Decimal.pow(c.e2, Decimal.log(player.value.totalPointsInTax, c.inf).sqrt().sub(c.d1)) : c.d0;
 
-            tmp.value.taxPtsEff = Decimal.max(player.value.tax.totalTax, 0).add(c.d10).dilate(c.d2).sub(9).pow(2.01);
+            if (player.value.auto.tax) {
+                generate = tmp.value.taxPending.mul(delta);
+                player.value.tax.taxed = Decimal.add(player.value.tax.taxed, generate);
+                player.value.tax.totalTax = Decimal.add(player.value.tax.totalTax, generate);
+            }
+
+            player.value.tax.bestTax = Decimal.max(player.value.tax.bestTax, player.value.tax.taxed);
+
+            tmp.value.taxPtsEff = Decimal.max(player.value.tax.totalTax, 0).add(c.d10).dilate(c.d2).sub(c.d9).pow(c.d2);
             break;
         default:
             throw new Error(`Taxation area of the game does not contain ${type}`);

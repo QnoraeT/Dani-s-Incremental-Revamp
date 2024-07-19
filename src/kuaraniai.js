@@ -297,31 +297,31 @@ const KUA_ENHANCERS = {
     sources: [
         {
             cost(level) {
-                let cost = Decimal.pow(1e6, smoothExp(Decimal.max(level, 0).add(1), 1.05, false)).mul(1e18)
+                let cost = Decimal.pow(1e6, smoothExp(Decimal.max(level, 0), 1.05, false)).mul(1e24)
                 return cost
             },
             target(amount) {
-                let levels = smoothExp(Decimal.max(amount, 1e18).div(1e18).log(1e6), 1.05, true).sub(1)
+                let levels = smoothExp(Decimal.max(amount, 1e18).div(1e18).log(1e6), 1.05, true)
                 return levels
             }
         },
         {
             cost(level) {
-                let cost = Decimal.pow(1e3, smoothExp(Decimal.max(level, 0).add(1), 1.025, false)).mul(1e9)
+                let cost = Decimal.pow(1e3, smoothExp(Decimal.max(level, 0), 1.025, false)).mul(1e12)
                 return cost
             },
             target(amount) {
-                let levels = smoothExp(Decimal.max(amount, 1e9).div(1e9).log(1e3), 1.025, true).sub(1)
+                let levels = smoothExp(Decimal.max(amount, 1e9).div(1e9).log(1e3), 1.025, true)
                 return levels
             }
         },
         {
             cost(level) {
-                let cost = Decimal.pow(10, smoothPoly(Decimal.max(level, 0).add(1), 2, 50, false)).mul(0.01)
+                let cost = Decimal.pow(10, smoothPoly(Decimal.max(level, 0), 2, 50, false)).mul(0.01)
                 return cost
             },
             target(amount) {
-                let levels = smoothPoly(Decimal.max(amount, 0.01).div(0.01).log(10), 2, 50, true).sub(1)
+                let levels = smoothPoly(Decimal.max(amount, 0.01).div(0.01).log(10), 2, 50, true)
                 return levels
             }
         },
@@ -382,6 +382,8 @@ function updateKua(type, delta) {
             player.value.kua.best = Decimal.max(player.value.kua.best, player.value.kua.amount);
 
             tmp.value.kuaEffects = { 
+                kshardPassive: c.d1,
+                kpowerPassive: c.d1,
                 up4: c.d1, 
                 up5: c.d1, 
                 up6: c.d0, 
@@ -408,9 +410,9 @@ function updateKua(type, delta) {
                 }
 
                 let exp = c.d1;
-                if (Decimal.gte(k, c.em2)) { exp = exp.mul(c.d2_5) }
-                tmp.value.kuaEffects.kshardPassive = Decimal.add(player.value.kua.kshards.total, c.d1).log10().pow(exp);
-                tmp.value.kuaEffects.kpowerPassive = Decimal.add(player.value.kua.kpower.total, c.d1).log10().pow(exp);
+                // don't mind me siltating these by ^0.9 :3
+                tmp.value.kuaEffects.kshardPassive = Decimal.max(player.value.kua.kshards.total, c.em2).mul(c.e3).dilate(c.d2).div(c.d10).pow(c.d0_04).pow(exp).mul(c.d10).log10().mul(c.d10).dilate(c.d0_9).div(c.d10).pow10().div(c.d10);
+                tmp.value.kuaEffects.kpowerPassive = Decimal.max(player.value.kua.kpower.total, c.em2).mul(c.e3).dilate(c.d2).div(c.d10).pow(c.d0_04).pow(exp).mul(c.d10).log10().mul(c.d10).dilate(c.d0_9).div(c.d10).pow10().div(c.d10);
 
                 tmp.value.kuaEffects.up4 = Decimal.gt(k, c.d0) 
                     ? Decimal.log10(k).add(c.d4).div(c.d13).mul(c.d7).add(c.d1).cbrt().sub(c.d4).pow10().add(c.d1) 

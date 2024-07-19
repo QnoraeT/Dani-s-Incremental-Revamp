@@ -579,6 +579,7 @@ function updateStart(staID, delta) {
                     i = i.mul(KUA_UPGRADES.KShards[7].eff);
                 }
                 i = i.mul(getColResEffect(1));
+                i = i.mul(tmp.value.kuaEffects.kshardPassive)
                 tmp.value.praiPending = i.floor();
 
                 i = tmp.value.praiPending.add(c.d1).floor();
