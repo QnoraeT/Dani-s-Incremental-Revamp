@@ -10,15 +10,16 @@
     <script src="src/utils/calc.js"></script>
     <script src="src/utils/format.js"></script>
 
-    <script src="src/achievements.js"></script>
+    <script src="src/versionControl.js"></script>
     <script src="src/main.js"></script>
+    <script src="src/achievements.js"></script>
     <script src="src/nerfs.js"></script>
     <script src="src/scalingSoftcap.js"></script>
 
-    <script src="src/taxation.js"></script>
-    <script src="src/colosseum.js"></script>
-    <script src="src/kuaraniai.js"></script>
-    <script src="src/starting.js"></script>
+    <script src="src/layers/taxation.js"></script>
+    <script src="src/layers/colosseum.js"></script>
+    <script src="src/layers/kuaraniai.js"></script>
+    <script src="src/layers/starting.js"></script>
 
     <script src="src/utils/vueSetup.js"></script>
 </head>
@@ -27,476 +28,526 @@
     <!-- i love how bad i am at this :3 -->
     <canvas id="canvas" style="height: 100vh; width: 100vw; position: absolute; top: 0vw; left: 0vw; z-index: -2;"></canvas>
 	<div id="app" class="fontVerdana">
-        <div class="flex-container" style="background-color: #ffffff20;">
-            <div style="flex-grow: 1; flex-basis: 0; text-align: left; text-shadow: #ffffff 0vw 0vw 0.4vw;" class="bigText whiteText grayShadow"> {{format(player.points, 3)}}</div>
-            <div style="flex-grow: 1; flex-basis: 0; text-align: center; text-shadow: #ffff00 0vw 0vw 0.24vw;" class="mediumBigText yellowText" style="text-shadow: 0.16vw 0.16vw #880;">FPS: {{otherGameStuffIg.FPS}}</div>
-            <div style="flex-grow: 1; flex-basis: 0; text-align: right; text-shadow: #ffffff 0vw 0vw 0.4vw;" class="bigText whiteText grayShadow">{{format(player.pps, 3)}}/s </div>
-        </div>
-        <div id="tabs">
-            <div class="flex-container" style="justify-content: center; margin-bottom: 0.96vw; margin-top: 0.96vw;">
-                <div v-for="(item, index) in TABS_LIST">
-                    <button v-bind:style="{ 
-                        color: item.textColor, 
-                        marginRight: `0.24vw`, 
-                        marginLeft: `0.24vw`, 
-                        backgroundColor: item.backgroundColor, 
-                        border: `0.24vw solid ${tab.currTab === item.staticName ? item.highlightColor : item.outlineColor}` 
-                    }"
-                    v-if="item.if" class="mediumText fontTrebuchetMS" @click="switchTab(true, item.staticName)">{{item.name}}</button>
+        <div v-if="tmp.runGame">
+            <div class="flex-container" style="background-color: #ffffff20;">
+                <div style="flex-grow: 1; flex-basis: 0; text-align: left; text-shadow: #ffffff 0vw 0vw 0.4vw;" class="bigText whiteText grayShadow"> {{format(player.points, 3)}}</div>
+                <div style="flex-grow: 1; flex-basis: 0; text-align: center; text-shadow: #ffff00 0vw 0vw 0.24vw;" class="mediumBigText yellowText" style="text-shadow: 0.16vw 0.16vw #880;">FPS: {{otherGameStuffIg.FPS}}</div>
+                <div style="flex-grow: 1; flex-basis: 0; text-align: right; text-shadow: #ffffff 0vw 0vw 0.4vw;" class="bigText whiteText grayShadow">{{format(player.pps, 3)}}/s </div>
+            </div>
+            <div id="tabs">
+                <div class="flex-container" style="justify-content: center; margin-bottom: 0.96vw; margin-top: 0.96vw;">
+                    <div v-for="(item, index) in TABS_LIST">
+                        <button v-bind:style="{ 
+                            color: item.textColor, 
+                            marginRight: `0.24vw`, 
+                            marginLeft: `0.24vw`, 
+                            backgroundColor: item.backgroundColor, 
+                            border: `0.24vw solid ${tab.currTab === item.staticName ? item.highlightColor : item.outlineColor}` 
+                        }"
+                        v-if="item.if" class="mediumText fontTrebuchetMS" @click="switchTab(true, item.staticName)">{{item.name}}</button>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div id="generators" v-if="tab.currTab === 'gen'">
-            <div class="flex-container" style="flex-direction: column; justify-content: center; margin-top: 1vw; margin-bottom: 1vw;">
-                <span v-if="Decimal.gte(player.points, tmp.softcap.points[0].start.pow10())" style="text-align: center; font-size: 1.2vw; color:#f44">
-                    Your points past {{format(tmp.softcap.points[0].start.pow10())}} is taxed by {{tmp.softcap.points[0].red}}!
-                </span>
-                <span v-if="player.col.inAChallenge" style="text-align: center; font-size: 1.6vw;" v-bind:style="{ color: player.col.completedAll ? '#0080FF' : '#FF4000' }">
-                    You have <b>{{formatTime(player.col.time, 3)}}</b> left within these challenges:
-                </span>
-                <div v-for="(item, index) in player.inChallenge" style="text-align: center;" v-bind:style="{ color: gRC(2 * COL_CHALLENGES[index].progress.toNumber() + (COL_CHALLENGES[index].canComplete ? 1.5 : 0.0), 1.0, 1.0) }">
-                    <span v-if="player.inChallenge[index].overall">
-                        {{item.name + (player.inChallenge[index].depth.gt(1) ? ` x${format(player.inChallenge[index].depth)}` : '')}}{{player.inChallenge[index].overall ? `: ${COL_CHALLENGES[index].progDisplay}` : ''}}
+            <div id="generators" v-if="tab.currTab === 'gen'">
+                <div class="flex-container" style="flex-direction: column; justify-content: center; margin-top: 1vw; margin-bottom: 1vw;">
+                    <span v-if="Decimal.gte(player.points, tmp.softcap.points[0].start.pow10())" style="text-align: center; font-size: 1.2vw; color:#f44">
+                        Your points past {{format(tmp.softcap.points[0].start.pow10())}} is taxed by {{tmp.softcap.points[0].red}}!
                     </span>
+                    <span v-if="player.col.inAChallenge" style="text-align: center; font-size: 1.6vw;" v-bind:style="{ color: player.col.completedAll ? '#0080FF' : '#FF4000' }">
+                        You have <b>{{formatTime(player.col.time, 3)}}</b> left within these challenges:
+                    </span>
+                    <div v-for="(item, index) in player.inChallenge" style="text-align: center;" v-bind:style="{ color: gRC(2 * COL_CHALLENGES[index].progress.toNumber() + (COL_CHALLENGES[index].canComplete ? 1.5 : 0.0), 1.0, 1.0) }">
+                        <span v-if="player.inChallenge[index].overall">
+                            {{item.name + (player.inChallenge[index].depth.gt(1) ? ` x${format(player.inChallenge[index].depth)}` : '')}}{{player.inChallenge[index].overall ? `: ${COL_CHALLENGES[index].progDisplay}` : ''}}
+                        </span>
+                    </div>
                 </div>
-            </div>
-            <div class="flex-container" style="margin-left: auto; margin-right: auto; flex-direction: row; flex-wrap: wrap; justify-content: center; margin-top: 1vw; margin-bottom: 1vw; width: 50vw; align-content: center;">
-                <div v-for="(item, index) in BASIC_UPGS">
-                    <div class="flex-container" style="flex-direction: column; margin: 0.2vw;" v-if="player.nerf.upgradesActive[index] && item.shown">
-                        <button style="text-align: center; font-size: 1.0667vw" 
-                        v-bind:class="{ nope: !tmp.upgrades[index].canBuy, ok: tmp.upgrades[index].canBuy }"
-                        class="whiteText mediumButton fontVerdana generatorButton" @click="buyGenUPG(index)">
-                            <h3 style="margin-top: 0.5vw; font-size: 1.25vw">Upgrade {{index + 1}}: {{format(player.generators.upgrades[index].bought)}}{{Decimal.gt(tmp.upgrades[index].freeExtra, 0) ? ` (+${format(tmp.upgrades[index].freeExtra)})`:""}}</h3>
-                            {{BASIC_UPGS[index].display}}
-                            <br><span v-bind:style="{ color: tmp.upgrades[index].effectColor }">{{BASIC_UPGS[index].totalDisp}}</span>
-                            <br><span v-bind:style="{ color: tmp.upgrades[index].costColor }">Cost: {{format(tmp.upgrades[index].cost)}} points</span>
-                        </button>
+                <div class="flex-container" style="margin-left: auto; margin-right: auto; flex-direction: row; flex-wrap: wrap; justify-content: center; margin-top: 1vw; margin-bottom: 1vw; width: 50vw; align-content: center;">
+                    <div v-for="(item, index) in BASIC_UPGS">
+                        <div class="flex-container" style="flex-direction: column; margin: 0.2vw;" v-if="player.nerf.upgradesActive[index] && item.shown">
+                            <button style="text-align: center; font-size: 1.0667vw" 
+                            v-bind:class="{ nope: !tmp.upgrades[index].canBuy, ok: tmp.upgrades[index].canBuy }"
+                            class="whiteText mediumButton fontVerdana generatorButton" @click="buyGenUPG(index)">
+                                <h3 style="margin-top: 0.5vw; font-size: 1.25vw">Upgrade {{index + 1}}: {{format(player.generators.upgrades[index].bought)}}{{Decimal.gt(tmp.upgrades[index].freeExtra, 0) ? ` (+${format(tmp.upgrades[index].freeExtra)})`:""}}</h3>
+                                {{BASIC_UPGS[index].display}}
+                                <br><span v-bind:style="{ color: tmp.upgrades[index].effectColor }">{{BASIC_UPGS[index].totalDisp}}</span>
+                                <br><span v-bind:style="{ color: tmp.upgrades[index].costColor }">Cost: {{format(tmp.upgrades[index].cost)}} points</span>
+                            </button>
+        
+                            <button style="text-align: center; font-size: 1.0667vw" 
+                            v-bind:class="{ nopeFill: !player.auto.upgrades[index], okFill: player.auto.upgrades[index] }"
+                            class="whiteText thinMediumButton fontVerdana genAutoButton" v-if="item.auto" @click="player.auto.upgrades[index] = !player.auto.upgrades[index]">
+                                <b>Upgrade {{index + 1}} Autobuyer: {{player.auto.upgrades[index]?"On":"Off"}}</b>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <table style="margin-top: 0.96vw; margin-left: auto; margin-right: auto;">
+                    <tr>
+                        <td> 
+                            <div class="flex-container" style="flex-direction: column;">
+                                <button style="text-align: center; font-size: 1.0667vw" 
+                                v-bind:class="{ nope: !tmp.praiCanDo, ok: tmp.praiCanDo }"
+                                class="whiteText largeButton fontVerdana generatorButton" id="prai" v-if="player.nerf.praiActive" @click="reset('prai')">
+                                <h3 style="font-size: 1.25vw">PRai: {{format(player.generators.prai.amount)}}</h3>
+                                    {{`Reset your progress to gain ${Decimal.gte(player.generators.pr2.best, 1) ? format(tmp.praiPending) + " " : ""}PRai.`}}
+                                    <br>{{
+                                        tmp.praiCanDo
+                                            ? tmp.praiPending.lt(1e6) && Decimal.gte(player.generators.pr2.best, 1)
+                                                ? `Next in ${format(tmp.praiNext)} points. (${format(Decimal.div(tmp.praiPending, player.generators.prai.timeInPRai), 2)}/s)`
+                                                : `(${format(Decimal.div(tmp.praiPending, player.generators.prai.timeInPRai), 2)}/s)`
+                                            : `You can PRai reset in ${formatTime(tmp.praiNext)}`
+                                    }}
+                                    <br>You have {{format(player.generators.prai.amount)}} PRai, which boosts your points by {{format(player.generators.prai.effect, 2)}}x.
+                                    <br>{{tmp.praiCanDo ? `Resetting now, PRai will boost your points by ${format(tmp.praiNextEffect, 2)}x` : ""}}
+                                </button>
     
-                        <button style="text-align: center; font-size: 1.0667vw" 
-                        v-bind:class="{ nopeFill: !player.auto.upgrades[index], okFill: player.auto.upgrades[index] }"
-                        class="whiteText thinMediumButton fontVerdana genAutoButton" v-if="item.auto" @click="player.auto.upgrades[index] = !player.auto.upgrades[index]">
-                            <b>Upgrade {{index + 1}} Autobuyer: {{player.auto.upgrades[index]?"On":"Off"}}</b>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <table style="margin-top: 0.96vw; margin-left: auto; margin-right: auto;">
-                <tr>
-                    <td> 
-                        <div class="flex-container" style="flex-direction: column;">
-                            <button style="text-align: center; font-size: 1.0667vw" 
-                            v-bind:class="{ nope: !tmp.praiCanDo, ok: tmp.praiCanDo }"
-                            class="whiteText largeButton fontVerdana generatorButton" id="prai" v-if="player.nerf.praiActive" @click="reset('prai')">
-                            <h3 style="font-size: 1.25vw">PRai: {{format(player.generators.prai.amount)}}</h3>
-                                {{`Reset your progress to gain ${Decimal.gte(player.generators.pr2.best, 1) ? format(tmp.praiPending) + " " : ""}PRai.`}}
-                                <br>{{
-                                    tmp.praiCanDo
-                                        ? tmp.praiPending.lt(1e6) && Decimal.gte(player.generators.pr2.best, 1)
-                                            ? `Next in ${format(tmp.praiNext)} points. (${format(Decimal.div(tmp.praiPending, player.generators.prai.timeInPRai), 2)}/s)`
-                                            : `(${format(Decimal.div(tmp.praiPending, player.generators.prai.timeInPRai), 2)}/s)`
-                                        : `You can PRai reset in ${formatTime(tmp.praiNext)}`
-                                }}
-                                <br>You have {{format(player.generators.prai.amount)}} PRai, which boosts your points by {{format(player.generators.prai.effect, 2)}}x.
-                                <br>{{tmp.praiCanDo ? `Resetting now, PRai will boost your points by ${format(tmp.praiNextEffect, 2)}x` : ""}}
-                            </button>
-
-                            <button style="text-align: center; width: 24vw; height: 4vw; font-size: 1.0667vw" 
-                            v-bind:class="{ nopeFill: !player.auto.prai, okFill: player.auto.prai }"
-                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="autoPRai" v-if="player.nerf.praiActive && player.kua.kshards.upgrades >= 1" @click="player.auto.prai = !player.auto.prai">
-                                <b>PRai Generator: {{player.auto.prai?"On":"Off"}}</b>
-                            </button>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="flex-container" style="flex-direction: column;">
-                            <button style="text-align: center; font-size: 1.0667vw" 
-                            v-bind:class="{ nope: !tmp.pr2CanDo, ok: tmp.pr2CanDo }"
-                            class="whiteText largeButton fontVerdana generatorButton" id="pr2" v-if="player.nerf.pr2Active && player.generators.prai.best.gte(3)" @click="reset('pr2')">
-                                <h3 style="font-size: 1.25vw">PR2: {{format(player.generators.pr2.amount)}}</h3>
-                                Reset all of your previous progress to for a PR2 reset.
-                                <br><span v-bind:style="{ color: tmp.pr2ScalingColor }">{{
-                                    tmp.pr2CanDo
-                                        ? false
-                                            ? `You can PR2 reset ${format(player.generators.pr2.target.sub(player.generators.pr2.amount).floor())} times!`
-                                            : `You can PR2 reset! (${format(player.generators.prai.amount)} / ${format(player.generators.pr2.cost)} PRai)`
-                                        : `You need ${format(player.generators.prai.amount)} / ${format(player.generators.pr2.cost)} PRai to PR2 reset.`
-                                }}</span>
-                                <br>You have {{format(player.generators.pr2.amount)}} PR2, which boosts your PRai and points by {{format(player.generators.pr2.effect, 2)}}x.
-                                <br>{{tmp.pr2Text===""?"":`At ${format(tmp.pr2Text.info)} PR2 reset${tmp.pr2Text.info.eq(1)?"":"s"}, ${tmp.pr2Text.txt}`}}
-                            </button>
-
-                            <button style="text-align: center; width: 24vw; height: 4vw; font-size: 1.0667vw" 
-                            v-bind:class="{ nopeFill: !player.auto.pr2, okFill: player.auto.pr2 }"
-                            class="whiteText thinMediumButton fontVerdana genAutoButton" id="autoPR2" v-if="player.nerf.pr2Active && false" @click="player.auto.pr2 = !player.auto.pr2">
-                                <b>PR2 Autobuyer: {{player.auto.pr2?"On":"Off"}}</b>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div id="kuaraniai" v-if="tab.currTab === 'kua'">
-            <div class="flex-container" style="flex-direction: row; justify-content: center; font-size: 1.4vw; margin-bottom: 1vw;" v-if="Decimal.gte(player.kua.total, 0.01)">
-                <button @click="switchTab(false, 0, 0)" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 10vw; height: 3vw; font-size: 1vw" class="kuaButton2 fontVerdana whiteText">Main</button>
-                <button @click="switchTab(false, 1, 0)" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 10vw; height: 3vw; font-size: 1vw" class="kuaButton2 fontVerdana whiteText">Enhancers</button>
-            </div>
-            <div class="flex-container" style="margin-left: auto; margin-right: auto; flex-direction: column; justify-content: center;" v-if="tab[tab.currTab][0] === 0">
-                <button style="text-align: center; margin-top: 0.96vw; margin-left: auto; margin-right: auto; font-size: 1.0667vw" 
-                v-bind:class="{ nope: !tmp.kuaCanDo, ok: tmp.kuaCanDo }"
-                class="whiteText thinlargeButton fontVerdana kuaButton" id="kuaGain" @click="reset('kua')">
-                    <h3 style="font-size: 1.25vw">Kuaraniai: {{format(player.kua.amount, 3)}}</h3>
-                    Convert your {{format(tmp.effectivePrai)}} PRai into {{format(tmp.kuaPending, 4)}} Kuaraniai
-                    <br>{{
-                        tmp.kuaCanDo
-                            ? `You can convert PRai to Kuaraniai! (${format(tmp.effectivePrai)} / ${format(tmp.kuaReq)} PRai)`
-                            : `You need ${format(tmp.effectivePrai)} / ${format(tmp.kuaReq)} PRai to convert into Kuaraniai.`
-                    }}
-                    <br>You have {{format(player.kua.amount, 3)}} Kuaraniai, which generates {{format(tmp.kuaShardGeneration, 4)}} Kuaraniai Shards (KShards) per second. It also:
-                    <div v-if="player.nerf.kuaActive.effects">
-                        <li>Reduces Upgrade 1's scaling strength by {{formatPerc(tmp.kuaEffects.upg1Scaling, 3)}}</li> 
-                        <li v-if="player.kua.kpower.upgrades >= 6">Reduces Upgrade 1's super scaling strength by {{formatPerc(tmp.kuaEffects.upg1SuperScaling, 3)}}</li>
-                        <li v-if="Decimal.gt(player.kua.amount, 0)"> Adds Upgrade 1 B-Side, and makes it's base x{{format(tmp.kuaEffects.up4, 4)}}/bought. </li>
-                        <li v-if="player.kua.kpower.upgrades >= 3">Raises Points gain to ^{{format(tmp.kuaEffects.ptPower, 4)}}</li>
-                        <li v-if="player.kua.kpower.upgrades >= 6">Delays Upgrade 2's softcap by {{format(tmp.kuaEffects.upg2Softcap, 2)}}x</li>
-                        <li v-if="player.kua.kshards.upgrades >= 7">Multiplies Point gain by {{format(tmp.kuaEffects.pts, 2)}}x</li>
-                        <li v-if="player.kua.kshards.upgrades >= 10">Increases KShards' PRai effect boost by ^{{format(tmp.kuaEffects.kshardPrai, 4)}}</li>
-                        <li v-if="player.kua.kshards.upgrades >= 10">Boosts KPower gain by x{{format(tmp.kuaEffects.kpower, 2)}}</li>
-                    </div>
-                </button>
-                <div class="flex-container" style="flex-direction: column; justify-content: center;" v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `0.24vw solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.5, 1.0)}` }">
-                    <div v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime) / 4, 1.0, 1.0), border: `0.24vw solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.5, 1.0)}`  }">
-                        <div style="text-align: center; font-size: 1.28vw;" v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime) / 4, 1.0, 1.0) }">
-                            You have <b>{{format(player.kua.kshards.amount, 3)}}</b> Kuaraniai shards.
-                            <div v-if="player.nerf.kuaActive.kshards.effects">
-                                <li>
-                                    Boosts PRai gain by {{format(tmp.kuaEffects.kshardPassive, 3)}}x.
-                                </li>
-                                <li>
-                                    Generate {{format(tmp.kuaPowerGeneration, 3)}} Kuaraniai Power (KPower) per second.
-                                </li>
-                                <li v-if="player.kua.kshards.amount.gt(0)">
-                                    Adds Upgrade 2 B-Side, and makes it's base x{{format(tmp.kuaEffects.up5, 4)}}/bought.
-                                </li>
-                                <li v-if="player.kua.kshards.upgrades >= 2">
-                                    Multiply PRai's effect by {{format(KUA_UPGRADES.KShards[1].eff, 2)}}x.
-                                </li>
-                                <li v-if="player.kua.kshards.upgrades >= 8">
-                                    Multiply PRai gain by {{format(KUA_UPGRADES.KShards[7].eff, 2)}}x.
-                                </li>
-                                <li v-if="player.kua.kshards.upgrades >= 9">
-                                    Delays Upgrade 2's cost growth (after scaling costs) by +{{format(KUA_UPGRADES.KShards[8].eff, 2)}} purchases.
-                                </li>
-                            </div>
-                        </div>
-                        <div class="flex-container" style="flex-direction: row; justify-content: center;">
-                            <div v-for="(item, index) in KUA_UPGRADES.KShards">
-                                <button @click="buyKShardUpg(index)" v-bind:style="{ opacity: (1 - ((index - player.kua.kshards.upgrades) / 5)) ** 2 }" v-if="index >= player.kua.kshards.upgrades && index < player.kua.kshards.upgrades + 5 && item.show" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 12.8vw; height: 12.8vw; font-size: 0.96vw" class="whiteText kuaButton2 fontVerdana">
-                                    <span style="color: #ff0; font-size: 0.8vw; margin-right: 0.5vw"><b>#{{index + 1}}</b></span><span v-if="item.eh" style="color: #ff0; font-size: 0.8vw"><b>[ NOT IMPLEMENTED ]</b><br></span>
-                                    <span style="vertical-align: top;">{{item.desc}}</span>
-                                    <br><br>
-                                    <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost, 1)}} KShards</span>
+                                <button style="text-align: center; width: 24vw; height: 4vw; font-size: 1.0667vw" 
+                                v-bind:class="{ nopeFill: !player.auto.prai, okFill: player.auto.prai }"
+                                class="whiteText thinMediumButton fontVerdana genAutoButton" id="autoPRai" v-if="player.nerf.praiActive && player.kua.kshards.upgrades >= 1" @click="player.auto.prai = !player.auto.prai">
+                                    <b>PRai Generator: {{player.auto.prai?"On":"Off"}}</b>
                                 </button>
                             </div>
-                        </div>
-                    </div>
-                    <div v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI) / 4, 1.0, 1.0), border: `0.24vw solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI) / 8, 0.5, 1.0)}`  }">
-                        <div style="text-align: center; font-size: 1.28vw;" v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI) / 4, 1.0, 1.0) }">
-                            You have <b>{{format(player.kua.kpower.amount, 3)}}</b> Kuaraniai power.
-                            <div v-if="player.nerf.kuaActive.kpower.effects">
-                                <li>
-                                    Boosts Point gain by {{format(tmp.kuaEffects.kpowerPassive, 3)}}x.
-                                </li>
-                                <li v-if="player.kua.kpower.amount.gt(0)">
-                                    Adds Upgrade 3 B-Side, and makes it's base +{{format(tmp.kuaEffects.up6, 5)}}/bought.
-                                </li>
-                                <li v-if="player.kua.kpower.upgrades >= 1">
-                                    Increases Upgrade 2's base by +{{format(KUA_UPGRADES.KPower[0].eff, 3)}}.
-                                </li>
-                                <li v-if="player.kua.kpower.upgrades >= 2">
-                                    Makes Upgrade 3 {{format(KUA_UPGRADES.KPower[1].eff.sub(1).mul(100), 3)}}% more effective.
-                                </li>
-                                <li v-if="player.kua.kpower.upgrades >= 4">
-                                    Delays Upgrade 2's softcap by {{format(KUA_UPGRADES.KPower[3].eff, 2)}}x.
-                                </li>
-                                <li v-if="player.kua.kpower.upgrades >= 5">
-                                    Raises PRai's effect to ^{{format(KUA_UPGRADES.KPower[4].eff, 4)}}.
-                                </li>
-                            </div>
-                        </div>
-                        <div class="flex-container" style="flex-direction: row; justify-content: center;">
-                            <div v-for="(item, index) in KUA_UPGRADES.KPower">
-                                <button @click="buyKPowerUpg(index)" v-bind:style="{ opacity: (1 - ((index - player.kua.kpower.upgrades) / 5)) ** 2 }" v-if="index >= player.kua.kpower.upgrades && index < player.kua.kpower.upgrades + 5 && item.show" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 12.8vw; height: 12.8vw; font-size: 0.96vw" class="whiteText kuaButton2 fontVerdana">
-                                    <span style="color: #ff0; font-size: 0.8vw; margin-right: 0.5vw"><b>#{{index + 1}}</b></span><span v-if="item.eh" style="color: #ff0; font-size: 0.8vw"><b>[ NOT IMPLEMENTED ]</b><br></span>
-                                    <span style="vertical-align: top;">{{item.desc}}</span>
-                                    <br><br>
-                                    <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost, 1)}} KPower</span>
+                        </td>
+                        <td>
+                            <div class="flex-container" style="flex-direction: column;">
+                                <button style="text-align: center; font-size: 1.0667vw" 
+                                v-bind:class="{ nope: !tmp.pr2CanDo, ok: tmp.pr2CanDo }"
+                                class="whiteText largeButton fontVerdana generatorButton" id="pr2" v-if="player.nerf.pr2Active && Decimal.gte(player.generators.prai.best, 3)" @click="reset('pr2')">
+                                    <h3 style="font-size: 1.25vw">PR2: {{format(player.generators.pr2.amount)}}</h3>
+                                    Reset all of your previous progress to for a PR2 reset.
+                                    <br><span v-bind:style="{ color: tmp.pr2ScalingColor }">{{
+                                        tmp.pr2CanDo
+                                            ? false
+                                                ? `You can PR2 reset ${format(player.generators.pr2.target.sub(player.generators.pr2.amount).floor())} times!`
+                                                : `You can PR2 reset! (${format(player.generators.prai.amount)} / ${format(player.generators.pr2.cost)} PRai)`
+                                            : `You need ${format(player.generators.prai.amount)} / ${format(player.generators.pr2.cost)} PRai to PR2 reset.`
+                                    }}</span>
+                                    <br>You have {{format(player.generators.pr2.amount)}} PR2, which boosts your PRai and points by {{format(player.generators.pr2.effect, 2)}}x.
+                                    <br>{{tmp.pr2Text===""?"":`At ${format(tmp.pr2Text.info)} PR2 reset${tmp.pr2Text.info.eq(1)?"":"s"}, ${tmp.pr2Text.txt}`}}
+                                </button>
+    
+                                <button style="text-align: center; width: 24vw; height: 4vw; font-size: 1.0667vw" 
+                                v-bind:class="{ nopeFill: !player.auto.pr2, okFill: player.auto.pr2 }"
+                                class="whiteText thinMediumButton fontVerdana genAutoButton" id="autoPR2" v-if="player.nerf.pr2Active && false" @click="player.auto.pr2 = !player.auto.pr2">
+                                    <b>PR2 Autobuyer: {{player.auto.pr2?"On":"Off"}}</b>
                                 </button>
                             </div>
-                        </div>
-                    </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div id="kuaraniai" v-if="tab.currTab === 'kua'">
+                <div class="flex-container" style="flex-direction: row; justify-content: center; font-size: 1.4vw; margin-bottom: 1vw;" v-if="Decimal.gte(player.kua.total, 0.01)">
+                    <button @click="switchTab(false, 0, 0)" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 10vw; height: 3vw; font-size: 1vw" class="kuaButton2 fontVerdana whiteText">Main</button>
+                    <button @click="switchTab(false, 1, 0)" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 10vw; height: 3vw; font-size: 1vw" class="kuaButton2 fontVerdana whiteText">Enhancers</button>
                 </div>
-            </div>
-        </div>
-        <div id="colosseum" v-if="tab.currTab === 'col'">
-            <div class="flex-container" style="flex-direction: row; justify-content: center; font-size: 1.4vw; margin-bottom: 1vw;" v-if="Decimal.gte(timesCompleted('nk'), 1)">
-                <button @click="switchTab(false, 0, 0)" class="colButtonTab smallColBorder colButton fontVerdana">Challenges</button>
-                <button @click="switchTab(false, 1, 0)" class="colButtonTab smallColBorder colButton fontVerdana">Research</button>
-            </div>
-            <div class="flex-container" style="flex-direction: column; justify-content: center; margin-bottom: 1vw;">
-                <span style="color: #f40; text-align: center; font-size: 1.6vw;">You have <span style="font-size: 1.92vw;"><b>{{format(player.col.power, 2)}}</b></span> Colosseum Power. <span style="font-size: 1.2vw;">({{format(tmp.colosseumPowerGeneration, 2)}}/s)</span></span>
-                <span style="text-align: center; font-size: 1.6vw;" v-bind:style="{ color: player.col.completedAll ? '#0080FF' : '#FF4000' }">This will give you about <span style="font-size: 1.92vw;"><b>{{formatTime(player.col.maxTime, 3)}}</b></span> within challenges.</span>
-            </div>
-            <div class="flex-container" style="flex-direction: row; justify-content: center; margin-top: 2.4vw;" v-if="tab[tab.currTab][0] === 0">
-                <div v-for="(item, index) in COL_CHALLENGES" class="flex-container">
-                    <button v-if="item.show" v-bind:class="{ 
-                        colButton: !completedChallenge(item.id) && !inChallenge(item.id), 
-                        colButtonProg: completedChallenge(item.id) ? false : inChallenge(item.id), 
-                        colButtonComp: completedChallenge(item.id),
-
-                        normColBorder: !completedChallenge(item.id) && !inChallenge(item.id), 
-                        normColBorderProg: completedChallenge(item.id) ? false : inChallenge(item.id), 
-                        normColBorderComp: completedChallenge(item.id) 
-                    }
-                        " class="whiteText fontVerdana main-container" style="padding: 0%; margin-left: 0.2vw; margin-right: 0.2vw; " @click="challengeToggle(item.id)">
-                        <div v-bind:class="{ colButtonHeader: !completedChallenge(item.id) && !inChallenge(item.id), colButtonHeaderProg: completedChallenge(item.id) ? false : inChallenge(item.id), colButtonHeaderComp: completedChallenge(item.id) }" 
-                            class="first-cont" 
-                            style="height: 16.667%;"
-                        >
-                            <span class="generic-text" style="left: 0.4vw; top: 0.4vw; font-size: 1.12vw">{{['One-Time', 'Multiple (' + 'format(player.col.completed[index] ?? new Decimal(0))' + '/' + 'format(item.cap)' + ')', 'Continuous'][item.type]}}</span> 
-                            <span class="generic-text" style="right: 0.4vw; top: 0.4vw; font-size: 1.12vw">#{{item.num}}</span>
-                            <span class="centered-text" style="bottom: 0.4vw; font-size: 2.08vw"><b>{{item.name}}</b></span>
-                        </div>
-                        <div v-bind:class="{ colButtonDesc: !completedChallenge(item.id) && !inChallenge(item.id), colButtonDescProg: completedChallenge(item.id) ? false : inChallenge(item.id), colButtonDescComp: completedChallenge(item.id) }" 
-                            class="second-cont" 
-                            style="height: 33.333%; font-size: 1.0667vw"
-                        >
-                            <span class="centered-text" style="top: 0.8vw">{{item.goalDesc}}</span>
-                            <span class="centered-text" style="top: 3.2vw">{{item.desc}}</span>
-                        </div>
-                        <div v-bind:class="{ colButtonRew: !completedChallenge(item.id) && !inChallenge(item.id), colButtonRewProg: completedChallenge(item.id) ? false : inChallenge(item.id), colButtonRewComp: completedChallenge(item.id) }" 
-                            class="third-cont" 
-                            style="height: 50%; font-size: 1.0667vw"
-                        >
-                            <span class="centered-text" style="top: 2vw"> - REWARD - </span>
-                            <span class="centered-text" style="top: 4.4vw">{{item.reward}}</span>
+                <div class="flex-container" style="margin-left: auto; margin-right: auto; flex-direction: column; justify-content: center;" v-if="tab[tab.currTab][0] === 0">
+                    <button style="text-align: center; margin-top: 0.96vw; margin-left: auto; margin-right: auto; font-size: 1.0667vw" 
+                    v-bind:class="{ nope: !tmp.kuaCanDo, ok: tmp.kuaCanDo }"
+                    class="whiteText thinlargeButton fontVerdana kuaButton" id="kuaGain" @click="reset('kua')">
+                        <h3 style="font-size: 1.25vw">Kuaraniai: {{format(player.kua.amount, 3)}}</h3>
+                        Convert your {{format(tmp.effectivePrai)}} PRai into {{format(tmp.kuaPending, 4)}} Kuaraniai
+                        <br>{{
+                            tmp.kuaCanDo
+                                ? `You can convert PRai to Kuaraniai! (${format(tmp.effectivePrai)} / ${format(tmp.kuaReq)} PRai)`
+                                : `You need ${format(tmp.effectivePrai)} / ${format(tmp.kuaReq)} PRai to convert into Kuaraniai.`
+                        }}
+                        <br>You have {{format(player.kua.amount, 3)}} Kuaraniai, which generates {{format(tmp.kuaShardGeneration, 4)}} Kuaraniai Shards (KShards) per second. It also:
+                        <div v-if="player.nerf.kuaActive.effects">
+                            <li>Reduces Upgrade 1's scaling strength by {{formatPerc(tmp.kuaEffects.upg1Scaling, 3)}}</li> 
+                            <li v-if="player.kua.kpower.upgrades >= 6">Reduces Upgrade 1's super scaling strength by {{formatPerc(tmp.kuaEffects.upg1SuperScaling, 3)}}</li>
+                            <li v-if="Decimal.gt(player.kua.amount, 0)"> Adds Upgrade 1 B-Side, and makes it's base x{{format(tmp.kuaEffects.up4, 4)}}/bought. </li>
+                            <li v-if="player.kua.kpower.upgrades >= 3">Raises Points gain to ^{{format(tmp.kuaEffects.ptPower, 4)}}</li>
+                            <li v-if="player.kua.kpower.upgrades >= 6">Delays Upgrade 2's softcap by {{format(tmp.kuaEffects.upg2Softcap, 2)}}x</li>
+                            <li v-if="player.kua.kshards.upgrades >= 7">Multiplies Point gain by {{format(tmp.kuaEffects.pts, 2)}}x</li>
+                            <li v-if="player.kua.kshards.upgrades >= 10">Increases KShards' PRai effect boost by ^{{format(tmp.kuaEffects.kshardPrai, 4)}}</li>
+                            <li v-if="player.kua.kshards.upgrades >= 10">Boosts KPower gain by x{{format(tmp.kuaEffects.kpower, 2)}}</li>
                         </div>
                     </button>
-                </div>
-            </div>
-            <div style="background-color: #410; border: 0.2vw solid #ff4000; margin-left: auto; margin-right: auto; display: flex; justify-content: center; flex-direction: row; box-shadow: 0 0 0.8vw 0.24vw rgb(66, 17, 0); height: 40vw; width: 80vw" v-if="tab[tab.currTab][0] === 1">
-                <div style="display: flex; justify-content: center; flex-direction: row; flex-wrap: wrap; border: 0.24vw solid #ff4000; padding: 0.6vw; height: 38.8vw; width: 50%">
-                    <div v-for="(item, index) in COL_RESEARCH" class="flex-container">
-                        <!-- set padding to 0vw because it auto-inserts padding -->
-                        <button v-if="item.unlocked" @click="switchTab(false, index, 1);" style="width: 10vw; height: 4vw; margin-left: 0.24vw; margin-right: 0.24vw; padding: 0vw" class="smallColBorder colButton fontVerdana">
-                            <div class="whiteText" style="display: flex; justify-content: center; background-color: #631900; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw;">
-                                <span class="centered-text" style="height: 100%;">{{item.name}}</span>
+                    <div class="flex-container" style="flex-direction: column; justify-content: center;" v-bind:style="{ backgroundColor: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.2, 1.0), border: `0.24vw solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.5, 1.0)}` }">
+                        <div v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime) / 4, 1.0, 1.0), border: `0.24vw solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI * 0.5) / 8, 0.5, 1.0)}`  }">
+                            <div style="text-align: center; font-size: 1.28vw;" v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime) / 4, 1.0, 1.0) }">
+                                You have <b>{{format(player.kua.kshards.amount, 3)}}</b> Kuaraniai shards.
+                                <div v-if="player.nerf.kuaActive.kshards.effects">
+                                    <li>
+                                        Boosts PRai gain by {{format(tmp.kuaEffects.kshardPassive, 3)}}x.
+                                    </li>
+                                    <li>
+                                        Generate {{format(tmp.kuaPowerGeneration, 3)}} Kuaraniai Power (KPower) per second.
+                                    </li>
+                                    <li v-if="player.kua.kshards.amount.gt(0)">
+                                        Adds Upgrade 2 B-Side, and makes it's base x{{format(tmp.kuaEffects.up5, 4)}}/bought.
+                                    </li>
+                                    <li v-if="player.kua.kshards.upgrades >= 2">
+                                        Multiply PRai's effect by {{format(KUA_UPGRADES.KShards[1].eff, 2)}}x.
+                                    </li>
+                                    <li v-if="player.kua.kshards.upgrades >= 8">
+                                        Multiply PRai gain by {{format(KUA_UPGRADES.KShards[7].eff, 2)}}x.
+                                    </li>
+                                    <li v-if="player.kua.kshards.upgrades >= 9">
+                                        Delays Upgrade 2's cost growth (after scaling costs) by +{{format(KUA_UPGRADES.KShards[8].eff, 2)}} purchases.
+                                    </li>
+                                </div>
                             </div>
-                            <div class="whiteText" style="display: flex; justify-content: center; background-color: #7a1f00; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw">
-                                <span class="centered-text" style="height: 100%;">Level: {{format(item.scoreToLevel(player.col.research.xpTotal[index]).floor(), 0)}}</span>
-                            </div>
-                            <div style="height: 15%; width: 100%; position: relative;">
-                                <div style="position: absolute; top: 0; left: 0; background-color: #521400; height: 100%; width: 100%"></div>
-                                <div v-bind:style="{ backgroundColor: player.col.research.enabled[index] ? '#ffc000' : '#ff4000', width: `${getColResLevel(index).gte(c.e12) ? 100 : Decimal.div(Decimal.sub(player.col.research.xpTotal[index], item.levelToScore(getColResLevel(index).floor())), item.levelToScore(getColResLevel(index).floor().add(1)).sub(item.levelToScore(getColResLevel(index).floor()))).min(1).mul(100).toNumber()}%` }" style="position: absolute; top: 0; left: 0; height: 100%;"></div>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-                <div style="display: flex; justify-content: center; flex-direction: row; border: 0.24vw solid #ff4000; height: 40vw; width: 50%">
-                    <div style="width: 100%; height: 100%;">
-                        <div class="whiteText" style="display: flex; justify-content: center; background-color: #461100; position: relative; width: 100%; height: 20%; font-size: 2.4vw;">
-                            <span class="centered-text" style="height: 100%;">{{COL_RESEARCH[tab[tab.currTab][1]].name}}</span>
-                        </div>
-                        <div class="whiteText" style="display: flex; justify-content: center; background-color: #521400; position: relative; width: 100%; height: 15%; font-size: 1.6vw">
-                            <span class="centered-text" style="top: 4%">Level: {{format(getColResLevel(tab[tab.currTab][1]).floor(), 0)}}</span>
-                            <!-- i wish i made this better instead of having to do an extremely long formula T_T -->
-                            <span v-if="getColResLevel(tab[tab.currTab][1]).lt(c.e12)" class="centered-text" style="top: 33.333%">XP: {{format(Decimal.sub(player.col.research.xpTotal[tab[tab.currTab][1]], COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor())), 0)}} / {{format(COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor().add(1)).sub(COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor())), 0)}}</span>
-                            <span v-if="getColResLevel(tab[tab.currTab][1]).gte(c.e12)" class="centered-text" style="top: 33.333%">Total XP: {{format(player.col.research.xpTotal[tab[tab.currTab][1]], 0)}}</span>
-                            <div style="top: 68.5%; height: 1vw; width: 35vw; position: relative;">
-                                <div style="position: absolute; top: 0; left: 0; border: 0.24vw solid #882200; background-color: #521400; height: 100%; width: 100%"></div>
-                                <div v-bind:style="{ backgroundColor: player.col.research.enabled[tab[tab.currTab][1]] ? '#ffc000' : '#ff4000', width: `${getColResLevel(tab[tab.currTab][1]).gte(c.e12) ? 100 : Decimal.div(Decimal.sub(player.col.research.xpTotal[tab[tab.currTab][1]], COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor())), COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor().add(1)).sub(COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor()))).min(1).mul(100).toNumber()}%` }" style="position: absolute; top: 0; left: 0; border: 0.24vw solid #882200; height: 100%;"></div>
-                            </div>
-                        </div>
-                        <div class="whiteText" style="display: flex; justify-content: center; background-color: #461100; position: relative; width: 100%; height: 44%; font-size: 1.2vw">
-                            <span class="centered-text" style="top: 0.5vw">{{COL_RESEARCH[tab[tab.currTab][1]].effectDesc(getColResLevel(tab[tab.currTab][1]).floor())}}</span>
-                            <span class="centered-text" style="top: 2vw">{{COL_RESEARCH[tab[tab.currTab][1]].effectDescLevel(getColResLevel(tab[tab.currTab][1]).floor())}}</span>
-                        </div>
-                        <div class="whiteText" style="display: flex; justify-content: center; background-color: #521400; position: relative; width: 100%; height: 6%; font-size: 1.44vw">
-                            <span class="centered-text" style="top: 10%">You currently have allocated {{tmp.colResearchesAllocated}} / {{tmp.colResearchesAtOnce}} researches.</span>
-                        </div>
-                        <div class="whiteText" style="display: flex; justify-content: center; background-color: #461100; position: relative; width: 100%; height: 15%;">
-                            <button @click="allocColResearch(tab[tab.currTab][1])" class="smallColBorder colButton fontVerdana whiteText" style="width: 50%; height: 80%; top: 10%; font-size: 1vw; position: relative">
-                                {{player.col.research.enabled[tab[tab.currTab][1]] ? 'Stop' : 'Start'}} researching {{COL_RESEARCH[tab[tab.currTab][1]].name}}.
-                                <br>{{tmp.colResearchesAtOnce - tmp.colResearchesAllocated <= 0 ? `You can't allocate anymore researches.` : `You can allocate ${tmp.colResearchesAtOnce - tmp.colResearchesAllocated} more ${tmp.colResearchesAtOnce - tmp.colResearchesAllocated === 1 ? 'research' : 'researches'}.`}}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>      
-        <div id="taxation" v-if="tab.currTab === 'tax'">
-            <div class="flex-container" style="flex-direction: column; justify-content: center; margin-bottom: 1vw;">
-                <span style="text-shadow: #ca0 0vw 0vw 1vw; color: #fc0; text-align: center; font-size: 1.6vw;">You have <span style="font-size: 1.92vw;"><b>{{format(player.tax.taxed, 3)}}</b></span> taxed coins, which boost your points gain by <b><span style="font-size: 1.92vw;">{{format(tmp.taxPtsEff, 2)}}x.</span></b></span>
-                <button class="whiteText smallTaxBorder taxButton fontVerdana" style="height: 5vw; width: 25vw; font-size: 1.0667vw; margin-left: auto; margin-right: auto; margin-top: 1.5vw">
-                    Gain <span style="font-size: 1.2vw"><b>{{format(tmp.taxPending, 3)}}</b></span> taxed coins upon taxation.
-                    <br>You will do a Colosseum reset.  
-                </button>
-                <div style="margin-top: 1vw; background-color: #430; border: 0.48vw solid #ffd000; margin-left: auto; margin-right: auto; display: flex; justify-content: center; flex-direction: row; padding: 0.6vw; box-shadow: 0 0 0.8vw 0.24vw rgb(66, 55, 0); height: 45vw; width: 80vw">
-                    <div v-for="(item, index) in TAX_UPGRADES" class="flex-container">
-                        <!-- set padding to 0vw because it auto-inserts padding -->
-                        <button v-bind:style="{ backgroundColor: item.type === 0 ? (Decimal.gte(getTaxUpgrade(index), 1) ? '#847000' : '#634c00') : '#524300' }" v-if="item.show" style="width: 12.75vw; height: 8.5vw; margin-left: 0.24vw; margin-right: 0.24vw; font-size: 0.75vw;" class="smallTaxBorder taxButton fontVerdana whiteText">
-                            <span v-bind:style="{ color: item.type === 0 ? '#dd0' : '#ff8' }" style="font-size: 0.75vw; margin-right: 0.5vw"><b>#{{index + 1}} [{{item.type === 0 ? 'One-Time' : 'Repeatable'}}]</b></span>
-                            <br><span v-if="!item.implemented" style="color: #ff0; font-size: 0.5vw"><b>[ NOT IMPLEMENTED ]</b><br></span>
-                            <span class="vertical-align: top;">{{item.desc}}</span>
-                            <br><br>
-                            <span v-if="(item.type === 0 && Decimal.lt(getTaxUpgrade(index), 1)) || item.type === 1" class="vertical-align: bottom;">Cost: <b><span style="font-size: 0.9vw; color: #ff0">{{format(item.type === 1 ? item.cost().ceil() : item.cost)}}</span></b> coins.</span>
-                            <span v-if="item.type === 0 && Decimal.gte(getTaxUpgrade(index), 1)" class="vertical-align: bottom;"><b><span style="font-size: 0.9vw; color: #ff0">Bought!</span></b></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="options" v-if="tab.currTab === 'opt'">
-            <div class="flex-container" style="flex-direction: row; justify-content: center;">
-                <button @click="console.log(saveTheFrickingGame())" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw; font-size: 1vw;">
-                    Save manually.
-                </button>
-                <button @click="setAutosaveInterval();" v-bind:class="{ nope: player.settings.autoSaveInterval >= 1e10, ok: player.settings.autoSaveInterval < 1e10 }" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; height: 8vw; width: 16vw; font-size: 1vw;">
-                    Autosave Interval: {{formatTime(player.settings.autoSaveInterval >= 1e10 ? Infinity : (player.settings.autoSaveInterval / 1000), 3)}}
-                </button>
-                <button @click="exportSave()" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw; font-size: 1vw;">
-                    Export save to clipboard.
-                </button>
-                <button @click="importSave()" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw; font-size: 1vw;">
-                    Import save.
-                </button>
-            </div>
-        </div>
-        <div id="stats" v-if="tab.currTab === 'stat'">
-            <div class="flex-container" style="flex-direction: column; justify-content: center;">
-                <div style="background-color: rgb(31, 31, 31); border: 0.4vw solid #e0e0e0; margin-left: auto; margin-right: auto; display: flex; justify-content: flex-start; flex-direction: column; box-shadow: 0 0 0.8vw 0.24vw rgb(29, 29, 29); height: 40vw; width: 80vw; margin-bottom: 1vw;">
-                    <div style="display: flex; justify-content: flex-start; flex-flow: wrap; flex-direction: column; align-items: center; flex-wrap: nowrap; width: 100%; height: 2.5vw">
-                        <span class="whiteText" style="font-size: 1.2vw">{{format(Decimal.max(player.points, 10).log10().log(400).min(1).mul(100), 2)}}% to ENDGAME</span>
-                        <div style="width: 100%; position: relative; height: 100%;">
-                            <div style="background-color: #404040; position: absolute; top: 0; left: 0; height: 100%; width: 100%"></div>
-                            <div v-bind:style="{ width: `${Decimal.max(player.points, 10).log10().log(400).min(1).mul(100).toNumber()}%` }" style="background-color: #ffffff; position: absolute; top: 0; left: 0; height: 100%;"></div>
-                        </div>
-                    </div>
-                    <div style="display: flex; justify-content: flex-start; flex-direction: row;">
-                        <div class="flex-container" style="justify-content: flex-start; flex-flow: wrap; flex-direction: column; align-items: center; flex-wrap: nowrap; width: 50%">
-                            <div v-for="(item, index) in STAGES" class="flex-container" style="padding: 0.6vw; padding-bottom: 0vw; width: 100%">
-                                <button v-if="item.show" @click="switchTab(false, index, 1);" v-bind:style="{ border: `0.24vw solid ${item.colors.border}` }" style="width: 100%; height: 5vw; margin-left: 0.5vw; margin-right: 0.5vw; padding: 0vw;" class="fontVerdana">
-                                    <div v-bind:style="{ backgroundColor: item.colors.name }" class="whiteText" style="display: flex; justify-content: center; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw;">
-                                        <span class="centered-text" style="height: 100%;">{{item.name}}</span>
-                                    </div>
-                                    <div v-bind:style="{ backgroundColor: item.colors.progress }" class="whiteText" style="display: flex; justify-content: center; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw">
-                                        <span class="centered-text" style="height: 100%;">{{format(item.progress.min(1).mul(100), 2)}}% complete</span>
-                                    </div>
-                                    <div style="height: 15%; width: 100%; position: relative;">
-                                        <div v-bind:style="{ backgroundColor: item.colors.progressBarBase }" style="position: absolute; top: 0; left: 0; height: 100%; width: 100%"></div>
-                                        <div v-bind:style="{ backgroundColor: item.colors.progressBarFill, width: `${item.progress.min(1).mul(100).toNumber()}%` }" style="position: absolute; top: 0; left: 0; height: 100%;"></div>
-                                    </div>
-                                </button>
+                            <div class="flex-container" style="flex-direction: row; justify-content: center;">
+                                <div v-for="(item, index) in KUA_UPGRADES.KShards">
+                                    <button @click="buyKShardUpg(index)" v-bind:style="{ opacity: (1 - ((index - player.kua.kshards.upgrades) / 5)) ** 2 }" v-if="index >= player.kua.kshards.upgrades && index < player.kua.kshards.upgrades + 5 && item.show" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 12.8vw; height: 12.8vw; font-size: 0.96vw" class="whiteText kuaButton2 fontVerdana">
+                                        <span style="color: #ff0; font-size: 0.8vw; margin-right: 0.5vw"><b>#{{index + 1}}</b></span><span v-if="item.eh" style="color: #ff0; font-size: 0.8vw"><b>[ NOT IMPLEMENTED ]</b><br></span>
+                                        <span style="vertical-align: top;">{{item.desc}}</span>
+                                        <br><br>
+                                        <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost, 1)}} KShards</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <div class="flex-container" style="justify-content: flex-start; flex-flow: wrap; flex-direction: column; align-items: center; flex-wrap: nowrap; width: 50%; padding-top: 0.6vw">
-                            <div v-for="(item, index) in STAGES" class="flex-container" style="width: 100%">
-                                <div v-if="tab[tab.currTab][1] === index" v-bind:style="{ border: `0.24vw solid ${item.colors.border}`, backgroundColor: item.colors.name }" style="display: flex; justify-content: center; flex-direction: column; align-items: center; justify-content: center; height: 36.1vw; width: 39.2vw">
-                                    <div v-for="(item2, index2) in item.list" class="flex-container" style="flex-direction: column; align-items: center; flex-wrap: nowrap;">
-                                        <span class="whiteText" style="font-size: 1vw">{{item2}}</span>
-                                    </div>
+                        <div v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI) / 4, 1.0, 1.0), border: `0.24vw solid ${gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI) / 8, 0.5, 1.0)}`  }">
+                            <div style="text-align: center; font-size: 1.28vw;" v-bind:style="{ color: gRC(4.5 + Math.sin(otherGameStuffIg.sessionTime + Math.PI) / 4, 1.0, 1.0) }">
+                                You have <b>{{format(player.kua.kpower.amount, 3)}}</b> Kuaraniai power.
+                                <div v-if="player.nerf.kuaActive.kpower.effects">
+                                    <li>
+                                        Boosts Point gain by {{format(tmp.kuaEffects.kpowerPassive, 3)}}x.
+                                    </li>
+                                    <li v-if="player.kua.kpower.amount.gt(0)">
+                                        Adds Upgrade 3 B-Side, and makes it's base +{{format(tmp.kuaEffects.up6, 5)}}/bought.
+                                    </li>
+                                    <li v-if="player.kua.kpower.upgrades >= 1">
+                                        Increases Upgrade 2's base by +{{format(KUA_UPGRADES.KPower[0].eff, 3)}}.
+                                    </li>
+                                    <li v-if="player.kua.kpower.upgrades >= 2">
+                                        Makes Upgrade 3 {{format(KUA_UPGRADES.KPower[1].eff.sub(1).mul(100), 3)}}% more effective.
+                                    </li>
+                                    <li v-if="player.kua.kpower.upgrades >= 4">
+                                        Delays Upgrade 2's softcap by {{format(KUA_UPGRADES.KPower[3].eff, 2)}}x.
+                                    </li>
+                                    <li v-if="player.kua.kpower.upgrades >= 5">
+                                        Raises PRai's effect to ^{{format(KUA_UPGRADES.KPower[4].eff, 4)}}.
+                                    </li>
+                                </div>
+                            </div>
+                            <div class="flex-container" style="flex-direction: row; justify-content: center;">
+                                <div v-for="(item, index) in KUA_UPGRADES.KPower">
+                                    <button @click="buyKPowerUpg(index)" v-bind:style="{ opacity: (1 - ((index - player.kua.kpower.upgrades) / 5)) ** 2 }" v-if="index >= player.kua.kpower.upgrades && index < player.kua.kpower.upgrades + 5 && item.show" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 12.8vw; height: 12.8vw; font-size: 0.96vw" class="whiteText kuaButton2 fontVerdana">
+                                        <span style="color: #ff0; font-size: 0.8vw; margin-right: 0.5vw"><b>#{{index + 1}}</b></span><span v-if="item.eh" style="color: #ff0; font-size: 0.8vw"><b>[ NOT IMPLEMENTED ]</b><br></span>
+                                        <span style="vertical-align: top;">{{item.desc}}</span>
+                                        <br><br>
+                                        <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost, 1)}} KPower</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="flex-container" style="flex-direction: row; justify-content: center;">
-                    <div v-for="(item, index) in tmp.scaleList" style="color: #fff">
-                        <div v-bind:style="{ backgroundColor: SCALE_ATTR[index].color }" v-if="item.length > 0" style="
-                        border-radius: 8vw;
-                        width: 8vw;
-                        height: 1.6vw;
-                        color: #fff;
-                        text-align: center;
-                        padding: 3.2vw 0;
-                        margin-left: 0.2vw;
-                        margin-right: 0.2vw;
-                        font-size: 1.0667vw;
-                        " class="tooltip">
-                        {{SCALE_ATTR[index].name}}
-                            <span class="tooltiptext">
-                                <span v-for="j in item">
-                                    {{j}}
-                                    <br>
-                                </span>
-                            </span>
+            </div>
+            <div id="colosseum" v-if="tab.currTab === 'col'">
+                <div class="flex-container" style="flex-direction: row; justify-content: center; font-size: 1.4vw; margin-bottom: 1vw;" v-if="Decimal.gte(timesCompleted('nk'), 1)">
+                    <button @click="switchTab(false, 0, 0)" class="colButtonTab smallColBorder colButton fontVerdana">Challenges</button>
+                    <button @click="switchTab(false, 1, 0)" class="colButtonTab smallColBorder colButton fontVerdana">Research</button>
+                </div>
+                <div class="flex-container" style="flex-direction: column; justify-content: center; margin-bottom: 1vw;">
+                    <span style="color: #f40; text-align: center; font-size: 1.6vw;">You have <span style="font-size: 1.92vw;"><b>{{format(player.col.power, 2)}}</b></span> Colosseum Power. <span style="font-size: 1.2vw;">({{format(tmp.colosseumPowerGeneration, 2)}}/s)</span></span>
+                    <span style="text-align: center; font-size: 1.6vw;" v-bind:style="{ color: player.col.completedAll ? '#0080FF' : '#FF4000' }">This will give you about <span style="font-size: 1.92vw;"><b>{{formatTime(player.col.maxTime, 3)}}</b></span> within challenges.</span>
+                </div>
+                <div class="flex-container" style="flex-direction: row; justify-content: center; margin-top: 2.4vw;" v-if="tab[tab.currTab][0] === 0">
+                    <div v-for="(item, index) in COL_CHALLENGES" class="flex-container">
+                        <button v-if="item.show" v-bind:class="{ 
+                            colButton: !completedChallenge(item.id) && !inChallenge(item.id), 
+                            colButtonProg: completedChallenge(item.id) ? false : inChallenge(item.id), 
+                            colButtonComp: completedChallenge(item.id),
+    
+                            normColBorder: !completedChallenge(item.id) && !inChallenge(item.id), 
+                            normColBorderProg: completedChallenge(item.id) ? false : inChallenge(item.id), 
+                            normColBorderComp: completedChallenge(item.id) 
+                        }
+                            " class="whiteText fontVerdana main-container" style="padding: 0%; margin-left: 0.2vw; margin-right: 0.2vw; " @click="challengeToggle(item.id)">
+                            <div v-bind:class="{ colButtonHeader: !completedChallenge(item.id) && !inChallenge(item.id), colButtonHeaderProg: completedChallenge(item.id) ? false : inChallenge(item.id), colButtonHeaderComp: completedChallenge(item.id) }" 
+                                class="first-cont" 
+                                style="height: 16.667%;"
+                            >
+                                <span class="generic-text" style="left: 0.4vw; top: 0.4vw; font-size: 1.12vw">{{['One-Time', 'Multiple (' + 'format(player.col.completed[index] ?? new Decimal(0))' + '/' + 'format(item.cap)' + ')', 'Continuous'][item.type]}}</span> 
+                                <span class="generic-text" style="right: 0.4vw; top: 0.4vw; font-size: 1.12vw">#{{item.num}}</span>
+                                <span class="centered-text" style="bottom: 0.4vw; font-size: 2.08vw"><b>{{item.name}}</b></span>
+                            </div>
+                            <div v-bind:class="{ colButtonDesc: !completedChallenge(item.id) && !inChallenge(item.id), colButtonDescProg: completedChallenge(item.id) ? false : inChallenge(item.id), colButtonDescComp: completedChallenge(item.id) }" 
+                                class="second-cont" 
+                                style="height: 33.333%; font-size: 1.0667vw"
+                            >
+                                <span class="centered-text" style="top: 0.8vw">{{item.goalDesc}}</span>
+                                <span class="centered-text" style="top: 3.2vw">{{item.desc}}</span>
+                            </div>
+                            <div v-bind:class="{ colButtonRew: !completedChallenge(item.id) && !inChallenge(item.id), colButtonRewProg: completedChallenge(item.id) ? false : inChallenge(item.id), colButtonRewComp: completedChallenge(item.id) }" 
+                                class="third-cont" 
+                                style="height: 50%; font-size: 1.0667vw"
+                            >
+                                <span class="centered-text" style="top: 2vw"> - REWARD - </span>
+                                <span class="centered-text" style="top: 4.4vw">{{item.reward}}</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div style="background-color: #410; border: 0.2vw solid #ff4000; margin-left: auto; margin-right: auto; display: flex; justify-content: center; flex-direction: row; box-shadow: 0 0 0.8vw 0.24vw rgb(66, 17, 0); height: 40vw; width: 80vw" v-if="tab[tab.currTab][0] === 1">
+                    <div style="display: flex; justify-content: center; flex-direction: row; flex-wrap: wrap; border: 0.24vw solid #ff4000; padding: 0.6vw; height: 38.8vw; width: 50%">
+                        <div v-for="(item, index) in COL_RESEARCH" class="flex-container">
+                            <!-- set padding to 0vw because it auto-inserts padding -->
+                            <button v-if="item.unlocked" @click="switchTab(false, index, 1);" style="width: 10vw; height: 4vw; margin-left: 0.24vw; margin-right: 0.24vw; padding: 0vw" class="smallColBorder colButton fontVerdana">
+                                <div class="whiteText" style="display: flex; justify-content: center; background-color: #631900; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw;">
+                                    <span class="centered-text" style="height: 100%;">{{item.name}}</span>
+                                </div>
+                                <div class="whiteText" style="display: flex; justify-content: center; background-color: #7a1f00; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw">
+                                    <span class="centered-text" style="height: 100%;">Level: {{format(item.scoreToLevel(player.col.research.xpTotal[index]).floor(), 0)}}</span>
+                                </div>
+                                <div style="height: 15%; width: 100%; position: relative;">
+                                    <div style="position: absolute; top: 0; left: 0; background-color: #521400; height: 100%; width: 100%"></div>
+                                    <div v-bind:style="{ backgroundColor: player.col.research.enabled[index] ? '#ffc000' : '#ff4000', width: `${getColResLevel(index).gte(c.e12) ? 100 : Decimal.div(Decimal.sub(player.col.research.xpTotal[index], item.levelToScore(getColResLevel(index).floor())), item.levelToScore(getColResLevel(index).floor().add(1)).sub(item.levelToScore(getColResLevel(index).floor()))).min(1).mul(100).toNumber()}%` }" style="position: absolute; top: 0; left: 0; height: 100%;"></div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: center; flex-direction: row; border: 0.24vw solid #ff4000; height: 40vw; width: 50%">
+                        <div style="width: 100%; height: 100%;">
+                            <div class="whiteText" style="display: flex; justify-content: center; background-color: #461100; position: relative; width: 100%; height: 20%; font-size: 2.4vw;">
+                                <span class="centered-text" style="height: 100%;">{{COL_RESEARCH[tab[tab.currTab][1]].name}}</span>
+                            </div>
+                            <div class="whiteText" style="display: flex; justify-content: center; background-color: #521400; position: relative; width: 100%; height: 15%; font-size: 1.6vw">
+                                <span class="centered-text" style="top: 4%">Level: {{format(getColResLevel(tab[tab.currTab][1]).floor(), 0)}}</span>
+                                <!-- i wish i made this better instead of having to do an extremely long formula T_T -->
+                                <span v-if="getColResLevel(tab[tab.currTab][1]).lt(c.e12)" class="centered-text" style="top: 33.333%">XP: {{format(Decimal.sub(player.col.research.xpTotal[tab[tab.currTab][1]], COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor())), 0)}} / {{format(COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor().add(1)).sub(COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor())), 0)}}</span>
+                                <span v-if="getColResLevel(tab[tab.currTab][1]).gte(c.e12)" class="centered-text" style="top: 33.333%">Total XP: {{format(player.col.research.xpTotal[tab[tab.currTab][1]], 0)}}</span>
+                                <div style="top: 68.5%; height: 1vw; width: 35vw; position: relative;">
+                                    <div style="position: absolute; top: 0; left: 0; border: 0.24vw solid #882200; background-color: #521400; height: 100%; width: 100%"></div>
+                                    <div v-bind:style="{ backgroundColor: player.col.research.enabled[tab[tab.currTab][1]] ? '#ffc000' : '#ff4000', width: `${getColResLevel(tab[tab.currTab][1]).gte(c.e12) ? 100 : Decimal.div(Decimal.sub(player.col.research.xpTotal[tab[tab.currTab][1]], COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor())), COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor().add(1)).sub(COL_RESEARCH[tab[tab.currTab][1]].levelToScore(getColResLevel(tab[tab.currTab][1]).floor()))).min(1).mul(100).toNumber()}%` }" style="position: absolute; top: 0; left: 0; border: 0.24vw solid #882200; height: 100%;"></div>
+                                </div>
+                            </div>
+                            <div class="whiteText" style="display: flex; justify-content: center; background-color: #461100; position: relative; width: 100%; height: 44%; font-size: 1.2vw">
+                                <span class="centered-text" style="top: 0.5vw">{{COL_RESEARCH[tab[tab.currTab][1]].effectDesc(getColResLevel(tab[tab.currTab][1]).floor())}}</span>
+                                <span class="centered-text" style="top: 2vw">{{COL_RESEARCH[tab[tab.currTab][1]].effectDescLevel(getColResLevel(tab[tab.currTab][1]).floor())}}</span>
+                            </div>
+                            <div class="whiteText" style="display: flex; justify-content: center; background-color: #521400; position: relative; width: 100%; height: 6%; font-size: 1.44vw">
+                                <span class="centered-text" style="top: 10%">You currently have allocated {{tmp.colResearchesAllocated}} / {{tmp.colResearchesAtOnce}} researches.</span>
+                            </div>
+                            <div class="whiteText" style="display: flex; justify-content: center; background-color: #461100; position: relative; width: 100%; height: 15%;">
+                                <button @click="allocColResearch(tab[tab.currTab][1])" class="smallColBorder colButton fontVerdana whiteText" style="width: 50%; height: 80%; top: 10%; font-size: 1vw; position: relative">
+                                    {{player.col.research.enabled[tab[tab.currTab][1]] ? 'Stop' : 'Start'}} researching {{COL_RESEARCH[tab[tab.currTab][1]].name}}.
+                                    <br>{{tmp.colResearchesAtOnce - tmp.colResearchesAllocated <= 0 ? `You can't allocate anymore researches.` : `You can allocate ${tmp.colResearchesAtOnce - tmp.colResearchesAllocated} more ${tmp.colResearchesAtOnce - tmp.colResearchesAllocated === 1 ? 'research' : 'researches'}.`}}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="flex-container" style="flex-direction: row; justify-content: center; margin-top: 0.2vw;">
-                    <div v-for="(item, index) in tmp.softList" style="color: #fff">
-                        <div v-bind:style="{ backgroundColor: SOFT_ATTR[index].color }" v-if="item.length > 0" style="
-                        border-radius: 8vw;
-                        width: 8vw;
-                        height: 1.6vw;
-                        color: #fff;
-                        text-align: center;
-                        padding: 3.2vw 0;
-                        margin-left: 0.2vw;
-                        margin-right: 0.2vw;
-                        font-size: 1.0667vw;
-                        " class="tooltip">
-                        {{SOFT_ATTR[index].name}}
-                            <span class="tooltiptext">
-                                <span v-for="j in item">
-                                    {{j}}
-                                    <br>
-                                </span>
-                            </span>
+            </div>      
+            <div id="taxation" v-if="tab.currTab === 'tax'">
+                <div class="flex-container" style="flex-direction: column; justify-content: center; margin-bottom: 1vw;">
+                    <span style="text-shadow: #ca0 0vw 0vw 1vw; color: #fc0; text-align: center; font-size: 1.6vw;">You have <span style="font-size: 1.92vw;"><b>{{format(player.tax.taxed, 3)}}</b></span> taxed coins, which boost your points gain by <b><span style="font-size: 1.92vw;">{{format(tmp.taxPtsEff, 2)}}x.</span></b></span>
+                    <button class="whiteText smallTaxBorder taxButton fontVerdana" style="height: 5vw; width: 25vw; font-size: 1.0667vw; margin-left: auto; margin-right: auto; margin-top: 1.5vw">
+                        Gain <span style="font-size: 1.2vw"><b>{{format(tmp.taxPending, 3)}}</b></span> taxed coins upon taxation.
+                        <br>You will do a Colosseum reset.  
+                    </button>
+                    <div style="margin-top: 1vw; background-color: #430; border: 0.48vw solid #ffd000; margin-left: auto; margin-right: auto; display: flex; justify-content: center; flex-direction: row; padding: 0.6vw; box-shadow: 0 0 0.8vw 0.24vw rgb(66, 55, 0); height: 45vw; width: 80vw">
+                        <div v-for="(item, index) in TAX_UPGRADES" class="flex-container">
+                            <!-- set padding to 0vw because it auto-inserts padding -->
+                            <button v-bind:style="{ backgroundColor: item.type === 0 ? (Decimal.gte(getTaxUpgrade(index), 1) ? '#847000' : '#634c00') : '#524300' }" v-if="item.show" style="width: 12.75vw; height: 8.5vw; margin-left: 0.24vw; margin-right: 0.24vw; font-size: 0.75vw;" class="smallTaxBorder taxButton fontVerdana whiteText">
+                                <span v-bind:style="{ color: item.type === 0 ? '#dd0' : '#ff8' }" style="font-size: 0.75vw; margin-right: 0.5vw"><b>#{{index + 1}} [{{item.type === 0 ? 'One-Time' : 'Repeatable'}}]</b></span>
+                                <br><span v-if="!item.implemented" style="color: #ff0; font-size: 0.5vw"><b>[ NOT IMPLEMENTED ]</b><br></span>
+                                <span class="vertical-align: top;">{{item.desc}}</span>
+                                <br><br>
+                                <span v-if="(item.type === 0 && Decimal.lt(getTaxUpgrade(index), 1)) || item.type === 1" class="vertical-align: bottom;">Cost: <b><span style="font-size: 0.9vw; color: #ff0">{{format(item.type === 1 ? item.cost().ceil() : item.cost)}}</span></b> coins.</span>
+                                <span v-if="item.type === 0 && Decimal.gte(getTaxUpgrade(index), 1)" class="vertical-align: bottom;"><b><span style="font-size: 0.9vw; color: #ff0">Bought!</span></b></span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+            <div id="options" v-if="tab.currTab === 'opt'">
+                <div class="flex-container" style="flex-direction: row; justify-content: center; font-size: 1.4vw;">
+                    <button @click="switchTab(false, 0, 0)" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 10vw; height: 3vw; font-size: 1vw; border: 0.3vw solid #ffffff;" class="whiteText generatorButton fontVerdana">Saving</button>
+                    <button @click="switchTab(false, 1, 0)" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 10vw; height: 3vw; font-size: 1vw; border: 0.3vw solid #ffffff;" class="whiteText generatorButton fontVerdana">Other Options</button>
+                </div>
+                <div v-if="tab[tab.currTab][0] === 0">
+                    <div class="flex-container" style="flex-direction: row; justify-content: center;">
+                        <button @click="console.log(saveTheFrickingGame())" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw; font-size: 1vw;">
+                            Save manually.
+                        </button>
+                        <button @click="setAutosaveInterval();" v-bind:class="{ nope: player.settings.autoSaveInterval >= 1e10, ok: player.settings.autoSaveInterval < 1e10 }" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; height: 8vw; width: 16vw; font-size: 1vw;">
+                            Autosave Interval: {{formatTime(player.settings.autoSaveInterval >= 1e10 ? Infinity : (player.settings.autoSaveInterval / 1000), 3)}}
+                        </button>
+                        <button @click="exportSaveList()" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw; font-size: 1vw;">
+                            Export save list to clipboard.
+                        </button>
+                    </div>
+                    <div class="flex-container" style="align-items: center; flex-direction: column; margin-left: auto; margin-right: auto; border: 0.48vw solid #788088; background-color: #101418; width: 80vw; height: 60vw">
+                        <div class="flex-container" style="overflow: auto; overflow-y: scroll; align-items: center; flex-direction: column; border: 0.36vw solid #788088; height: 78%; width: 98%; margin-bottom: auto; margin-top: 1%">
+                            <div v-for="(item, index) in game.list" v-bind:style="{ border: `0.24vw solid ${gRC(game.currentSave === index ? otherGameStuffIg.sessionTime : 4.0, game.currentSave === index ? 1 : 0.5, game.currentSave === index ? 1 : 0.125)}` }" style="position: relative; min-height: 19%; height: 19%; width: 98%; margin-top: 1%;">
+                                <div style="height: 100%; width: 100%; position: relative;">
+                                    <div v-bind:style="{ backgroundColor: gRC(game.currentSave === index ? otherGameStuffIg.sessionTime : 4.0, 0.1, game.currentSave === index ? 1 : 0.125) }" style="position: absolute; top: 0; left: 0; height: 100%; width: 100%"></div>
+                                    <div v-bind:style="{ backgroundColor: gRC(game.currentSave === index ? otherGameStuffIg.sessionTime : 4.0, 0.25, game.currentSave === index ? 1 : 0.125), width: `${getEndgame().toNumber()}%` }" style="position: absolute; top: 0; left: 0; height: 100%;"></div>
+                                </div>
+                                <div style="position: absolute; top: 0; left: 0; height: 100%; width: 100%">
+                                    <div class="flex-container" style="margin: 0.4vw; margin-top: 0.2vw; height: 20%">
+                                        <div style="flex-grow: 1; flex-basis: 0; text-align: left; font-size: 1.6vw;" class="whiteText">{{item.name}}</div>
+                                        <div style="flex-grow: 1; flex-basis: 0; text-align: center; font-size: 1.6vw;" class="whiteText">v{{item.player.displayVersion}}</div>
+                                        <div style="flex-grow: 1; flex-basis: 0; text-align: right; font-size: 1.6vw;" class="whiteText">{{displayModes(item.mode)}}</div>
+                                    </div>
+                                    <div class="flex-container" style="margin-top: auto; align-items: center; margin: 0.4vw; margin-top: 0.2vw;">
+                                        <div style="flex-grow: 1; flex-basis: 0; text-align: left;">
+                                            <span style="font-size: 1.6vw" class="whiteText">{{formatTime(item.player.totalTime, 0, 3, 4)}}<br></span>
+                                            <span v-if="game.currentSave != index" style="font-size: 1.2vw" class="whiteText">Offline for {{formatTime((Date.now() - item.player.lastUpdated) / 1000, 0, 3, 4)}}<br></span>
+                                            <span style="font-size: 1.2vw" class="whiteText">Offline Time: {{formatTime(item.player.offlineTime / 1000, 0, 3, 4)}}</span>
+                                        </div>
+                                        <div style="flex-grow: 1; flex-basis: 0; display: flex; justify-content: center;">
+                                            <span style="text-align: center; font-size: 1vw;" class="whiteText">Endgame: {{format(getEndgame(), 2)}}%</span>
+                                            <span style="text-align: center; font-size: 1vw;" class="whiteText">, Points: {{format(player.points, 2)}}</span>
+                                            <span style="text-align: center; font-size: 1vw;" class="whiteText">, PRai: {{format(player.generators.prai.amount)}}</span>
+                                            <span v-if="Decimal.gte(player.generators.prai.total, 10)" style="text-align: center; font-size: 1vw;" class="whiteText">, PR2: {{format(player.generators.pr2.amount)}}</span>
+                                            <span v-if="Decimal.gte(player.generators.pr2.best, 10)" style="text-align: center; font-size: 1vw;" class="whiteText">, Kuaraniai: {{format(player.kua.amount)}}</span>
+                                        </div>
+                                        <div style="flex-grow: 1; flex-basis: 0; text-align: right; font-size: 1.6vw;" class="whiteText">
+                                            <button>
+                                                place buttons here
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
 
-        <div id="achievement" v-if="tab.currTab === 'ach'">
-            <table style="margin-left: auto; margin-right: auto;">
-                <tr v-for="n in ACHIEVEMENT_DATA.rows">
-                    <td v-for="m in ACHIEVEMENT_DATA.cols" style="color: #fff">
-                        <div v-if="ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].show" v-bind:style="{ 
-                            backgroundColor: 
-                                ACH_DEF_COLORS
-                                [ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].type]
-                                [player.achievements.includes(((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1) 
-                                    ? 'complete'
-                                    : (ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status
-                                        ? 'canComplete'
-                                        : 'unable')],
-                            border: `0.24vw solid ${
-                                colorChange(ACH_DEF_COLORS
-                                [ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].type]
-                                [player.achievements.includes(((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1) 
-                                    ? 'complete'
-                                    : (ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status
-                                        ? 'canComplete'
-                                        : 'unable')], 0.5, 1)}`,
-                            marginRight: `0.24vw`, 
-                            marginLeft: `0.24vw`, 
-                            width: `4vw`,
-                            height: `4vw`,
-                        }" style="font-size: 1.1vw; height: 4vw; width: 4vw; margin-right: 0.24vw; margin-left: 0.24vw; " class="tooltip">
-                        <span class="tooltiptext">
-                            <span style="font-size: 0.7vw">#{{((n - 1) * ACHIEVEMENT_DATA.cols) + m}}</span> {{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].name}}
-                            <br>{{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].desc}}
-                            <br>{{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward===''?'':`Reward: ${ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward}`}}
-                            <br>{{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status === true
-                                    ? ''
-                                    : ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status}}
-                        </span>
+                            </div>
                         </div>
-                    </td>
-                </tr>
-            </table>
+                    </div>
+                    <button @click="importSave()" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw; font-size: 1vw;">
+                        Import save.
+                    </button>
+                </div>
+            </div>
+            <div id="stats" v-if="tab.currTab === 'stat'">
+                <div class="flex-container" style="flex-direction: column; justify-content: center;">
+                    <div style="background-color: rgb(31, 31, 31); border: 0.4vw solid #e0e0e0; margin-left: auto; margin-right: auto; display: flex; justify-content: flex-start; flex-direction: column; box-shadow: 0 0 0.8vw 0.24vw rgb(29, 29, 29); height: 40vw; width: 80vw; margin-bottom: 1vw;">
+                        <div style="display: flex; justify-content: flex-start; flex-flow: wrap; flex-direction: column; align-items: center; flex-wrap: nowrap; width: 100%; height: 2.5vw">
+                            <span class="whiteText" style="font-size: 1.2vw">{{format(getEndgame(), 2)}}% to ENDGAME</span>
+                            <div style="width: 100%; position: relative; height: 100%;">
+                                <div style="background-color: #404040; position: absolute; top: 0; left: 0; height: 100%; width: 100%"></div>
+                                <div v-bind:style="{ width: `${getEndgame().toNumber()}%` }" style="background-color: #ffffff; position: absolute; top: 0; left: 0; height: 100%;"></div>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: flex-start; flex-direction: row;">
+                            <div class="flex-container" style="justify-content: flex-start; flex-flow: wrap; flex-direction: column; align-items: center; flex-wrap: nowrap; width: 50%">
+                                <div v-for="(item, index) in STAGES" class="flex-container" style="padding: 0.6vw; padding-bottom: 0vw; width: 100%">
+                                    <button v-if="item.show" @click="switchTab(false, index, 1);" v-bind:style="{ border: `0.24vw solid ${item.colors.border}` }" style="width: 100%; height: 5vw; margin-left: 0.5vw; margin-right: 0.5vw; padding: 0vw;" class="fontVerdana">
+                                        <div v-bind:style="{ backgroundColor: item.colors.name }" class="whiteText" style="display: flex; justify-content: center; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw;">
+                                            <span class="centered-text" style="height: 100%;">{{item.name}}</span>
+                                        </div>
+                                        <div v-bind:style="{ backgroundColor: item.colors.progress }" class="whiteText" style="display: flex; justify-content: center; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw">
+                                            <span class="centered-text" style="height: 100%;">{{format(item.progress.min(1).mul(100), 2)}}% complete</span>
+                                        </div>
+                                        <div style="height: 15%; width: 100%; position: relative;">
+                                            <div v-bind:style="{ backgroundColor: item.colors.progressBarBase }" style="position: absolute; top: 0; left: 0; height: 100%; width: 100%"></div>
+                                            <div v-bind:style="{ backgroundColor: item.colors.progressBarFill, width: `${item.progress.min(1).mul(100).toNumber()}%` }" style="position: absolute; top: 0; left: 0; height: 100%;"></div>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex-container" style="justify-content: flex-start; flex-flow: wrap; flex-direction: column; align-items: center; flex-wrap: nowrap; width: 50%; padding-top: 0.6vw">
+                                <div v-for="(item, index) in STAGES" class="flex-container" style="width: 100%">
+                                    <div v-if="tab[tab.currTab][1] === index" v-bind:style="{ border: `0.24vw solid ${item.colors.border}`, backgroundColor: item.colors.name }" style="display: flex; justify-content: center; flex-direction: column; align-items: center; justify-content: center; height: 36.1vw; width: 39.2vw">
+                                        <div v-for="(item2, index2) in item.list" class="flex-container" style="flex-direction: column; align-items: center; flex-wrap: nowrap;">
+                                            <span class="whiteText" style="font-size: 1vw">{{item2}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="flex-container" style="flex-direction: row; justify-content: center;">
+                        <div v-for="(item, index) in tmp.scaleList" style="color: #fff">
+                            <div v-bind:style="{ backgroundColor: SCALE_ATTR[index].color }" v-if="item.length > 0" style="
+                            border-radius: 8vw;
+                            width: 8vw;
+                            height: 1.6vw;
+                            color: #fff;
+                            text-align: center;
+                            padding: 3.2vw 0;
+                            margin-left: 0.2vw;
+                            margin-right: 0.2vw;
+                            font-size: 1.0667vw;
+                            " class="tooltip">
+                            {{SCALE_ATTR[index].name}}
+                                <span class="tooltiptext">
+                                    <span v-for="j in item">
+                                        {{j}}
+                                        <br>
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-container" style="flex-direction: row; justify-content: center; margin-top: 0.2vw;">
+                        <div v-for="(item, index) in tmp.softList" style="color: #fff">
+                            <div v-bind:style="{ backgroundColor: SOFT_ATTR[index].color }" v-if="item.length > 0" style="
+                            border-radius: 8vw;
+                            width: 8vw;
+                            height: 1.6vw;
+                            color: #fff;
+                            text-align: center;
+                            padding: 3.2vw 0;
+                            margin-left: 0.2vw;
+                            margin-right: 0.2vw;
+                            font-size: 1.0667vw;
+                            " class="tooltip">
+                            {{SOFT_ATTR[index].name}}
+                                <span class="tooltiptext">
+                                    <span v-for="j in item">
+                                        {{j}}
+                                        <br>
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <div id="achievement" v-if="tab.currTab === 'ach'">
+                <table style="margin-left: auto; margin-right: auto;">
+                    <tr v-for="n in ACHIEVEMENT_DATA.rows">
+                        <td v-for="m in ACHIEVEMENT_DATA.cols" style="color: #fff">
+                            <div v-if="ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].show" v-bind:style="{ 
+                                backgroundColor: 
+                                    ACH_DEF_COLORS
+                                    [ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].type]
+                                    [player.achievements.includes(((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1) 
+                                        ? 'complete'
+                                        : (ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status
+                                            ? 'canComplete'
+                                            : 'unable')],
+                                border: `0.24vw solid ${
+                                    colorChange(ACH_DEF_COLORS
+                                    [ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].type]
+                                    [player.achievements.includes(((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1) 
+                                        ? 'complete'
+                                        : (ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status
+                                            ? 'canComplete'
+                                            : 'unable')], 0.5, 1)}`,
+                                marginRight: `0.24vw`, 
+                                marginLeft: `0.24vw`, 
+                                width: `4vw`,
+                                height: `4vw`,
+                            }" style="font-size: 1.1vw; height: 4vw; width: 4vw; margin-right: 0.24vw; margin-left: 0.24vw; " class="tooltip">
+                            <span class="tooltiptext">
+                                <span style="font-size: 0.7vw">#{{((n - 1) * ACHIEVEMENT_DATA.cols) + m}}</span> {{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].name}}
+                                <br>{{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].desc}}
+                                <br>{{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward===''?'':`Reward: ${ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward}`}}
+                                <br>{{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status === true
+                                        ? ''
+                                        : ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status}}
+                            </span>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div v-if="!tmp.runGame" style="flex-direction: column; align-items: center" class="whiteText flex-container">
+            <span style="font-size: 2.0vw; text-align: center;">The game has stopped.</span>
+            <span style="font-size: 1.4vw; text-align: center;">If this screen shows up for longer than a couple seconds, this game might've experienced a crash. Check the console for more information to report it to @TearonQ. If there is no error, then the game must've stopped itself for no good reason.</span>
+            <span style="font-size: 1.4vw; margin-top: 1.4vw; text-align: center;">Reload the game to attempt to restart it afterwards, your save likely hasn't been impacted. (Unless if you ran resetThisSave() or resetTheWholeGame() or something ;w;)</span>
         </div>
 	</div>
 </body>

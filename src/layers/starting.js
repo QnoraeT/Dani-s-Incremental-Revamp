@@ -587,7 +587,7 @@ function updateStart(staID, delta) {
                 i = i.log10().root(tmp.value.praiDil).pow10().sub(c.d1).div(tmp.value.praiExp).add(c.d1).root(tmp.value.praiExp).mul(tmp.value.praiReq);
                 tmp.value.praiNext = i.sub(player.value.totalPointsInPRai);
             } else {
-                tmp.value.praiPending = player.value.totalPointsInPRai.max(c.e6).div(c.e6).log(c.e3).add(c.d1).min(c.d10); // hidden thing, usually 1 but when ppl decide to go further, they should get rewarded somehow
+                tmp.value.praiPending = Decimal.max(player.value.totalPointsInPRai, c.e6).div(c.e6).log(c.e3).add(c.d1).min(c.d10); // hidden thing, usually 1 but when ppl decide to go further, they should get rewarded somehow
                 tmp.value.praiNext = tmp.value.praiReq.sub(player.value.totalPointsInPRai).div(player.value.pps);
             }
 

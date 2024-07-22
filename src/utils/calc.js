@@ -594,9 +594,10 @@ function linearAdd(num, base, growth, inverse) {
 }
 
 function logPowSoftcap(num, start, inv) {
+    if (Decimal.lte(num, start)) { return new Decimal(num) }
     num = Decimal.log10(num);
     start = Decimal.log10(start);
     return inv
-        ? Decimal.sub(num, start).div(Decimal.ln(start)).add(start).div(start).pow_base(start)
-        : Decimal.log(num, start).mul(start).sub(start).mul(Decimal.ln(start)).add(start)
+        ? Decimal.sub(num, start).div(Decimal.ln(start)).add(start).div(start).pow_base(start).pow10()
+        : Decimal.log(num, start).mul(start).sub(start).mul(Decimal.ln(start)).add(start).pow10()
 }

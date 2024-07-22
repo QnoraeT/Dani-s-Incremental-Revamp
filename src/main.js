@@ -89,6 +89,10 @@ const NEXT_UNLOCKS = {
     },
 }
 
+function getEndgame() {
+    return Decimal.max(player.value.points, 0).add(1).log10().add(1).div(401).root(1.75).min(1).mul(100);
+}
+
 const STAGES = [
     {
         name: "Main Tab",
@@ -206,268 +210,6 @@ const STAGES = [
         }
     },
 ]
-
-const otherGameStuffIg = {
-    FPS: 0,
-    sessionTime: 0,
-    delta: 0
-}
-
-function setAutosaveInterval() {
-    let i = window.prompt('Set your new auto-saving interval in seconds. Set it to Infinity if you want to disable auto-saving.'); 
-
-    if (i === '') {
-        alert('Your set autosave interval is empty...')
-        return;
-    }
-
-    if (isNaN(i)) { 
-        alert('Your set autosave interval is not a number...');
-        return;
-    } 
-
-    if (i < 1) { 
-        alert('Your set autosave interval is way too fast or negative...'); 
-        return;
-    }
-
-    if (i >= 1e10) {
-        i = 1e10;
-    }
-
-    player.value.settings.autoSaveInterval = i * 1000; 
-}
-
-function exportSave() {
-	let str = btoa(JSON.stringify(game));
-	const el = document.createElement("textarea");
-	el.value = str;
-	document.body.appendChild(el);
-	el.select();
-    el.setSelectionRange(0, 99999);
-	document.execCommand("copy");
-	document.body.removeChild(el);
-}
-
-let game = Vue.ref({});
-let player = Vue.ref({});
-const tmp = Vue.ref({});
-const tab = {
-    currTab: "gen",
-    gen: [0],
-    opt: [0],
-    stat: [0],
-    ach: [0],
-    kua: [0],
-    col: [0, 0],
-    tax: [0],
-}
-
-let fpsList = [];
-let lastFPSCheck = 0;
-let lastSave = 0;
-let currentSave = 0;
-
-function switchTab(isTab, whatTab, index) {
-    if (isTab) {
-        tab.currTab = whatTab;
-    } else {
-        tab[tab.currTab][index] = whatTab;
-    }
-}
-
-function resetPlayer() {
-    player.value = {
-        chapter: 0,
-        achievements: [],
-
-        pps: c.d1,
-        points: c.d0,
-        totalPoints: c.d0,
-        totalPointsInPRai: c.d0,
-        bestPointsInCol: c.d0,
-        totalPointsInTax: c.d0,
-
-        inChallenge: {}, 
-
-        totalTime: 0, // timespeed doesn't affect this
-        gameTime: c.d0, // timespeed will affect this (totalGameTime)
-        timeSpeed: c.d1,
-        setTimeSpeed: c.d1, // change this if you think the game is going too fast or slow, i won't judge you =P
-
-        version: 0,
-        nerf: {
-            upgradesActive: [true, true, true, true, true, true],
-            praiActive: true,
-            pr2Active: true,
-            kuaActive: {
-                kpower: {
-                    upgrades: true,
-                    effects: true,
-                    gain: true
-                },
-                kshards: {
-                    upgrades: true,
-                    effects: true,
-                    gain: true
-                },
-                onlyUpgrades: true,
-                spUpgrades: true,
-                effects: true,
-                gain: true
-            },
-        },
-        auto: {
-            upgrades: [false, false, false, false, false, false],
-            prai: false,
-            pr2: false,
-            kua: false,
-            kuaUpgrades: false,
-            tax: false,
-            kuaSources: false
-        },
-        generators: {
-            upgrades: [
-                { bought: c.d0, best: c.d0 },
-                { bought: c.d0, best: c.d0 },
-                { bought: c.d0, best: c.d0 },
-                { bought: c.d0, best: c.d0 },
-                { bought: c.d0, best: c.d0 },
-                { bought: c.d0, best: c.d0 },
-            ],
-            prai: {
-                amount: c.d0,
-                effect: c.d1,
-                best: c.d0,
-                total: c.d0,
-                totalInPR2: c.d0,
-                totalInKua: c.d0,
-                bestInPR2: c.d0,
-                timeInPRai: c.d0,
-                times: c.d0
-            },
-            pr2: {
-                amount: c.d0,
-                freeExtra: c.d0,
-                target: c.d0,
-                effect: c.d1,
-                best: c.d0
-            },
-        },
-        kua: {
-            unlocked: false,
-            amount: c.d0,
-            total: c.d0,
-            best: c.d0,
-            timeInKua: c.d0,
-            times: c.d0,
-            kshards: {
-                amount: c.d0,
-                total: c.d0,
-                best: c.d0,
-                upgrades: 0
-            },
-            kpower: {
-                amount: c.d0,
-                total: c.d0,
-                best: c.d0,
-                upgrades: 0
-            },
-            enhancers: {
-                unlocked: false,
-                sources: [c.d0, c.d0, c.d0],
-                enhancers: [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
-                enhancePow: [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
-                xpSpread: c.d1,
-                inExtraction: 0,
-                extractionXP: [c.d0, c.d0, c.d0],
-                upgrades: []
-            }
-        },
-        col: {
-            unlocked: false,
-            inAChallenge: false,
-            completed: {},
-            challengeOrder: {chalID: [], layer: []},
-            completedAll: false,
-            saved: {},
-            power: c.d0,
-            totalPower: c.d0,
-            bestPower: c.d0,
-            time: c.d0,
-            maxTime: c.d0,
-            research: {
-                xpTotal: [],
-                enabled: []
-            }
-        },
-        tax: {
-            unlocked: false,
-            taxed: c.d0,
-            totalTax: c.d0,
-            bestTax: c.d0,
-            times: c.d0,
-            upgrades: []
-        },
-        settings: {
-            notation: "Mixed Scientific",
-            scalingNames: "DistInc",
-            showCharacterImgs: true, // likely will not be used
-            nameChanges: false, // likely will not be used
-            theme: 0,
-            background: [],
-            // available: "Parallax" "Dots" "ChapterBased" "TabBased" "CharacterBased"
-            musicVolume: 0.00, // likely will not be used
-            sfxVolume: 0.00, // likely will not be used
-            autoSaveInterval: 30000
-        }
-    }
-}
-
-function updatePlayerData(player) {
-    player.value.version = player.value.version||-1;
-    if (player.value.version < 0) {
-        player.value.version = 0;
-    }
-    if (player.value.version === 0) {
-        player.value.kua.enhancers = {
-            unlocked: false,
-            sources: [c.d0, c.d0, c.d0],
-            enhancers: [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
-            enhancePow: [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
-            xpSpread: c.d1,
-            inExtraction: 0,
-            extractionXP: [c.d0, c.d0, c.d0],
-            upgrades: []
-        }
-        player.value.version = 1;
-    }
-    if (player.value.version === 1) {
-        player.value.auto.tax = false
-        player.value.auto.kuaSources = false
-        player.value.version = 2;
-    }
-    if (player.value.version === 2) {
-
-        // player.value.version = 3;
-    }
-}
-
-function resetTheFrickingGame() {
-    localStorage.setItem(saveID, null);
-    loadGame();
-}
-
-function saveTheFrickingGame() {
-    try {
-        game.value[currentSave].player = player.value;
-        localStorage.setItem(saveID, btoa(JSON.stringify(game)));
-        return "Game was saved!";
-    } catch (e) {
-        console.warn("Something went wrong while trying to save the game!!");
-        throw e;
-    }
-}
 
 function reset(layer, override) {
     switch(layer) {
@@ -596,6 +338,158 @@ function reset(layer, override) {
     }
 }
 
+function resetPlayer() {
+    player.value = {
+        lastUpdated: Date.now(),
+        offlineTime: 0,
+
+        chapter: 0,
+        achievements: [],
+
+        pps: c.d1,
+        points: c.d0,
+        totalPoints: c.d0,
+        totalPointsInPRai: c.d0,
+        bestPointsInCol: c.d0,
+        totalPointsInTax: c.d0,
+
+        inChallenge: {}, 
+
+        totalTime: 0, // timespeed doesn't affect this
+        gameTime: c.d0, // timespeed will affect this (totalGameTime)
+        timeSpeed: c.d1,
+        setTimeSpeed: c.d1, // change this if you think the game is going too fast or slow, i won't judge you =P
+
+        displayVersion: "1.0.0",
+        version: 0,
+        nerf: {
+            upgradesActive: [true, true, true, true, true, true],
+            praiActive: true,
+            pr2Active: true,
+            kuaActive: {
+                kpower: {
+                    upgrades: true,
+                    effects: true,
+                    gain: true
+                },
+                kshards: {
+                    upgrades: true,
+                    effects: true,
+                    gain: true
+                },
+                onlyUpgrades: true,
+                spUpgrades: true,
+                effects: true,
+                gain: true
+            },
+        },
+        auto: {
+            upgrades: [false, false, false, false, false, false],
+            prai: false,
+            pr2: false,
+            kua: false,
+            kuaUpgrades: false,
+            tax: false,
+            kuaSources: false
+        },
+        generators: {
+            upgrades: [
+                { bought: c.d0, best: c.d0 },
+                { bought: c.d0, best: c.d0 },
+                { bought: c.d0, best: c.d0 },
+                { bought: c.d0, best: c.d0 },
+                { bought: c.d0, best: c.d0 },
+                { bought: c.d0, best: c.d0 },
+            ],
+            prai: {
+                amount: c.d0,
+                effect: c.d1,
+                best: c.d0,
+                total: c.d0,
+                totalInPR2: c.d0,
+                totalInKua: c.d0,
+                bestInPR2: c.d0,
+                timeInPRai: c.d0,
+                times: c.d0
+            },
+            pr2: {
+                amount: c.d0,
+                freeExtra: c.d0,
+                target: c.d0,
+                effect: c.d1,
+                best: c.d0
+            },
+        },
+        kua: {
+            unlocked: false,
+            amount: c.d0,
+            total: c.d0,
+            best: c.d0,
+            timeInKua: c.d0,
+            times: c.d0,
+            kshards: {
+                amount: c.d0,
+                total: c.d0,
+                best: c.d0,
+                upgrades: 0
+            },
+            kpower: {
+                amount: c.d0,
+                total: c.d0,
+                best: c.d0,
+                upgrades: 0
+            },
+            enhancers: {
+                unlocked: false,
+                sources: [c.d0, c.d0, c.d0],
+                enhancers: [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
+                enhancePow: [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
+                xpSpread: c.d1,
+                inExtraction: 0,
+                extractionXP: [c.d0, c.d0, c.d0],
+                upgrades: []
+            }
+        },
+        col: {
+            unlocked: false,
+            inAChallenge: false,
+            completed: {},
+            challengeOrder: {chalID: [], layer: []},
+            completedAll: false,
+            saved: {},
+            power: c.d0,
+            totalPower: c.d0,
+            bestPower: c.d0,
+            time: c.d0,
+            maxTime: c.d0,
+            research: {
+                xpTotal: [],
+                enabled: []
+            }
+        },
+        tax: {
+            unlocked: false,
+            taxed: c.d0,
+            totalTax: c.d0,
+            bestTax: c.d0,
+            times: c.d0,
+            upgrades: []
+        },
+        settings: {
+            notation: "Mixed Scientific",
+            scalingNames: "DistInc",
+            showCharacterImgs: true, // likely will not be used
+            nameChanges: false, // likely will not be used
+            theme: 0,
+            background: [],
+            // available: "Parallax" "Dots" "ChapterBased" "TabBased" "CharacterBased"
+            musicVolume: 0.00, // likely will not be used
+            sfxVolume: 0.00, // likely will not be used
+            autoSaveInterval: 30000,
+        }
+    }
+}
+
 function calcPointsPerSecond() {
     let i = c.d1;
     i = i.mul(tmp.value.upgrades[0].effect);
@@ -631,37 +525,179 @@ function calcPointsPerSecond() {
     return i;
 }
 
+const MODE_LIST = ["Normal", "Hard", "Extreme", "Easy", "Idler's Dream", "Softcap Central", "Scaled Ruins"];
+function displayModes(mode) {
+    let txt = "";
+    if (mode.length === 0) { return MODE_LIST[0]; }
+    if (mode.length === 1) { return MODE_LIST[mode[0] + 1]; }
+    for (let i = 0; i < mode.length - 1; i++) {
+        txt += `${MODE_LIST[mode[i] + 1]}, `;
+    }
+    txt += MODE_LIST[mode[mode.length - 1] + 1];
+    return txt;
+}
+function setAutosaveInterval() {
+    let i = window.prompt('Set your new auto-saving interval in seconds. Set it to Infinity if you want to disable auto-saving.'); 
+
+    if (i === '') {
+        alert('Your set autosave interval is empty...');
+        return;
+    }
+
+    if (isNaN(i)) { 
+        alert('Your set autosave interval is not a number...');
+        return;
+    } 
+
+    if (i < 1) { 
+        alert('Your set autosave interval is way too fast or negative...'); 
+        return;
+    }
+
+    // saving sets Infinity to null for some reason, so i have to cap it at 1e10
+    // yes this theoretically means that after 317 years and 1 month, it will save :3
+    if (i >= 1e10) {
+        i = 1e10;
+    }
+
+    player.value.settings.autoSaveInterval = i * 1000; 
+}
+
+const otherGameStuffIg = {
+    FPS: 0,
+    sessionTime: 0,
+    delta: 0
+}
+
+function switchTab(isTab, whatTab, index) {
+    if (isTab) {
+        tab.currTab = whatTab;
+    } else {
+        tab[tab.currTab][index] = whatTab;
+    }
+}
+function exportSaveList() {
+	let str = btoa(JSON.stringify(game));
+	const el = document.createElement("textarea");
+	el.value = str;
+	document.body.appendChild(el);
+	el.select();
+    el.setSelectionRange(0, 99999);
+	document.execCommand("copy");
+	document.body.removeChild(el);
+}
+
+let game = Vue.ref({});
+let player = Vue.ref({});
+const tmp = Vue.ref({});
+const tab = {
+    currTab: "gen",
+    gen: [0],
+    opt: [0],
+    stat: [0],
+    ach: [0],
+    kua: [0],
+    col: [0, 0],
+    tax: [0],
+}
+
+let fpsList = [];
+let lastFPSCheck = 0;
+let lastSave = 0;
 let vueLoaded = false;
-let runGame = [true, true];
+let oldTimeStamp = 0;
+setInterval(gameAlive, 1000);
+
+function gameAlive() {
+    if (!tmp.value.runGame) {
+        tmp.value.runGame = true;
+        loadGame();
+    }
+}
+
+function saveTheFrickingGame() {
+    try {
+        game.value.list[game.value.currentSave].player = player.value;
+        localStorage.setItem(saveID, btoa(JSON.stringify(game)));
+        return "Game was saved!";
+    } catch (e) {
+        console.warn("Something went wrong while trying to save the game!!");
+        throw e;
+    }
+}
+
+function resetTheWholeGame() {
+    if (!confirm("Are you sure you want to delete EVERY save?")) {
+        return;
+    }
+    if (!confirm("You cannot recover this save unless if you have an exported backup! Are you still sure? [Final Warning]")) {
+        return;
+    }
+    localStorage.setItem(saveID, null);
+    tmp.value.runGame = false;
+}
+
+function resetThisSave() {
+    resetPlayer();
+    saveTheFrickingGame();
+    tmp.value.runGame = false;
+}
+
+function createNewSave() {
+    game.value.list.push({
+        name: `Save #${game.value.list.length + 1}`,
+        mode: [],
+        player: player
+    })
+    switchToSave(game.value.list.length - 1)
+    resetPlayer();
+    saveTheFrickingGame();
+}
+
+function switchToSave(id) {
+    try {
+        game.value.currentSave = id;
+        localStorage.setItem(saveID, btoa(JSON.stringify(game)));
+        tmp.value.runGame = false;
+    } catch (e) {
+        console.warn("Something went wrong while trying to save the game!!");
+        throw e;
+    }
+}
 
 function loadGame() {
     lastFPSCheck = 0;
-    let oldTimeStamp = 0;
-    resetPlayer();
-    game.value = {
-        0: {
-            name: "Save #1",
-            mode: [0],
-            player: player
-        }
-    };
-
-    if (localStorage.getItem(saveID) !== null) {
-        game.value = JSON.parse(atob(localStorage.getItem(saveID)))._value; 
-        player.value = game.value[currentSave].player;
-        updatePlayerData(player);
-    } else {
-        currentSave = 0;
+    if (localStorage.getItem(saveID) === null || localStorage.getItem(saveID) === "null") {
+        resetPlayer();
+        game.value = {
+            currentSave: 0,
+            list: [
+                {
+                    name: "Save #1",
+                    mode: [],
+                    player: player
+                }
+            ]
+        };
         console.log("reset");
+    } else {
+        game.value = JSON.parse(atob(localStorage.getItem(saveID)))._value; 
+        player.value = game.value.list[game.value.currentSave].player;
+        updatePlayerData(player);
     }
 
     // init tmp
     tmp.value.scaleSoftcapNames = { points: "Points", upg1: "Upgrade 1", upg2: "Upgrade 2", upg3: "Upgrade 3", upg4: "Upgrade 4", upg5: "Upgrade 5", upg6: "Upgrade 6", praiGain: "PRai Gain", praiEffect: "PRai Effect", pr2: "PR2" };
     fixAchievements();
+    tmp.value.runGame = true;
 
+    player.value.offlineTime += Math.max(0, Date.now() - player.value.lastUpdated);
     window.requestAnimationFrame(gameLoop);
-
     function gameLoop(timeStamp) {
+        if (!tmp.value.runGame) {
+            return;
+        }
+
         try {
             let generate;
             otherGameStuffIg.delta = (timeStamp - oldTimeStamp) / 1000;
@@ -681,6 +717,9 @@ function loadGame() {
                 player.value.gameTime = Decimal.add(player.value.gameTime, gameDelta);
                 player.value.totalTime += otherGameStuffIg.delta;
                 otherGameStuffIg.sessionTime += otherGameStuffIg.delta;
+
+
+                player.value.lastUpdated = Date.now();
 
                 updateNerf();
                 updateAllTax(gameDelta);
