@@ -2,6 +2,23 @@ body {
   background-color: #000;
 }
 
+::-webkit-scrollbar {
+  width: 1.6vw;
+}
+
+::-webkit-scrollbar-track {
+  background: #29343a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c0c4c8;
+
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e5eaf1;
+}
+
 .flex-container {
   display: flex;
 }
@@ -98,11 +115,13 @@ body {
 
 .generatorButton:hover {
   background-color: #384048;
+  cursor: pointer;
 }
 
 .kuaButton {
   transition-duration: 0.2s;
   background-color: #411853;
+  cursor: pointer;
 }
 
 .smallColBorder {
@@ -251,16 +270,19 @@ body {
 .colButton:hover {
   background-color: #7a1f00;
   box-shadow: 0 0 1.2vw 0.4vw #8f2400;
+  cursor: pointer;
 }
 
 .colButtonProg:hover {
   background-color: #7a6e00;
   box-shadow: 0 0 1.2vw 0.4vw #8f6e00;
+  cursor: pointer;
 }
 
 .colButtonComp:hover {
   background-color: #187a00;
   box-shadow: 0 0 1.2vw 0.4vw #188f00;
+  cursor: pointer;
 }
 
 .taxButton {
@@ -272,6 +294,7 @@ body {
 .taxButton:hover {
   background-color: #7a6800;
   box-shadow: 0 0 1.2vw 0.4vw #8f7a00;
+  cursor: pointer;
 }
 
 .kuaButton:hover {
@@ -294,6 +317,7 @@ body {
 .nope:hover {
   border: 0.4vw solid #600;
   box-shadow: 0 0 1.2vw 0.4vw #300000;
+  cursor: not-allowed;
 }
 
 .ok {

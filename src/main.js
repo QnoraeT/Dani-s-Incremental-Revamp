@@ -1,5 +1,4 @@
 "use strict";
-const saveID = "danidanijr_save_revamp";
 const TABS_LIST = [
     {
         name: "Generators",
@@ -89,8 +88,8 @@ const NEXT_UNLOCKS = {
     },
 }
 
-function getEndgame() {
-    return Decimal.max(player.value.points, 0).add(1).log10().add(1).div(401).root(1.75).min(1).mul(100);
+function getEndgame(x = player.value.points) {
+    return Decimal.max(x, 0).add(1).log10().div(400).root(1.75).min(1).mul(100);
 }
 
 const STAGES = [
@@ -525,44 +524,6 @@ function calcPointsPerSecond() {
     return i;
 }
 
-const MODE_LIST = ["Normal", "Hard", "Extreme", "Easy", "Idler's Dream", "Softcap Central", "Scaled Ruins"];
-function displayModes(mode) {
-    let txt = "";
-    if (mode.length === 0) { return MODE_LIST[0]; }
-    if (mode.length === 1) { return MODE_LIST[mode[0] + 1]; }
-    for (let i = 0; i < mode.length - 1; i++) {
-        txt += `${MODE_LIST[mode[i] + 1]}, `;
-    }
-    txt += MODE_LIST[mode[mode.length - 1] + 1];
-    return txt;
-}
-function setAutosaveInterval() {
-    let i = window.prompt('Set your new auto-saving interval in seconds. Set it to Infinity if you want to disable auto-saving.'); 
-
-    if (i === '') {
-        alert('Your set autosave interval is empty...');
-        return;
-    }
-
-    if (isNaN(i)) { 
-        alert('Your set autosave interval is not a number...');
-        return;
-    } 
-
-    if (i < 1) { 
-        alert('Your set autosave interval is way too fast or negative...'); 
-        return;
-    }
-
-    // saving sets Infinity to null for some reason, so i have to cap it at 1e10
-    // yes this theoretically means that after 317 years and 1 month, it will save :3
-    if (i >= 1e10) {
-        i = 1e10;
-    }
-
-    player.value.settings.autoSaveInterval = i * 1000; 
-}
-
 const otherGameStuffIg = {
     FPS: 0,
     sessionTime: 0,
@@ -575,16 +536,6 @@ function switchTab(isTab, whatTab, index) {
     } else {
         tab[tab.currTab][index] = whatTab;
     }
-}
-function exportSaveList() {
-	let str = btoa(JSON.stringify(game));
-	const el = document.createElement("textarea");
-	el.value = str;
-	document.body.appendChild(el);
-	el.select();
-    el.setSelectionRange(0, 99999);
-	document.execCommand("copy");
-	document.body.removeChild(el);
 }
 
 let game = Vue.ref({});
@@ -612,56 +563,6 @@ function gameAlive() {
     if (!tmp.value.runGame) {
         tmp.value.runGame = true;
         loadGame();
-    }
-}
-
-function saveTheFrickingGame() {
-    try {
-        game.value.list[game.value.currentSave].player = player.value;
-        localStorage.setItem(saveID, btoa(JSON.stringify(game)));
-        return "Game was saved!";
-    } catch (e) {
-        console.warn("Something went wrong while trying to save the game!!");
-        throw e;
-    }
-}
-
-function resetTheWholeGame() {
-    if (!confirm("Are you sure you want to delete EVERY save?")) {
-        return;
-    }
-    if (!confirm("You cannot recover this save unless if you have an exported backup! Are you still sure? [Final Warning]")) {
-        return;
-    }
-    localStorage.setItem(saveID, null);
-    tmp.value.runGame = false;
-}
-
-function resetThisSave() {
-    resetPlayer();
-    saveTheFrickingGame();
-    tmp.value.runGame = false;
-}
-
-function createNewSave() {
-    game.value.list.push({
-        name: `Save #${game.value.list.length + 1}`,
-        mode: [],
-        player: player
-    })
-    switchToSave(game.value.list.length - 1)
-    resetPlayer();
-    saveTheFrickingGame();
-}
-
-function switchToSave(id) {
-    try {
-        game.value.currentSave = id;
-        localStorage.setItem(saveID, btoa(JSON.stringify(game)));
-        tmp.value.runGame = false;
-    } catch (e) {
-        console.warn("Something went wrong while trying to save the game!!");
-        throw e;
     }
 }
 
