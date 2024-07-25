@@ -67,23 +67,31 @@ const TABS_LIST = [
 
 const NEXT_UNLOCKS = {
     pr2: {
-        get shown() { return Decimal.gte(player.value.generators.prai.best, c.d3) },
-        get done() { return Decimal.gte(player.value.generators.prai.best, c.d10) },
-        color: "#ffffff"
+        get shown() { return Decimal.gte(player.value.generators.prai.best, c.d3); },
+        get done() { return Decimal.gte(player.value.generators.prai.best, c.d9_5); },
+        get dispPart1() { return `${format(player.value.generators.prai.best)} / ${format(c.d10)}`; },
+        dispPart2: `PRai to unlock the next layer.`,
+        color: "#ffffff",
     },
     kua: {
-        get shown() { return Decimal.gte(player.value.generators.pr2.best, c.d3) },
-        get done() { return Decimal.gte(player.value.generators.pr2.best, c.d10) },
+        get shown() { return Decimal.gte(player.value.generators.pr2.best, c.d3); },
+        get done() { return player.value.kua.unlocked; },
+        get dispPart1() { return `${format(player.value.generators.pr2.best)} / ${format(c.d10)}`; },
+        dispPart2: `PR2 to unlock the next layer.`,
         color: "#7958ff"
     },
     col: {
-        get shown() { return player.value.kua.kpower.upgrades >= 2 },
-        get done() { return Decimal.gte(player.value.kua.amount, c.e2) },
+        get shown() { return player.value.kua.kpower.upgrades >= 2; },
+        get done() { return player.value.col.unlocked; },
+        get dispPart1() { return `${format(player.value.kua.amount)} / ${format(c.e2)}`; },
+        dispPart2: `Kuaraniai to unlock the next layer.`,
         color: "#ff3600"
     },
     tax: {
-        get shown() { return Decimal.gte(player.value.points, c.e250) },
-        get done() { return Decimal.gte(player.value.kua.amount, c.inf) },
+        get shown() { return Decimal.gte(player.value.points, c.e250); },
+        get done() { return player.value.tax.unlocked; },
+        get dispPart1() { return `${format(player.value.points)} / ${format(c.inf)}`; },
+        dispPart2: `Points to unlock the next layer.`,
         color: "#f0d000"
     },
 }
@@ -118,16 +126,16 @@ const STAGES = [
             arr.push("<--- PRai --- >");
             arr.push(`Total Points in PRai: ${format(player.value.totalPointsInPRai, 2)}\n`);
             arr.push(`Total PRai: ${format(player.value.generators.prai.total, 2)}\n`);
-            if (Decimal.gte(player.value.generators.prai.best, 3)) {
+            if (Decimal.gte(player.value.generators.prai.best, c.d9_5)) {
                 arr.push(`Total PRai in PR2: ${format(player.value.generators.prai.totalInPR2, 2)}\n`);
                 arr.push(`Best PRai in PR2: ${format(player.value.generators.prai.bestInPR2, 2)}\n`);
             }
-            if (Decimal.gte(player.value.generators.pr2.best, 10)) {
-                arr.push(`Effective PRai in Kuaraniai: ${format(player.value.generators.prai.totalInKua, 2)}\n`);
+            if (Decimal.gte(player.value.generators.pr2.best, c.d10)) {
+                arr.push(`Effective PRai in Kuaraniai: ${format(tmp.value.effectivePrai, 2)}\n`);
             }
             arr.push(`PRai resets: ${format(player.value.generators.prai.times)}\n`);
             arr.push(`Time in PRai reset: ${formatTime(player.value.generators.prai.timeInPRai, 2)}\n`);
-            if (Decimal.gte(player.value.generators.prai.best, 3)) {
+            if (Decimal.gte(player.value.generators.prai.best, c.d9_5)) {
                 arr.push("<--- PR2 --- >")
                 arr.push(`PR2 resets: ${format(player.value.generators.pr2.amount)}\n`);
                 arr.push(`Best PR2: ${format(player.value.generators.pr2.best)}\n`);
@@ -150,7 +158,7 @@ const STAGES = [
         },
         get list() {
             let arr = [];
-            arr.push(`Effective PRai in Kuaraniai: ${format(player.value.generators.prai.totalInKua, 2)}\n`);
+            arr.push(`Effective PRai in Kuaraniai: ${format(tmp.value.effectivePrai, 2)}\n`);
             arr.push(`Total Kuaraniai: ${format(player.value.kua.total, 4)}`);
             arr.push(`Best Kuaraniai: ${format(player.value.kua.best, 4)}`);
             arr.push(`Kuaraniai resets: ${format(player.value.kua.times)}`);
@@ -591,6 +599,7 @@ function loadGame() {
     tmp.value.scaleSoftcapNames = { points: "Points", upg1: "Upgrade 1", upg2: "Upgrade 2", upg3: "Upgrade 3", upg4: "Upgrade 4", upg5: "Upgrade 5", upg6: "Upgrade 6", praiGain: "PRai Gain", praiEffect: "PRai Effect", pr2: "PR2" };
     fixAchievements();
     tmp.value.runGame = true;
+    tmp.value.saveModes = Array(6).fill(false);
 
     player.value.offlineTime += Math.max(0, Date.now() - player.value.lastUpdated);
     window.requestAnimationFrame(gameLoop);

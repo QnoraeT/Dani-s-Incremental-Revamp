@@ -81,6 +81,7 @@ const c = {
     d8:          Decimal.fromComponents_noNormalize(1, 0, 8),
     d8_5:        Decimal.fromComponents_noNormalize(1, 0, 8.5),
     d9:          Decimal.fromComponents_noNormalize(1, 0, 9),
+    d9_5:        Decimal.fromComponents_noNormalize(1, 0, 9.5),
     d10:         Decimal.fromComponents_noNormalize(1, 0, 10),
     d11:         Decimal.fromComponents_noNormalize(1, 0, 11),
     d12:         Decimal.fromComponents_noNormalize(1, 0, 12),

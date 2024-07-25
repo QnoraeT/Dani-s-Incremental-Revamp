@@ -30,6 +30,11 @@ const PR2_EFF = [
     },
     {
         show: true,
+        when: c.d9,
+        get text() { return `increase UP1's base by ${formatPerc(c.d0_05, 3)}`}
+    },
+    {
+        show: true,
         when: c.d11,
         get text() { return `slow down Upgrade 3 cost by ${formatPerc(c.d10div9, 3)}`}
     },
@@ -102,6 +107,9 @@ const BASIC_UPGS = [
             let i = c.d1_5;
             i = i.add(tmp.value.upgrades[2].effect ?? c.d0);
             i = i.add(tmp.value.upgrades[5].effect ?? c.d0);
+            if (Decimal.gte(player.value.generators.pr2.amount, c.d9)) {
+                i = i.add(c.d0_05);
+            }
             if (ifAchievement(22)) {
                 i = i.mul(c.d1_01);
             }
@@ -636,7 +644,7 @@ function updateStart(staID, delta) {
             tmp.value.praiCanDo = Decimal.gte(player.value.totalPointsInPRai, tmp.value.praiReq);
 
             setAchievement(2, Decimal.gte(player.value.generators.prai.best, c.d1));
-            setAchievement(3, Decimal.gte(player.value.generators.prai.best, c.d10));
+            setAchievement(3, Decimal.gte(player.value.generators.prai.best, c.d9_5));
             setAchievement(6, Decimal.gte(player.value.totalPointsInPRai, c.e18));
             break;
         case "pr2":
@@ -678,7 +686,7 @@ function updateStart(staID, delta) {
 
             player.value.generators.pr2.best = Decimal.max(player.value.generators.pr2.best, player.value.generators.pr2.amount);
 
-            tmp.value.pr2CanDo = Decimal.gte(player.value.generators.prai.amount, player.value.generators.pr2.cost);
+            tmp.value.pr2CanDo = Decimal.gte(player.value.generators.prai.amount, Decimal.sub(player.value.generators.pr2.cost, c.d0_5));
 
             tmp.value.pr2ScalingColor = `#FFFFFF`
             for (let i = tmp.value.scaling.pr2.length - 1; i >= 0; i--) {

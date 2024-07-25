@@ -64,16 +64,7 @@ const ACHIEVEMENT_DATA = {
             get name() { return `Are you rich now?`; },
             get desc() { return `Have at least ${format(c.d10)} PRai.`; },
             type: `points`,
-            get reward() { return `You unlock a new prestige layer, and UP1's scaling starts ${c.d2_5} later.`; },
-            show: true,
-            status: true
-        },
-        {
-            internal: 4,
-            get name() { return `this is stupid cuz its redundant lol`; },
-            get desc() { return `Do a PR2 reset once.`; },
-            type: `points`,
-            get reward() { return `Increase your number generation by ${format(c.e2)}%.`; },
+            get reward() { return `UP1's scaling starts ${c.d2_5} later.`; },
             show: true,
             status: true
         },
@@ -124,12 +115,21 @@ const ACHIEVEMENT_DATA = {
             status: true
         },
         {
+            internal: 4,
+            get name() { return `this is stupid cuz its redundant lol`; },
+            get desc() { return `Do a PR2 reset once.`; },
+            type: `points`,
+            get reward() { return `Increase your number generation by ${format(c.e2)}%.`; },
+            get show() { return Decimal.gte(player.value.generators.prai.best, c.d9_5); },
+            status: true
+        },
+        {
             internal: 9,
             get name() { return `What once was part of a bygone era...`; },
             get desc() { return `Do a PR2 reset ${format(c.d4)} times in total.`; },
             type: `points`,
             reward: ``,
-            get show() { return Decimal.gte(player.value.generators.prai.best, c.d10); },
+            get show() { return Decimal.gte(player.value.generators.prai.best, c.d9_5); },
             status: true
         },
         {

@@ -64,6 +64,13 @@
                         </span>
                     </div>
                 </div>
+                <div class="flex-container" style="flex-direction: row; justify-content: center; margin-top: 1vw; margin-bottom: 1vw;">
+                    <div v-for="(item, index) in NEXT_UNLOCKS" style="text-align: center;" v-bind:style="{ color: item.color }">
+                        <span v-if="item.shown && !item.done" style="font-size: 1.6vw;">
+                            You must reach <span style="font-size: 2vw;"><b>{{item.dispPart1}}</b></span> {{item.dispPart2}}
+                        </span>
+                    </div>
+                </div>
                 <div class="flex-container" style="margin-left: auto; margin-right: auto; flex-direction: row; flex-wrap: wrap; justify-content: center; margin-top: 1vw; margin-bottom: 1vw; width: 50vw; align-content: center;">
                     <div v-for="(item, index) in BASIC_UPGS">
                         <div class="flex-container" style="flex-direction: column; margin: 0.2vw;" v-if="player.nerf.upgradesActive[index] && item.shown">
@@ -115,7 +122,7 @@
                             <div class="flex-container" style="flex-direction: column;">
                                 <button style="text-align: center; font-size: 1.0667vw" 
                                 v-bind:class="{ nope: !tmp.pr2CanDo, ok: tmp.pr2CanDo }"
-                                class="whiteText largeButton fontVerdana generatorButton" id="pr2" v-if="player.nerf.pr2Active && Decimal.gte(player.generators.prai.best, 3)" @click="reset('pr2')">
+                                class="whiteText largeButton fontVerdana generatorButton" id="pr2" v-if="player.nerf.pr2Active && Decimal.gte(player.generators.prai.best, c.d9_5)" @click="reset('pr2')">
                                     <h3 style="font-size: 1.25vw">PR2: {{format(player.generators.pr2.amount)}}</h3>
                                     Reset all of your previous progress to for a PR2 reset.
                                     <br><span v-bind:style="{ color: tmp.pr2ScalingColor }">{{
@@ -360,12 +367,12 @@
                 </div>
             </div>
             <div id="options" v-if="tab.currTab === 'opt'">
-                <div class="flex-container" style="flex-direction: row; justify-content: center; font-size: 1.4vw;">
+                <div class="flex-container" style="flex-direction: row; justify-content: center; font-size: 1.4vw; margin-bottom: 0.5vw;">
                     <button @click="switchTab(false, 0, 0)" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 10vw; height: 3vw; font-size: 1vw; border: 0.3vw solid #ffffff;" class="whiteText generatorButton fontVerdana">Saving</button>
                     <button @click="switchTab(false, 1, 0)" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 10vw; height: 3vw; font-size: 1vw; border: 0.3vw solid #ffffff;" class="whiteText generatorButton fontVerdana">Other Options</button>
                 </div>
                 <div v-if="tab[tab.currTab][0] === 0">
-                    <div class="flex-container" style="flex-direction: row; justify-content: center; font-size: 1.4vw;">
+                    <div class="flex-container" style="flex-direction: row; justify-content: center; font-size: 1.4vw; margin-bottom: 0.5vw;">
                         <button @click="switchTab(false, 0, 1)" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 10vw; height: 3vw; font-size: 1vw; border: 0.3vw solid #ffffff;" class="whiteText generatorButton fontVerdana">Save List</button>
                         <button @click="switchTab(false, 1, 1)" style="margin-left: 0.16vw; margin-right: 0.16vw; width: 10vw; height: 3vw; font-size: 1vw; border: 0.3vw solid #ffffff;" class="whiteText generatorButton fontVerdana">Creating Saves</button>
                     </div>
@@ -382,6 +389,9 @@
                             </button>
                             <button @click="importSaveList()" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw; font-size: 1vw;">
                                 Import save list.
+                            </button>
+                            <button @click="resetTheWholeGame()" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ff0000; height: 8vw; width: 16vw; font-size: 1vw; color: #ff0000">
+                                Delete save list.
                             </button>
                         </div>
                         <div class="flex-container" style="align-items: center; flex-direction: column; margin-left: auto; margin-right: auto; border: 0.48vw solid #788088; background-color: #101418; width: 80vw; height: 60vw">
@@ -474,6 +484,33 @@
                             </div>
                         </div>
                     </div>
+                    <div v-if="tab[tab.currTab][1] === 1">
+                        <div class="flex-container" style="flex-direction: column; justify-content: center; align-items: center">
+                            <span style="font-size: 1.5vw" class="fontVerdana whiteText">Your mode selection is currently: {{displayModesNonOptArray(tmp.saveModes)}}</span>
+                            <div class="flex-container" style="flex-direction: row; justify-content: center;">
+                                <button @click="createNewSave(tmp.saveModes)" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw; font-size: 1vw;">
+                                    Add new save.
+                                    <span style="color: #ffff00">WARNING: None of the modes are implemented yet!</span>
+                                </button>
+                                <button @click="resetModes()" class="whiteText fontVerdana generatorButton" style="margin: 0.5vw; border: 0.3vw solid #ffffff; height: 8vw; width: 16vw; font-size: 1vw;">
+                                    Reset Mode Selection
+                                </button>
+                            </div>
+                            <div class="flex-container" style="flex-direction: row; justify-content: center;">
+                                <div style="display: flex; width: 32vw; flex-wrap: wrap; justify-content: center">
+                                    <div v-for="(item, index) in SAVE_MODES" class="flex-container">
+                                        <!-- TODO: implement make modes logic -->
+                                        <button @click="setTempModes(index)" class="whiteText fontVerdana tooltip" v-bind:style="{ color: item.textColor, border: `0.24vw solid ${tmp.saveModes[index] ? item.borderSelectedColor : item.borderColor}`, backgroundColor: item.bgColor }" style="margin: 0.5vw; height: 4vw; width: 14vw; font-size: 1.4vw;">
+                                            {{item.name}}
+                                            <span class="tooltiptext">
+                                                <span style="font-size: 1.05vw">{{item.desc}}</span>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div id="stats" v-if="tab.currTab === 'stat'">
@@ -489,7 +526,7 @@
                         <div style="display: flex; justify-content: flex-start; flex-direction: row;">
                             <div class="flex-container" style="justify-content: flex-start; flex-flow: wrap; flex-direction: column; align-items: center; flex-wrap: nowrap; width: 50%">
                                 <div v-for="(item, index) in STAGES" class="flex-container" style="padding: 0.6vw; padding-bottom: 0vw; width: 100%">
-                                    <button v-if="item.show" @click="switchTab(false, index, 1);" v-bind:style="{ border: `0.24vw solid ${item.colors.border}` }" style="width: 100%; height: 5vw; margin-left: 0.5vw; margin-right: 0.5vw; padding: 0vw;" class="fontVerdana">
+                                    <button v-if="item.show" @click="switchTab(false, index, 1);" v-bind:style="{ border: `0.24vw solid ${item.colors.border}` }" style="cursor: pointer; width: 100%; height: 5vw; margin-left: 0.5vw; margin-right: 0.5vw; padding: 0vw;" class="fontVerdana">
                                         <div v-bind:style="{ backgroundColor: item.colors.name }" class="whiteText" style="display: flex; justify-content: center; position: relative; width: 100%; height: 42.5%; font-size: 0.9vw;">
                                             <span class="centered-text" style="height: 100%;">{{item.name}}</span>
                                         </div>
@@ -514,7 +551,6 @@
                             </div>
                         </div>
                     </div>
-    
                     <div class="flex-container" style="flex-direction: row; justify-content: center;">
                         <div v-for="(item, index) in tmp.scaleList" style="color: #fff">
                             <div v-bind:style="{ backgroundColor: SCALE_ATTR[index].color }" v-if="item.length > 0" style="
@@ -590,14 +626,14 @@
                                 width: `4vw`,
                                 height: `4vw`,
                             }" style="font-size: 1.1vw; height: 4vw; width: 4vw; margin-right: 0.24vw; margin-left: 0.24vw; " class="tooltip">
-                            <span class="tooltiptext">
-                                <span style="font-size: 0.7vw">#{{((n - 1) * ACHIEVEMENT_DATA.cols) + m}}</span> {{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].name}}
-                                <br>{{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].desc}}
-                                <br>{{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward===''?'':`Reward: ${ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward}`}}
-                                <br>{{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status === true
-                                        ? ''
-                                        : ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status}}
-                            </span>
+                                <span class="tooltiptext">
+                                    <span style="font-size: 0.7vw">#{{((n - 1) * ACHIEVEMENT_DATA.cols) + m}}</span> {{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].name}}
+                                    <br>{{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].desc}}
+                                    <br>{{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward===''?'':`Reward: ${ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].reward}`}}
+                                    <br>{{ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status === true
+                                            ? ''
+                                            : ACHIEVEMENT_DATA.list[((n - 1) * ACHIEVEMENT_DATA.cols) + m - 1].status}}
+                                </span>
                             </div>
                         </td>
                     </tr>

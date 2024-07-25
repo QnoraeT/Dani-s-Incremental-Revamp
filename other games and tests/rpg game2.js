@@ -1,4 +1,6 @@
 "use strict";
+// * note: this is boredom at it's finest, not particularly good code lol
+// TODO: fix enemies spawning with NaN stats
 let turnOrder = []
 let turnNum = 0
 let id = 0
@@ -6,6 +8,12 @@ let damageQueue = []
 let timer = 0
 let state = 0
 let nextAction = 0
+let pronouns_list = [
+    ['he', 'him', 'his', 'himself'],
+    ['she', 'her', 'her', 'herself'],
+    ['they', 'them', 'their', 'themselves'],
+]
+let baseAcc = 0.9
 
 const listS = ["", "k", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No"];
 const list2 = ["", "U", "D", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No"];
@@ -200,6 +208,12 @@ class Character {
         this.xp = this.levelUpReq(level - 1)
         this.level = level
         this.levelUp()
+        this.doStatusEffects()
+        for (let i = 0; i < this.trueStats.length; i++) {
+            if (isNaN(this.trueStats[i])) {
+                throw new Error(`fucking shit go check console ig`)
+            }
+        }
     }
 
     levelUpReq(levl) {
@@ -223,57 +237,93 @@ class Character {
         }
     }
     doStatusEffects() {
-        let before
-        // starts at 1 because HP is at index 0
-        for (let i = 1; i < this.stats.length; i++) {
+        // starts at 2 because HP and MP is at index 0 and 1
+        for (let i = 2; i < this.stats.length; i++) {
             this.trueStats[i] = this.stats[i]
         }
 
         for (let i = 0; i < this.statusEffects.length; i++) {
-            switch (this.statusEffects[i].type) {
+            switch (this.statusEffects[i].effectType) {
                 case 'poison':
-                    console.log(`${this.name} takes poison damage! (${this.statusEffects[i].length} turns, ${Math.ceil(this.statusEffects[i].strength)} base damage)`)
-                    this.damage(this.id, this.statusEffects[i].strength, 'p', Infinity, 1, false, [ELEMENTS.Poison], [0, 1])
-                    break;
                 case 'burn':
-                    console.log(`${this.name} takes burn damage! (${this.statusEffects[i].length} turns, ${Math.ceil(this.statusEffects[i].strength)}↓ base damage)`)
-                    this.damage(this.id, this.statusEffects[i].strength * this.statusEffects[i].length, 'p', Infinity, 1, false, [ELEMENTS.Fire], [0, 1])
-                    break;
                 case 'stun':
-                    console.log(`${this.name} is stunned! (${this.statusEffects[i].length} turns`)
                     break;
                 case 'slow':
-                    before = Math.ceil(this.trueStats[6])
                     this.trueStats[6] *= this.statusEffects[i].strength
-                    console.log(`${this.name}'s SPD is ${Math.ceil(this.trueStats[6]) - before} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
+                    break;
                 case 'patkInc':
                 case 'patkDec':
-                    before = Math.ceil(this.trueStats[2])
                     this.trueStats[2] *= this.statusEffects[i].strength
-                    console.log(`${this.name}'s PATK is ${Math.ceil(this.trueStats[2]) - before > 1 ? '+' : ''}${Math.ceil(this.trueStats[2]) - before} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
                     break;
                 case 'pdefInc':
                 case 'pdefDec':
-                    before = Math.ceil(this.trueStats[3])
                     this.trueStats[3] *= this.statusEffects[i].strength
-                    console.log(`${this.name}'s PDEF is ${Math.ceil(this.trueStats[3]) - before > 1 ? '+' : ''}${Math.ceil(this.trueStats[3]) - before} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
                     break;
                 case 'matkInc':
                 case 'matkDec':
-                    before = Math.ceil(this.trueStats[4])
                     this.trueStats[4] *= this.statusEffects[i].strength
-                    console.log(`${this.name}'s MATK is ${Math.ceil(this.trueStats[4]) - before > 1 ? '+' : ''}${Math.ceil(this.trueStats[4]) - before} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
                     break;
                 case 'mdefInc':
                 case 'mdefDec':
-                    before = Math.ceil(this.trueStats[5])
                     this.trueStats[5] *= this.statusEffects[i].strength
-                    console.log(`${this.name}'s MDEF is ${Math.ceil(this.trueStats[5]) - before > 1 ? '+' : ''}${Math.ceil(this.trueStats[5]) - before} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
                     break;
                 default:
-                    throw new Error(`${this.statusEffects[i].type} is not a valid status effect`)
+                    throw new Error(`${this.statusEffects[i].effectType} is not a valid status effect`)
             }
+        }
+    }
+    tickStatusEffects() {
+        let before2 = [null, null]
+        for (let i = 2; i < this.stats.length; i++) {
+            before2[i] = this.stats[i]
+        }
+        let before
+        for (let i = 0; i < this.statusEffects.length; i++) {
             this.statusEffects[i].length--
+            switch (this.statusEffects[i].effectType) {
+                case 'poison':
+                    console.log(`${this.name} takes poison damage! (${this.statusEffects[i].length} turns, ${Math.ceil(this.statusEffects[i].strength)} base damage)`)
+                    this.damage(this.id, this.statusEffects[i].strength, 'p', Infinity, 1, [ELEMENTS.Poison], [0, 1])
+                    break;
+                case 'burn':
+                    console.log(`${this.name} takes burn damage! (${this.statusEffects[i].length} turns, ${Math.ceil(this.statusEffects[i].strength * this.statusEffects[i].length)}↓ base damage)`)
+                    this.damage(this.id, this.statusEffects[i].strength * this.statusEffects[i].length, 'p', Infinity, 1, [ELEMENTS.Fire], [0, 1])
+                    break;
+                case 'stun':
+                    console.log(`${this.name} is stunned! (${this.statusEffects[i].length} turns)`)
+                    break;
+                case 'slow':
+                    before = Math.ceil(before2[6])
+                    before2[6] *= this.statusEffects[i].strength
+                    console.log(`${this.name}'s SPD is ${Math.ceil(before2[6]) - before} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
+                    break;
+                case 'patkInc':
+                case 'patkDec':
+                    before = Math.ceil(before2[2])
+                    before2[2] *= this.statusEffects[i].strength
+                    console.log(`${this.name}'s PATK is ${Math.ceil(before2[2]) - before >= 1 ? '+' : ''}${Math.ceil(before2[2]) - before} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
+                    break;
+                case 'pdefInc':
+                case 'pdefDec':
+                    before = Math.ceil(before2[3])
+                    before2[3] *= this.statusEffects[i].strength
+                    console.log(`${this.name}'s PDEF is ${Math.ceil(before2[3]) - before >= 1 ? '+' : ''}${Math.ceil(before2[3]) - before} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
+                    break;
+                case 'matkInc':
+                case 'matkDec':
+                    before = Math.ceil(before2[4])
+                    before2[4] *= this.statusEffects[i].strength
+                    console.log(`${this.name}'s MATK is ${Math.ceil(before2[4]) - before >= 1 ? '+' : ''}${Math.ceil(before2[4]) - before} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
+                    break;
+                case 'mdefInc':
+                case 'mdefDec':
+                    before = Math.ceil(before2[5])
+                    before2[5] *= this.statusEffects[i].strength
+                    console.log(`${this.name}'s MDEF is ${Math.ceil(before2[5]) - before >= 1 ? '+' : ''}${Math.ceil(before2[5]) - before} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
+                    break;
+                default:
+                    throw new Error(`${this.statusEffects[i].effectType} is not a valid status effect`)
+            }
             if (this.statusEffects[i].length < 1) {
                 this.statusEffects.splice(i, 1)
                 i--
@@ -290,19 +340,7 @@ class Character {
             }
         )
     }
-    inflictEffect(who, type, strength, length) {
-        damageQueue.push(
-            {
-                type: 2,
-                who: who,
-                effectType: type,
-                strength: strength,
-                length: length,
-                fromWhom: this.id,
-            }
-        )
-    }
-    damage(who, damage, type, acc, pierce, elements, crit = [[90, 2]]) {
+    damage(who, damage, type, acc, pierce, elements, crit = [[10, 2]], effectList = []) {
         damageQueue.push(
             {
                 type: 0,
@@ -313,15 +351,18 @@ class Character {
                 accuracy: acc,
                 defPierce: pierce,
                 elements: elements,
-                crit: crit
+                crit: crit,
+                statusEffectList: effectList
             }
         )
     }
     damageScript(damage) {
-        this.gp += Math.max(damage, 0) / (this.trueStats[0])
+        this.gp += (Math.max(damage, 0) / (this.stats[0])) * 5
         switch (this.internalType) {
             case 'fsblue':
             case 'dessb':
+            case 'cauli':
+            case 'auroram':
                 if (this.trueStats[0] <= 0) {
                     this.trueStats[0] = 0
                     if (this.alive) {
@@ -330,10 +371,15 @@ class Character {
                     this.alive = false
                 }
                 break;
+            case 'imartiz':
+                this.heal(this.id, Math.min(Math.max(damage, 0) * 0.5, this.trueStats[1] * 0.25))
+                this.trueStats[1] -= Math.min(Math.max(damage, 0) * 0.5, this.trueStats[1] * 0.25)
+                break;
             case 'gslime':
             case 'rslime':
             case 'yslime':
             case 'bslime':
+            case 'dslime':
                 if (this.trueStats[0] <= 0) {
                     this.trueStats[0] = 0
                     if (this.alive) {
@@ -348,19 +394,20 @@ class Character {
                     }
                 }
                 break;
-            case 'dslime':
-                break;
             default:
                 console.warn(`internal type ${this.internalType} does not exist in damageScript`)
         }
     }
     response(response) {
         if (response.state === 'hit') {
-            this.gp += Math.max(response.damage, 0) / (this.trueStats[2] + this.trueStats[4])
+            this.gp += (Math.max(response.damage, 0) / (this.trueStats[2] + this.trueStats[4])) * 8
         }
         switch (this.internalType) {
             case 'fsblue':
             case 'dessb':
+            case 'imartiz':
+            case 'cauli':
+            case 'auroram':
             case 'gslime':
             case 'rslime':
             case 'yslime':
@@ -380,9 +427,12 @@ class Character {
 
 // 0   1   2     3     4     5     6    7    8
 // hp, mp, patk, pdef, matk, mdef, spd, acc, eva
-let characters = [
-    new Character("FSBlue", [40, 8, 16, 12, 3, 3, 15, 9, 5], 1, 0, 0, 'fsblue', ['she', 'her', 'her'], [ELEMENTS.Fighting], [15, 15, 4], true),
-    new Character("DesSB", [12, 16, 14, 7, 15, 9, 20, 14, 8], 1, 0, 0, 'dessb', ['he', 'him', 'his'], [ELEMENTS.Fairy], [10, 12, 3], true)
+let characters = [//             HP  MP  PA  PD  MA  MD  SP  AC  EV
+    new Character("FSBlue",     [40, 8,  16, 12, 3,  3,  15, 9,  5 ], 1, 0, 0, 'fsblue',   pronouns_list[1], [ELEMENTS.Fighting], [15, 15, 4], true),
+    new Character("DesSB",      [12, 16, 14, 7,  15, 9,  20, 14, 13], 1, 0, 0, 'dessb',    pronouns_list[0], [ELEMENTS.Fairy],    [10, 12, 3], true),
+    new Character("I. Martiz",  [45, 14, 8,  15, 5,  14, 8,  12, 6 ], 1, 0, 0, 'imartiz',  pronouns_list[0], [ELEMENTS.Fairy],    [15, 12, 4], true),
+    new Character("Cauli",      [25, 15, 22, 10, 17, 9,  4,  20, 3 ], 1, 0, 0, 'cauli',    pronouns_list[0], [ELEMENTS.Grass],    [16, 15, 5], true),
+    new Character("Aurora:M",   [15, 30, 4,  7,  20, 15, 8,  12, 10], 1, 0, 0, 'auroram',  pronouns_list[1], [ELEMENTS.Fire],     [13, 12, 4], true),
 ]
 
 const ENEMIES = {
@@ -481,19 +531,54 @@ try {
 } catch {
     
 }
+
+function hasStatusEffect(id, effectID) {
+    let character = getCharacter(id)
+    for (let i = 0; i < character.statusEffects.length; i++) {
+        if (character.statusEffects[i].effectType === effectID) {
+            return true;
+        }
+    }
+    return false;
+}
+
 let ok = setInterval(doThing, 50)
 let wave = 0
 let rng = []
 let tmp = []
+
 function doThing() {
     timer += 50
     let enemies = 0
+    let players = 0
 
     for (let i = 0; i < characters.length; i++) {
         if (characters[i].team !== 0 && characters[i].alive) {
             enemies++
         }
+        if (characters[i].team === 0 && characters[i].alive) {
+            players++
+        }
     }
+    if (players === 0) {
+        console.error(`\nGame Over!`)
+        wave = 0
+        for (let i = 0; i < characters.length; i++) {
+            if (characters[i].team !== 0) {
+                characters.splice(i, 1)
+                i--
+            }
+            if (characters[i].team === 0) {
+                characters[i].trueStats[0] = characters[i].stats[0]
+                characters[i].trueStats[1] = characters[i].stats[1]
+                characters[i].alive = true
+                characters[i].gp = 0
+                characters[i].statusEffects = []
+            }
+        }
+        nextAction += 5000
+    }
+
     if (enemies === 0 && wave < 999) {
         for (let i = 0; i < characters.length; i++) {
             if (characters[i].team !== 0) {
@@ -506,7 +591,7 @@ function doThing() {
         turnNum = 0
         if (wave >= 1 && wave < 999) {
             rng[0] = Math.random()
-            if (rng[0] < 0.50 && rng[0] > 0.00) {
+            if (rng[0] < 0.75 && rng[0] > 0.00) {
                 rng[1] = Math.floor(Math.random() * 3) + 1
                 for (let i = 0; i < rng[1]; i++) {
                     rng[2] = 0.8 + 0.4 * Math.random()
@@ -514,12 +599,12 @@ function doThing() {
                     spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
                 }
             }
-            if (rng[0] < 0.75 && rng[0] > 0.50) {
+            if (rng[0] < 0.85 && rng[0] > 0.75) {
                 rng[2] = 0.8 + 0.4 * Math.random()
-                spawnEnemy('dslime', 3, rng[2])
+                spawnEnemy('dslime', rng[2])
             }
-            if (rng[0] < 0.90 && rng[0] > 0.75) {
-                spawnEnemy('dslime', 3, rng[2])
+            if (rng[0] < 0.93 && rng[0] > 0.85) {
+                spawnEnemy('dslime', rng[2])
                 rng[1] = Math.floor(Math.random() * 3) + 1
                 for (let i = 0; i < rng[1]; i++) {
                     rng[2] = 0.8 + 0.4 * Math.random()
@@ -527,12 +612,20 @@ function doThing() {
                     spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
                 }
             }
-            if (rng[0] < 0.99 && rng[0] > 0.90) {
-                rng[1] = Math.floor(Math.random() * 3) + 1
+            if (rng[0] < 0.96 && rng[0] > 0.93) {
+                rng[1] = Math.floor(Math.random() * 4) + 1
                 for (let i = 0; i < rng[1]; i++) {
                     rng[2] = 0.8 + 0.4 * Math.random()
                     rng[3] = Math.floor(Math.random() * 4)
                     spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime', 'dslime'][rng[3]], rng[2])
+                }
+            }
+            if (rng[0] < 0.99 && rng[0] > 0.96) {
+                rng[1] = Math.floor(Math.random() * 10) + 1
+                for (let i = 0; i < rng[1]; i++) {
+                    rng[2] = 0.8 + 0.4 * Math.random()
+                    rng[3] = Math.floor(Math.random() * 4)
+                    spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
                 }
             }
             if (rng[0] < 1.00 && rng[0] > 0.99) {
@@ -550,13 +643,18 @@ function doThing() {
     }
 
     if (turnOrder.length === 0) {
+        console.log(`\n`)
+        for (let i = 0; i < characters.length; i++) {
+            characters[i].tickStatusEffects()
+        }
+
         let sides = [[], []]
         for (let i = 0; i < characters.length; i++) {
             sides[characters[i].team].push(characters[i].id)
         }
 
         console.log(`\n`)
-        console.log(`Players         | Level | HP          | MP          | GP`)
+        console.log(`Players         | Level | HP          | MP          | XP          | GP`)
         for (let i = 0; i < sides[0].length; i++) {
             displayCharacter(sides[0][i], 0)
         }
@@ -580,8 +678,8 @@ function doThing() {
 
         for (let i = 0; i < characters.length; i++) {
             let before = Math.ceil(characters[i].trueStats[1])
-            characters[i].trueStats[1] = Math.min(characters[i].stats[1], characters[i].trueStats[1] + (characters[i].stats[1] * 0.1))
-            console.log(`${characters[i].name} regained ${Math.ceil(characters[i].trueStats[1]) - before} MP!`)
+            characters[i].trueStats[1] = Math.min(characters[i].stats[1], characters[i].trueStats[1] + (characters[i].stats[1] * 0.075))
+            if (Math.ceil(characters[i].trueStats[1]) - before >= 1) { console.log(`${characters[i].name} regained ${Math.ceil(characters[i].trueStats[1]) - before} MP!`) }
         }
 
         nextAction = timer + 1000
@@ -593,7 +691,11 @@ function doThing() {
             state = 0
         }
         if (turnOrder.length > 0) {
-            if (!getCharacter(turnOrder[0].id).alive) {
+            if (!getCharacter(turnOrder[0].id).alive || hasStatusEffect(turnOrder[0].id, 'stun')) {
+                if (hasStatusEffect(turnOrder[0].id, 'stun')) {
+                    console.log(`${getCharacter(turnOrder[0].id).name} is stunned and cannot move!`)
+                    getCharacter(turnOrder[0].id).doStatusEffects()
+                }
                 state = -1
             } else {
                 console.log(`\n`)
@@ -610,7 +712,7 @@ function doThing() {
                                     throw new Error(`[ERROR] ${currChar.name} got stuck!`)
                                 }
         
-                                rng[0] = Math.floor(Math.random() * 3)
+                                rng[0] = Math.floor(Math.random() * 5)
                                 if (rng[0] === 0) {
                                     target = getTargets(currChar.team)
                                     target = target[Math.floor(Math.random() * target.length)]
@@ -632,13 +734,43 @@ function doThing() {
                                 if (rng[0] === 2 && currChar.trueStats[1] >= 5) {
                                     target = getAllies(currChar.team, true, false)
                                     target = target[Math.floor(Math.random() * target.length)]
-                                    console.log(`${currChar.name} tries to encourage ${getCharacter(target).name}!`)
-                                    currChar.inflictEffect(target, 'patkInc', 1.333, Math.floor(Math.random() * 3) + 2)
+                                    console.log(`${currChar.name} buffs up ${target === currChar.id ? currChar.pronouns[3] : getCharacter(target).name}!`)
+                                    currChar.damage(target, 0, 'p', Infinity, 0, [], [0, 1], [{effectType: 'patkInc', strength: 1.333, length: Math.floor(Math.random() * 3) + 2}])
 
                                     nextAction += 5000
                                     moveFind = true
                                     state = -1
                                     currChar.trueStats[1] -= 5
+                                }
+                                if (rng[0] === 3 && currChar.trueStats[1] >= 4) {
+                                    if (Math.random() > (currChar.trueStats[0] / currChar.stats[0])) {
+                                        break;
+                                    }
+                                    console.log(`${currChar.name} uses her weak healing to try to heal ${currChar.pronouns[3]}...`)
+                                    currChar.heal(currChar.id, 0.5 * currChar.trueStats[4])
+
+                                    nextAction += 5000
+                                    moveFind = true
+                                    state = -1
+                                    currChar.trueStats[1] -= 4
+                                }
+                                if (rng[0] === 4 && currChar.gp >= 100) {
+                                    currChar.gp -= 100
+                                    target = getTargets(currChar.team)
+                                    let lowestHP = {hp: Infinity, id: 0}
+                                    for (let enemy = 0; enemy < target.length; enemy++) {
+                                        if (lowestHP.hp > getCharacter(target[enemy]).trueStats[0] / getCharacter(target[enemy]).stats[0]) {
+                                            lowestHP.hp = getCharacter(target[enemy]).trueStats[0] / getCharacter(target[enemy]).stats[0]
+                                            lowestHP.id = target[enemy]
+                                        }
+                                    }
+                                    target = lowestHP.id
+
+                                    console.log(`${currChar.name} unleashes her ultimate attack: SUPERSTAR STRIKE!`)
+                                    tmp = [1, 0, target]
+                                    moveFind = true
+                                    state = 2
+                                    nextAction += 2000
                                 }
                             }
                         }
@@ -648,7 +780,124 @@ function doThing() {
                             tmp[0]--
                             if (tmp[0] < 1) {
                                 state = -1
-                                nextAction += 5000
+                                nextAction += 3000
+                            }
+                        }
+                        if (state === 2) {
+                            if (!getCharacter(tmp[2]).alive) {
+                                tmp[2] = getTargets(currChar.team)
+                                let lowestHP = {hp: Infinity, id: 0}
+                                for (let enemy = 0; enemy < tmp[2].length; enemy++) {
+                                    if (lowestHP.hp > getCharacter(tmp[2][enemy]).trueStats[0] / getCharacter(tmp[2][enemy]).stats[0]) {
+                                        lowestHP.hp = getCharacter(tmp[2][enemy]).trueStats[0] / getCharacter(tmp[2][enemy]).stats[0]
+                                        lowestHP.id = tmp[2][enemy]
+                                    }
+                                }
+                                tmp[2] = lowestHP.id
+                            }
+                            if (tmp[0] <= 0) {
+                                if (tmp[1] === 4) {
+                                    tmp[0] = 1
+                                    tmp[1] = 5
+                                    nextAction += 2000
+                                }
+                                if (tmp[1] === 3) {
+                                    tmp[0] = 5
+                                    tmp[1] = 4
+                                }
+                                if (tmp[1] === 2) {
+                                    tmp[0] = 4
+                                    tmp[1] = 3
+                                }
+                                if (tmp[1] === 1) {
+                                    tmp[0] = 3
+                                    tmp[1] = 2
+                                }
+                                if (tmp[1] === 0) {
+                                    tmp[0] = 3
+                                    tmp[1] = 1
+                                }
+                            }
+                            if (tmp[1] === 0) {
+                                let EM = []
+                                if (Math.random() < 0.25) {
+                                    EM = [
+                                        {
+                                            effectType: 'pdefDec',
+                                            strength: 0.833,
+                                            length: 2
+                                        }
+                                    ]
+                                }
+                                currChar.damage(tmp[2], 0.8 * currChar.trueStats[2], 'p', currChar.trueStats[7] * 1.5, 0, [ELEMENTS.Fighting], [[10, 2]], EM)
+                                nextAction += 1500
+                                tmp[0]--
+                            }
+                            if (tmp[1] === 1) {
+                                let EM = []
+                                if (Math.random() < 0.1) {
+                                    EM = [
+                                        {
+                                            effectType: 'pdefDec',
+                                            strength: 0.833,
+                                            length: 2
+                                        }
+                                    ]
+                                }
+                                currChar.damage(tmp[2], 0.3 * currChar.trueStats[2], 'p', currChar.trueStats[7] * 1.5, 0, [ELEMENTS.Fighting], [[10, 2]], EM)
+                                nextAction += 150
+                                tmp[0]--
+                            }
+                            if (tmp[1] === 2) {
+                                let EM = []
+                                if (Math.random() < 0.1) {
+                                    EM = [
+                                        {
+                                            effectType: 'pdefDec',
+                                            strength: 0.833,
+                                            length: 2
+                                        }
+                                    ]
+                                }
+                                currChar.damage(tmp[2], 0.5 * currChar.trueStats[2], 'p', currChar.trueStats[7] * 1.5, 0, [ELEMENTS.Fighting], [[10, 2]], EM)
+                                nextAction += 250
+                                tmp[0]--
+                            }
+                            if (tmp[1] === 3) {
+                                let EM = []
+                                if (Math.random() < 0.1) {
+                                    EM = [
+                                        {
+                                            effectType: 'pdefDec',
+                                            strength: 0.833,
+                                            length: 2
+                                        }
+                                    ]
+                                }
+                                currChar.damage(tmp[2], 0.4 * currChar.trueStats[2], 'p', currChar.trueStats[7] * 1.5, 0, [ELEMENTS.Fighting], [[10, 2]], EM)
+                                nextAction += 200
+                                tmp[0]--
+                            }
+                            if (tmp[1] === 4) {
+                                let EM = []
+                                if (Math.random() < 0.1) {
+                                    EM = [
+                                        {
+                                            effectType: 'pdefDec',
+                                            strength: 0.833,
+                                            length: 2
+                                        }
+                                    ]
+                                }
+                                currChar.damage(tmp[2], 0.3 * currChar.trueStats[2], 'p', currChar.trueStats[7] * 1.5, 0, [ELEMENTS.Fighting], [[10, 2]], EM)
+                                nextAction += 150
+                                tmp[0]--
+                            }
+                            if (tmp[1] === 5) {
+                                currChar.damage(tmp[2], 1.3 * currChar.trueStats[2], 'p', currChar.trueStats[7] * 2, 0, [ELEMENTS.Fighting], [[100, 2], [10, 5]])
+                                nextAction += 2000
+                                tmp[0]--
+                                state = -1
                             }
                         }
                         break;
@@ -662,7 +911,20 @@ function doThing() {
                                     throw new Error(`[ERROR] ${currChar.name} got stuck!`)
                                 }
         
-                                rng[0] = Math.floor(Math.random() * 3)
+                                rng[0] = Math.floor(Math.random() * 4)
+                                let averageTeamHP = 0
+                                let allies = []
+                                for (let i = 0; i < characters.length; i++) {
+                                    if (characters[i].team === currChar.team && characters[i].alive) {
+                                        allies.push(characters[i].id)
+                                    }
+                                }
+                                for (let tg = 0; tg < allies.length; tg++) {
+                                    averageTeamHP += (getCharacter(allies[tg]).trueStats[0] / getCharacter(allies[tg]).stats[0]) / allies.length
+                                }
+                                if (averageTeamHP < 0.5 || (currChar.trueStats[0] / currChar.stats[0] < 0.5)) {
+                                    rng[0] = Math.floor(4 - (Math.random() * (Math.random() * 4)))
+                                }
                                 if (rng[0] === 0) {
                                     target = getTargets(currChar.team)
                                     target = target[Math.floor(Math.random() * target.length)]
@@ -675,9 +937,12 @@ function doThing() {
                                 }
                                 if (rng[0] === 1) {
                                     target = getTargets(currChar.team)
+                                    if (Math.random() > 0.35 * (3 - target.length)) {
+                                        break;
+                                    }
                                     console.log(`${currChar.name} swipes the opposing team with chocolate!`)
                                     for (let i = 0; i < target.length; i++) {
-                                        currChar.damage(target[i], 0.3 * currChar.trueStats[4], 'm', currChar.trueStats[7], 0, [ELEMENTS.Fairy])
+                                        currChar.damage(target[i], 0.35 * currChar.trueStats[4], 'm', currChar.trueStats[7], 0, [ELEMENTS.Fairy])
                                     }
         
                                     nextAction += 5000
@@ -689,14 +954,149 @@ function doThing() {
                                     if (target.length < 1) {
                                         break;
                                     }
-                                    target = target[Math.floor(Math.random() * target.length)]
+                                    let lowest = [1, 0]
+                                    for (let tg = 0; tg < target.length; tg++) {
+                                        if (lowest[0] > getCharacter(target[tg]).trueStats[0] / getCharacter(target[tg]).stats[0]) {
+                                            lowest = [getCharacter(target[tg]).trueStats[0] / getCharacter(target[tg]).stats[0], tg]
+                                        }
+                                    }
+                                    target = lowest[1]
                                     console.log(`${currChar.name} feeds ${getCharacter(target).name} chocolate!`)
-                                    currChar.heal(target, 0.4 * currChar.trueStats[2])
+                                    currChar.heal(target, 0.4 * currChar.trueStats[4])
         
                                     nextAction += 5000
                                     moveFind = true
                                     state = -1
                                     currChar.trueStats[1] -= 2
+                                }
+                                if (rng[0] === 3 && currChar.trueStats[1] >= 7) {
+                                    target = getAllies(currChar.team)
+                                    if (target.length < 1) {
+                                        break;
+                                    }
+
+                                    let avg = 0
+                                    for (let tg = 0; tg < target.length; tg++) {
+                                        avg += (getCharacter(target[tg]).trueStats[0] / getCharacter(target[tg]).stats[0]) / target.length
+                                    }
+
+                                    if (Math.random() > avg) {
+                                        break;
+                                    }
+
+                                    console.log(`${currChar.name} puts a protective chocolatey structure around ${currChar.pronouns[2]} teammates!`)
+                                    for (let i = 0; i < target.length; i++) {
+                                        currChar.damage(target[i], 0, 'm', Infinity, 0, [ELEMENTS.Fairy], [0, 1], [{effectType: 'pdefInc', strength: 1.333, length: 3}, {effectType: 'mdefInc', strength: 1.333, length: 3}])
+                                    }
+        
+                                    nextAction += 5000
+                                    moveFind = true
+                                    state = -1
+                                    currChar.trueStats[1] -= 7
+                                }   
+                            }
+                        }
+                        break;
+                    case 'imartiz':
+                        if (state === 0) {
+                            let moveFind = false
+                            let iterations = 0
+                            while (!moveFind) {
+                                iterations++
+                                if (iterations >= 1000) {
+                                    throw new Error(`[ERROR] ${currChar.name} got stuck!`)
+                                }
+        
+                                rng[0] = Math.floor(Math.random() * 2)
+                                let averageTeamHP = 0
+                                let allies = []
+                                for (let i = 0; i < characters.length; i++) {
+                                    if (characters[i].team === currChar.team && characters[i].alive) {
+                                        allies.push(characters[i].id)
+                                    }
+                                }
+                                for (let tg = 0; tg < allies.length; tg++) {
+                                    averageTeamHP += (getCharacter(allies[tg]).trueStats[0] / getCharacter(allies[tg]).stats[0]) / allies.length
+                                }
+                                if (rng[0] === 0) {
+                                    target = getTargets(currChar.team)
+                                    target = target[Math.floor(Math.random() * target.length)]
+                                    console.log(`${currChar.name} slams ${getCharacter(target).name} with ${currChar.pronouns[2]} tail!`)
+                                    currChar.damage(target, 1.0 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [])
+        
+                                    nextAction += 5000
+                                    moveFind = true
+                                    state = -1
+                                }
+                                if (rng[0] === 1) {
+                                    target = getAllies(currChar.team)
+                                    if (target.length < 1) {
+                                        break;
+                                    }
+                                    let lowest = [1, 0, 0]
+                                    for (let tg = 0; tg < target.length; tg++) {
+                                        if (lowest[0] > getCharacter(target[tg]).trueStats[0] / getCharacter(target[tg]).stats[0]) {
+                                            lowest = [getCharacter(target[tg]).trueStats[0] / getCharacter(target[tg]).stats[0], tg, getCharacter(target[tg]).stats[0]]
+                                        }
+                                    }
+                                    target = lowest[1]
+                                    let healing = Math.min(0.5 * currChar.trueStats[1], lowest[2] * 0.5 * (1 - lowest[0]))
+
+                                    console.log(`${currChar.name} uses ${currChar.pronouns[2]} tail to heal ${getCharacter(target).name}!`)
+                                    currChar.heal(target, healing)
+        
+                                    nextAction += 5000
+                                    moveFind = true
+                                    state = -1
+                                    currChar.trueStats[1] -= healing
+                                }
+                            }
+                        }
+                        break;
+                    case 'cauli':
+                        if (state === 0) {
+                            let moveFind = false
+                            let iterations = 0
+                            while (!moveFind) {
+                                iterations++
+                                if (iterations >= 1000) {
+                                    throw new Error(`[ERROR] ${currChar.name} got stuck!`)
+                                }
+        
+                                if (currChar.state === 0) {
+                                    currChar.state = {move: null, moveName: null, turns: 0, targets: [], lifeSteal: false}
+                                }
+                                if (currChar.state.move === null) {
+                                    rng[0] = Math.floor(Math.random() * 2)
+                                    if (rng[0] === 0) {
+                                        currChar.state = {move: 'gigaDrain', moveName: 'giga drain', turns: 2, targets: [], lifeSteal: false}
+                                        target = getTargets(currChar.team)
+                                        target = target[Math.floor(Math.random() * target.length)]
+                                        console.log(`${currChar.name} slams ${getCharacter(target).name} with ${currChar.pronouns[2]} tail!`)
+                                        currChar.damage(target, 1.0 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [])
+            
+                                        nextAction += 5000
+                                        moveFind = true
+                                        state = -1
+                                    }
+                                } else {
+                                    currChar.state.turns--
+                                    if (currChar.state.turns <= 0) {
+                                        if (currChar.state.move === 'gigaDrain') {
+
+                                        }
+                                    } else {
+                                        console.log(`${currChar.name} is still charging ${currChar.state.moveName}... (${currChar.state.turns} turns left)`)
+                                        currChar.state.targets[0] = getTargets(currChar.team)
+                                        let lowestHP = {hp: Infinity, id: 0}
+                                        for (let enemy = 0; enemy < currChar.state.targets[0].length; enemy++) {
+                                            if (lowestHP.hp > getCharacter(currChar.state.targets[0][enemy]).trueStats[0] / getCharacter(currChar.state.targets[0][enemy]).stats[0]) {
+                                                lowestHP.hp = getCharacter(currChar.state.targets[0][enemy]).trueStats[0] / getCharacter(currChar.state.targets[0][enemy]).stats[0]
+                                                lowestHP.id = currChar.state.targets[0][enemy]
+                                            }
+                                        }
+                                        currChar.state.targets[0] = lowestHP.id
+                                    }
                                 }
                             }
                         }
@@ -750,35 +1150,37 @@ function doThing() {
                                     target = target[Math.floor(Math.random() * target.length)]
                                     console.log(`${currChar.name} ${{
                                         gslime: 'attempts to hit ' + getCharacter(target).name + ' with a toxic bite!', 
-                                        rslime: 'tries to burning ' + getCharacter(target).name + '!', 
+                                        rslime: 'tries to burn ' + getCharacter(target).name + '!', 
                                         yslime: 'attempts to strike ' + getCharacter(target).name + ' with electrostatic discharge!', 
                                         bslime: 'tries to overwhelm ' + getCharacter(target).name + ' with water!'
                                     }[currChar.internalType]}`)
 
-                                    currChar.damage(target, 0.35 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [{
+                                    let EM = []
+                                    if (Math.random() >= 0.5) {
+                                        EM = [
+                                            {
+                                                effectType:{
+                                                    gslime: 'poison', 
+                                                    rslime: 'burn', 
+                                                    yslime: 'stun', 
+                                                    bslime: 'slow'
+                                                }[currChar.internalType],
+                                                strength: {
+                                                    gslime: 0.2 * currChar.trueStats[2], 
+                                                    rslime: 0.1 * currChar.trueStats[4], 
+                                                    yslime: 1.0, 
+                                                    bslime: 0.5
+                                                }[currChar.internalType],
+                                                length: Math.ceil((1 + Math.random() * 2) * (currChar.internalType === 'yslime' ? 0.5 : 1))
+                                            }
+                                        ]
+                                    }
+                                    currChar.damage(target, 0.5 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [{
                                         gslime: ELEMENTS.Poison, 
                                         rslime: ELEMENTS.Fire, 
                                         yslime: ELEMENTS.Electric, 
                                         bslime: ELEMENTS.Water
-                                    }[currChar.internalType]])
-                                    // TODO: current status effect inflicting doesn't account for dodging, combine status effect inflicting with the damage script
-                                    if (Math.random() >= 0.5) {
-                                        currChar.inflictEffect(target,
-                                            {
-                                                gslime: 'poison', 
-                                                rslime: 'burn', 
-                                                yslime: 'stun', 
-                                                bslime: 'slow'
-                                            }[currChar.internalType],
-                                            {
-                                                gslime: 0.2 * currChar.trueStats[2], 
-                                                rslime: 0.1 * currChar.trueStats[4], 
-                                                yslime: 1.0, 
-                                                bslime: 0.5
-                                            }[currChar.internalType],
-                                            Math.ceil((1 + Math.random() * 2) * (currChar.internalType === 'yslime' ? 0.5 : 1))
-                                        )
-                                    }
+                                    }[currChar.internalType]], [[10, 2]], EM)
 
                                     nextAction += 5000
                                     moveFind = true
@@ -803,7 +1205,7 @@ function doThing() {
                                     target = getTargets(currChar.team)
                                     target = target[Math.floor(Math.random() * target.length)]
                                     console.log(`${currChar.name} jumps on ${getCharacter(target).name}!`)
-                                    currChar.damage(target, 0.8 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [ELEMENTS.Dark])
+                                    currChar.damage(target, 0.9 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [ELEMENTS.Dark])
         
                                     nextAction += 5000
                                     moveFind = true
@@ -814,7 +1216,7 @@ function doThing() {
                                     target = target[Math.floor(Math.random() * target.length)]
                                     console.log(`${currChar.name} absorbs ${getCharacter(target).name}!`)
                                     currChar.state = 1
-                                    currChar.damage(target, 0.4 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [ELEMENTS.Dark])
+                                    currChar.damage(target, 0.45 * currChar.trueStats[4], 'm', currChar.trueStats[7], 0, [ELEMENTS.Dark])
         
                                     nextAction += 5000
                                     moveFind = true
@@ -825,11 +1227,13 @@ function doThing() {
                                     target = target[Math.floor(Math.random() * target.length)]
                                     console.log(`${currChar.name} slams down on ${getCharacter(target).name}!`)
 
-                                    currChar.damage(target, 1.1 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [ELEMENTS.Dark])
+                                    currChar.damage(target, 1.2 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [ELEMENTS.Dark])
 
+                                    let lastTarget = target
                                     target = getTargets(currChar.team)
                                     for (let i = 0; i < target.length; i++) {
-                                        currChar.damage(target[i], 0.5 * currChar.trueStats[4], 'm', currChar.trueStats[7] * 0.75, 0, [ELEMENTS.Dark])
+                                        if (target[i] === lastTarget) { continue; }
+                                        currChar.damage(target[i], 0.24 * currChar.trueStats[4], 'm', currChar.trueStats[7] * 0.5, 0, [ELEMENTS.Dark])
                                     }
                                     
                                     nextAction += 5000
@@ -839,7 +1243,7 @@ function doThing() {
                                 }
                                 if (rng[0] === 3 && currChar.trueStats[1] >= 3) {
                                     console.log(`${currChar.name} reinforces ${currChar.pronouns[3]}!`)
-                                    currChar.inflictEffect(currChar.id, 'pdefInc', 1 + 0.1 * (Math.floor(Math.random() * 3) + 2), 3)
+                                    currChar.damage(currChar.id, 0, 'p', Infinity, 0, [], [0, 1], [{effectType: 'pdefInc', strength: 1 + 0.1 * (Math.floor(Math.random() * 3) + 2), length: 3}])
 
                                     nextAction += 5000
                                     moveFind = true
@@ -871,11 +1275,6 @@ function doThing() {
     doDamageQueue()
 }
 
-let pronouns_list = [
-    ['he', 'him',' his', 'himself'],
-    ['she', 'her',' her', 'herself'],
-    ['they', 'them',' their', 'themselves'],
-]
 
 function getTargets(team, alive = true) {
     let targets = []
@@ -914,30 +1313,68 @@ function doDamageQueue() {
 
             let critRand = Math.random() * 100
             for (let j = currQueue.crit.length - 1; j >= 0; j--) {
-                if (critRand >= currQueue.crit[j][0]) {
-                    console.log(`${['Critical', 'DEADLY', 'HOLY'][j]} hit! (${currQueue.crit[j][1]}x)`)
+                if (critRand <= currQueue.crit[j][0]) {
+                    console.log(`%c${['Critical', 'DEADLY', 'HOLY'][j]}%c hit! (${currQueue.crit[j][1]}x)`, 'font-weight: bold;', 'font-weight: normal;')
                     DM *= currQueue.crit[j][1]
                     break;
                 }
             }
 
-            // do character speicific things here
+            let EM = currQueue.statusEffectList
+
+            // do character specific things here
+
+            // end character specific things here
+
+            if (isNaN(DM)) {
+                console.error(`typeEff: ${getTypeEffective(currQueue.elements, getCharacter(currQueue.who).elements)}`)
+                console.error(`base damage: ${currQueue.amount}`)
+                console.error(`pierce: ${currQueue.defPierce}`)
+                console.error(`defense: ${getCharacter(currQueue.who).trueStats[currQueue.atkType === "p" ? 3 : 5]}`)
+                console.error(`damage: ${damageFormula(currQueue.amount, (1 - currQueue.defPierce) * getCharacter(currQueue.who).trueStats[currQueue.atkType === "p" ? 3 : 5])}`)
+                throw new Error("Oh no damage is NaN")
+            }
 
             let before = Math.ceil(getCharacter(currQueue.who).trueStats[0])
             getCharacter(currQueue.who).trueStats[0] -= DM
 
-            if (typeEff <= 0) {
-                console.log(`${getCharacter(currQueue.who).name} is immune...`)
-            } else if (typeEff < 1) {
-                console.log(`${getCharacter(currQueue.who).name} suffers ${format(before - Math.ceil(getCharacter(currQueue.who).trueStats[0]), 2)} not very effective damage... (${typeEff}x)`)
-            } else if (typeEff === 1) {
-                console.log(`${getCharacter(currQueue.who).name} suffers ${format(before - Math.ceil(getCharacter(currQueue.who).trueStats[0]), 2)} damage!`)
-            } else if (typeEff > 1) {
-                console.log(`${getCharacter(currQueue.who).name} suffers ${format(before - Math.ceil(getCharacter(currQueue.who).trueStats[0]), 2)} super effective damage!! (${typeEff}x)`)
+
+            if (currQueue.amount > 0) {
+                if (typeEff <= 0) {
+                    console.log(`${getCharacter(currQueue.who).name} is immune...`)
+                } else if (typeEff < 1) {
+                    console.log(`${getCharacter(currQueue.who).name} suffers %c${format(before - Math.ceil(getCharacter(currQueue.who).trueStats[0]), 2)}%c not very effective damage... (${typeEff}x)`, 'font-weight: bold;', 'font-weight: normal;')
+                } else if (typeEff === 1) {
+                    console.log(`${getCharacter(currQueue.who).name} suffers %c${format(before - Math.ceil(getCharacter(currQueue.who).trueStats[0]), 2)}%c damage!`, 'font-weight: bold;', 'font-weight: normal;')
+                } else if (typeEff > 1) {
+                    console.log(`${getCharacter(currQueue.who).name} suffers %c${format(before - Math.ceil(getCharacter(currQueue.who).trueStats[0]), 2)}%c super effective damage!! (${typeEff}x)`, 'font-weight: bold;', 'font-weight: normal;')
+                }
+    
+                getCharacter(currQueue.who).damageScript(DM)
+                getCharacter(currQueue.fromWhom).response({state: "hit", damage: DM, effects: null})
             }
 
-            getCharacter(currQueue.who).damageScript(DM)
-            getCharacter(currQueue.fromWhom).response({state: "hit", damage: DM, effects: null})
+            for (let j = 0; j < EM.length; j++) {
+                console.log(`${getCharacter(currQueue.who).name}${{
+                    poison: ' has been poisoned!',
+                    burn: ' was burned!',
+                    stun: ' was stunned!',
+                    slow: ' was slowed!',
+                    patkInc: '\'s PATK increased!',
+                    pdefInc: '\'s PDEF increased!',
+                    matkInc: '\'s MATK increased!',
+                    mdefInc: '\'s MDEF increased!',
+                    patkDec: '\'s PATK decreased!',
+                    pdefDec: '\'s PDEF decreased!',
+                    matkDec: '\'s MATK decreased!',
+                    mdefDec: '\'s MDEF decreased!',
+                }[EM[j].effectType]}`)
+                getCharacter(currQueue.who).statusEffects.push(EM[j])
+                getCharacter(currQueue.fromWhom).response({state: "effect", damage: null, effects: EM[j]})
+            }
+            if (EM.length > 0) {
+                getCharacter(currQueue.who).doStatusEffects()
+            }
         }
         if (currQueue.type === 1) {
             let DM = currQueue.amount
@@ -946,40 +1383,19 @@ function doDamageQueue() {
             let before = Math.ceil(getCharacter(currQueue.who).trueStats[0])
             getCharacter(currQueue.who).trueStats[0] = Math.min(getCharacter(currQueue.who).trueStats[0] + DM, getCharacter(currQueue.who).stats[0])
 
-            console.log(`${getCharacter(currQueue.who).name} is healed by ${format(Math.ceil(getCharacter(currQueue.who).trueStats[0]) - before, 2)} HP!`)
+            console.log(`${getCharacter(currQueue.who).name} was healed by %c${format(Math.ceil(getCharacter(currQueue.who).trueStats[0]) - before, 2)}%c HP!`, 'font-weight: bold;', 'font-weight: normal;')
 
             getCharacter(currQueue.who).damageScript(-DM)
             getCharacter(currQueue.fromWhom).response({state: "heal", damage: DM, effects: null})
-        }
-        if (currQueue.type === 2) {
-            let DM = {type: currQueue.effectType, strength: currQueue.strength, length: currQueue.length, from: currQueue.fromWhom}
-
-            console.log(`${getCharacter(currQueue.who).name}${{
-                poison: ' has been poisoned!',
-                burn: ' was burned!',
-                stun: ' was stunned!',
-                patkInc: '\'s PATK increased!',
-                pdefInc: '\'s PDEF increased!',
-                matkInc: '\'s MATK increased!',
-                mdefInc: '\'s MDEF increased!',
-                patkDec: '\'s PATK decreased!',
-                pdefDec: '\'s PDEF decreased!',
-                matkDec: '\'s MATK decreased!',
-                mdefDec: '\'s MDEF decreased!',
-            }[currQueue.effectType]}`)
-            getCharacter(currQueue.who).statusEffects.push(DM)
-            getCharacter(currQueue.who).doStatusEffects()
-            getCharacter(currQueue.fromWhom).response({state: "effect", damage: null, effects: DM})
         }
     }
     damageQueue = []
 }
 
 function damageFormula(atk, def) {
+    if (atk === 0 && def === 0) { return 0; }
     return (atk * atk) / (atk + def)
 }
-
-let baseAcc = 0.9
 
 function dodgeFormula(acc, eva) {
     return acc >= eva
@@ -991,7 +1407,11 @@ function displayCharacter(id, type) {
     let whom = getCharacter(id)
     switch (type) {
         case 0:
-            console.log(`${pad(whom.name, 15, " ")} | ${pad(whom.level, 5, " ")} | ${pad(Math.ceil(whom.trueStats[0]), 4, " ")} / ${pad(Math.ceil(whom.stats[0]), 4, " ")} | ${pad(Math.ceil(whom.trueStats[1]), 4, " ")} / ${pad(Math.ceil(whom.stats[1]), 4, " ")} | ${pad(Math.ceil(whom.gp), 3, " ")}`)
+            if (whom.team === 0) {
+                console.log(`${pad(whom.name, 15, " ")} | ${pad(whom.level, 5, " ")} | ${pad(Math.ceil(whom.trueStats[0]), 4, " ")} / ${pad(Math.ceil(whom.stats[0]), 4, " ")} | ${pad(Math.ceil(whom.trueStats[1]), 4, " ")} / ${pad(Math.ceil(whom.stats[1]), 4, " ")} | ${pad(Math.floor(whom.xp - whom.levelUpReq(whom.level - 1)), 4, " ")} / ${pad(Math.ceil(whom.levelUpReq(whom.level) - whom.levelUpReq(whom.level - 1)), 4, " ")} | ${pad(Math.ceil(whom.gp), 3, " ")}`)
+            } else {
+                console.log(`${pad(whom.name, 15, " ")} | ${pad(whom.level, 5, " ")} | ${pad(Math.ceil(whom.trueStats[0]), 4, " ")} / ${pad(Math.ceil(whom.stats[0]), 4, " ")} | ${pad(Math.ceil(whom.trueStats[1]), 4, " ")} / ${pad(Math.ceil(whom.stats[1]), 4, " ")} | ${pad(Math.ceil(whom.gp), 3, " ")}`)
+            }
             break;
         case 1:
             console.log(`${whom.name} Level ${whom.level} (XP: ${Math.ceil(whom.xp)})\nHP: ${Math.ceil(whom.stats[0])}\nMP: ${Math.ceil(whom.stats[1])}\nPATK: ${Math.ceil(whom.stats[1])}\nPDEF: ${Math.ceil(whom.stats[2])}\nMATK: ${Math.ceil(whom.stats[3])}\nMDEF: ${Math.ceil(whom.stats[4])}\nSPD: ${Math.ceil(whom.stats[5])}`)
