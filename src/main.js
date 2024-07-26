@@ -83,9 +83,9 @@ const NEXT_UNLOCKS = {
     col: {
         get shown() { return player.value.kua.kpower.upgrades >= 2; },
         get done() { return player.value.col.unlocked; },
-        get dispPart1() { return `${format(player.value.kua.amount)} / ${format(c.e2)}`; },
+        get dispPart1() { return `${format(player.value.kua.amount, 3)} / ${format(c.e2)}`; },
         dispPart2: `Kuaraniai to unlock the next layer.`,
-        color: "#ff3600"
+        color: "#ff6000"
     },
     tax: {
         get shown() { return Decimal.gte(player.value.points, c.e250); },

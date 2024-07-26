@@ -211,6 +211,9 @@ class Character {
         this.doStatusEffects()
         for (let i = 0; i < this.trueStats.length; i++) {
             if (isNaN(this.trueStats[i])) {
+                console.error(this.trueStats)
+                console.error(baseStats)
+                console.error(level)
                 throw new Error(`fucking shit go check console ig`)
             }
         }
@@ -242,11 +245,21 @@ class Character {
             this.trueStats[i] = this.stats[i]
         }
 
+        if (this.internalType === 'auroram') {
+            if (this.state !== 0) {
+                if (this.state.thighHighs[0] === 'red') {
+                    this.trueStats[2] *= 3
+                    this.trueStats[4] /= 3
+                }
+            }
+        }
+
         for (let i = 0; i < this.statusEffects.length; i++) {
             switch (this.statusEffects[i].effectType) {
                 case 'poison':
                 case 'burn':
                 case 'stun':
+                case 'regen':
                     break;
                 case 'slow':
                     this.trueStats[6] *= this.statusEffects[i].strength
@@ -291,6 +304,10 @@ class Character {
                     break;
                 case 'stun':
                     console.log(`${this.name} is stunned! (${this.statusEffects[i].length} turns)`)
+                    break;
+                case 'regen':
+                    console.log(`${this.name} regenerates! (${this.statusEffects[i].length} turns, ${Math.ceil(this.statusEffects[i].strength)} base damage)`)
+                    this.heal(this.id, this.statusEffects[i].strength)
                     break;
                 case 'slow':
                     before = Math.ceil(before2[6])
@@ -356,6 +373,32 @@ class Character {
             }
         )
     }
+    die() {
+        if (this.team === 0) {
+            if (this.trueStats[0] <= 0) {
+                this.trueStats[0] = 0
+                if (this.alive) {
+                    console.error(`${this.name} was defeated!`)
+                }
+                this.alive = false
+            }
+        }
+        if (this.team === 1) {
+            if (this.trueStats[0] <= 0) {
+                this.trueStats[0] = 0
+                if (this.alive) {
+                    console.error(`${this.name} was defeated! They gained ${Math.floor(this.xpGain)} XP!`)
+                }
+                this.alive = false
+                for (let i = 0; i < characters.length; i++) {
+                    if (characters[i].team === 0) {
+                        characters[i].xp += this.xpGain
+                        characters[i].levelUp()
+                    }
+                }
+            }
+        }
+    }
     damageScript(damage) {
         this.gp += (Math.max(damage, 0) / (this.stats[0])) * 5
         switch (this.internalType) {
@@ -363,35 +406,24 @@ class Character {
             case 'dessb':
             case 'cauli':
             case 'auroram':
-                if (this.trueStats[0] <= 0) {
-                    this.trueStats[0] = 0
-                    if (this.alive) {
-                        console.error(`${this.name} was defeated!`)
-                    }
-                    this.alive = false
-                }
-                break;
-            case 'imartiz':
-                this.heal(this.id, Math.min(Math.max(damage, 0) * 0.5, this.trueStats[1] * 0.25))
-                this.trueStats[1] -= Math.min(Math.max(damage, 0) * 0.5, this.trueStats[1] * 0.25)
-                break;
             case 'gslime':
             case 'rslime':
             case 'yslime':
             case 'bslime':
             case 'dslime':
                 if (this.trueStats[0] <= 0) {
-                    this.trueStats[0] = 0
-                    if (this.alive) {
-                        console.error(`${this.name} was defeated! They gained ${Math.floor(this.xpGain)} XP!`)
-                    }
-                    this.alive = false
-                    for (let i = 0; i < characters.length; i++) {
-                        if (characters[i].team === 0) {
-                            characters[i].xp += this.xpGain
-                            characters[i].levelUp()
-                        }
-                    }
+                    this.die()
+                    break;
+                }
+                break;
+            case 'imartiz':
+                if (this.trueStats[0] <= 0) {
+                    this.die()
+                    break;
+                }
+                if (damage > 0) {
+                    this.heal(this.id, Math.min(damage * 0.5, this.trueStats[1] * 0.25))
+                    this.trueStats[1] -= Math.min(damage * 0.5, this.trueStats[1] * 0.25)
                 }
                 break;
             default:
@@ -406,7 +438,13 @@ class Character {
             case 'fsblue':
             case 'dessb':
             case 'imartiz':
+                break;
             case 'cauli':
+                if (this.state.lifeSteal && response.state === 'hit') {
+                    this.heal(this.id, response.damage * 0.75)
+                }
+                this.state.lifeSteal = false
+                break;
             case 'auroram':
             case 'gslime':
             case 'rslime':
@@ -429,11 +467,15 @@ class Character {
 // hp, mp, patk, pdef, matk, mdef, spd, acc, eva
 let characters = [//             HP  MP  PA  PD  MA  MD  SP  AC  EV
     new Character("FSBlue",     [40, 8,  16, 12, 3,  3,  15, 9,  5 ], 1, 0, 0, 'fsblue',   pronouns_list[1], [ELEMENTS.Fighting], [15, 15, 4], true),
-    new Character("DesSB",      [12, 16, 14, 7,  15, 9,  20, 14, 13], 1, 0, 0, 'dessb',    pronouns_list[0], [ELEMENTS.Fairy],    [10, 12, 3], true),
-    new Character("I. Martiz",  [45, 14, 8,  15, 5,  14, 8,  12, 6 ], 1, 0, 0, 'imartiz',  pronouns_list[0], [ELEMENTS.Fairy],    [15, 12, 4], true),
-    new Character("Cauli",      [25, 15, 22, 10, 17, 9,  4,  20, 3 ], 1, 0, 0, 'cauli',    pronouns_list[0], [ELEMENTS.Grass],    [16, 15, 5], true),
-    new Character("Aurora:M",   [15, 30, 4,  7,  20, 15, 8,  12, 10], 1, 0, 0, 'auroram',  pronouns_list[1], [ELEMENTS.Fire],     [13, 12, 4], true),
 ]
+
+// let characters = [//             HP  MP  PA  PD  MA  MD  SP  AC  EV
+//     new Character("FSBlue",     [40, 8,  16, 12, 3,  3,  15, 9,  5 ], 1, 0, 0, 'fsblue',   pronouns_list[1], [ELEMENTS.Fighting], [15, 15, 4], true),
+//     new Character("DesSB",      [12, 16, 14, 7,  15, 9,  20, 14, 13], 1, 0, 0, 'dessb',    pronouns_list[0], [ELEMENTS.Fairy],    [10, 12, 3], true),
+//     new Character("I. Martiz",  [45, 14, 8,  15, 5,  14, 8,  12, 6 ], 1, 0, 0, 'imartiz',  pronouns_list[0], [ELEMENTS.Fairy],    [15, 12, 4], true),
+//     new Character("Cauli",      [25, 15, 22, 10, 17, 9,  4,  20, 3 ], 1, 0, 0, 'cauli',    pronouns_list[0], [ELEMENTS.Grass],    [16, 15, 5], true),
+//     new Character("Aurora:M",   [15, 30, 4,  7,  20, 15, 8,  12, 10], 1, 0, 0, 'auroram',  pronouns_list[1], [ELEMENTS.Fire],     [13, 12, 4], true),
+// ]
 
 const ENEMIES = {
     gslime: {
@@ -516,11 +558,43 @@ const ENEMIES = {
         pronouns: 'random',
         elements: [ELEMENTS.Dark]
     },
+    dessb: {
+        name: 'DesSB',
+        HP: 12,
+        MP: 16,
+        PATK: 14,
+        PDEF: 7,
+        MATK: 15,
+        MDEF: 9,
+        SPD: 20,
+        ACC: 14,
+        EVA: 13,
+        XP: 20,
+        Level: 4,
+        pronouns: 0,
+        elements: [ELEMENTS.Fairy]
+    },
+    imartiz: {
+        name: 'Inverse Martiz',
+        HP: 45,
+        MP: 14,
+        PATK: 8,
+        PDEF: 15,
+        MATK: 5,
+        MDEF: 14,
+        SPD: 8,
+        ACC: 12,
+        EVA: 6,
+        XP: 30,
+        Level: 8,
+        pronouns: 0,
+        elements: [ELEMENTS.Fairy]
+    },
 }
 
 function spawnEnemy(id, statModif) {
     let enemy = ENEMIES[id]
-    characters.push(new Character(enemy.name, [enemy.HP * statModif, enemy.MP * statModif, enemy.PATK * statModif, enemy.PDEF * statModif, enemy.MATK * statModif, enemy.MDEF * statModif, enemy.SPD * statModif, enemy.ACC * statModif, enemy.EVA * statModif], enemy.Level, enemy.XP * statModif * statModif, 1, id, enemy.pronouns === 'random' ? pronouns_list[Math.floor(Math.random() * 3)] : enemy.pronouns, enemy.elements, [Infinity, Infinity, Infinity], false))
+    characters.push(new Character(enemy.name, [enemy.HP * statModif, enemy.MP * statModif, enemy.PATK * statModif, enemy.PDEF * statModif, enemy.MATK * statModif, enemy.MDEF * statModif, enemy.SPD * statModif, enemy.ACC * statModif, enemy.EVA * statModif], enemy.Level, enemy.XP * statModif * statModif, 1, id, enemy.pronouns === 'random' ? pronouns_list[Math.floor(Math.random() * 3)] : pronouns_list[enemy.pronouns], enemy.elements, [Infinity, Infinity, Infinity], false))
 }
 
 let characterListFixed = []
@@ -562,7 +636,7 @@ function doThing() {
     }
     if (players === 0) {
         console.error(`\nGame Over!`)
-        wave = 0
+        wave = Math.max(0, wave - 2)
         for (let i = 0; i < characters.length; i++) {
             if (characters[i].team !== 0) {
                 characters.splice(i, 1)
@@ -579,7 +653,7 @@ function doThing() {
         nextAction += 5000
     }
 
-    if (enemies === 0 && wave < 999) {
+    if (enemies === 0 && wave < 11) {
         for (let i = 0; i < characters.length; i++) {
             if (characters[i].team !== 0) {
                 characters.splice(i, 1)
@@ -589,55 +663,121 @@ function doThing() {
         wave++
         console.warn(`<| Wave ${wave}! |>`)
         turnNum = 0
-        if (wave >= 1 && wave < 999) {
-            rng[0] = Math.random()
-            if (rng[0] < 0.75 && rng[0] > 0.00) {
-                rng[1] = Math.floor(Math.random() * 3) + 1
-                for (let i = 0; i < rng[1]; i++) {
-                    rng[2] = 0.8 + 0.4 * Math.random()
-                    rng[3] = Math.floor(Math.random() * 4)
-                    spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+        if (wave === 1) {
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+        }
+        if (wave === 2) {
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+        }
+        if (wave === 3) {
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+        }
+        if (wave === 4) {
+            rng[2] = 0.6 + 0.3 * Math.random()
+            spawnEnemy('dslime', rng[2])
+        }
+        if (wave === 5) {
+            let has = true
+            for (let i = 0; i < characters.length; i++) {
+                if (characters[i].internalType === 'dessb') {
+                    has = false
                 }
             }
-            if (rng[0] < 0.85 && rng[0] > 0.75) {
-                rng[2] = 0.8 + 0.4 * Math.random()
-                spawnEnemy('dslime', rng[2])
-            }
-            if (rng[0] < 0.93 && rng[0] > 0.85) {
-                spawnEnemy('dslime', rng[2])
-                rng[1] = Math.floor(Math.random() * 3) + 1
-                for (let i = 0; i < rng[1]; i++) {
+            if (has) {
+                spawnEnemy('dessb', 2.0)
+            } else {
+                for (let i = 0; i < 4; i++) {
                     rng[2] = 0.8 + 0.4 * Math.random()
-                    rng[3] = Math.floor(Math.random() * 4)
-                    spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+                    spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][i], rng[2])
                 }
             }
-            if (rng[0] < 0.96 && rng[0] > 0.93) {
-                rng[1] = Math.floor(Math.random() * 4) + 1
-                for (let i = 0; i < rng[1]; i++) {
-                    rng[2] = 0.8 + 0.4 * Math.random()
-                    rng[3] = Math.floor(Math.random() * 4)
-                    spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime', 'dslime'][rng[3]], rng[2])
+        }
+        if (wave === 6) {
+            let has = true
+            for (let i = 0; i < characters.length; i++) {
+                if (characters[i].internalType === 'dessb') {
+                    has = false
                 }
             }
-            if (rng[0] < 0.99 && rng[0] > 0.96) {
-                rng[1] = Math.floor(Math.random() * 10) + 1
-                for (let i = 0; i < rng[1]; i++) {
-                    rng[2] = 0.8 + 0.4 * Math.random()
-                    rng[3] = Math.floor(Math.random() * 4)
-                    spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
-                }
-            }
-            if (rng[0] < 1.00 && rng[0] > 0.99) {
-                rng[1] = Math.floor(Math.random() * 3) + 1
-                for (let i = 0; i < rng[1]; i++) {
-                    rng[2] = 0.8 + 0.4 * Math.random()
-                    spawnEnemy('dslime', rng[2])
-                }
+            if (has) {
+                characters.push(new Character("DesSB", [12, 16, 14, 7, 15, 9, 20, 14, 13], 1, 0, 0, 'dessb', pronouns_list[0], [ELEMENTS.Fairy], [10, 12, 3], true))
             }
 
-            getCharacterList()
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 5)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime', 'dslime'][rng[3]], rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
         }
+        if (wave === 7 || wave === 8) {
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 5)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime', 'dslime'][rng[3]], rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+        }
+        if (wave === 9) {
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 5)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime', 'dslime'][rng[3]], rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 5)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime', 'dslime'][rng[3]], rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+        }
+        if (wave === 10) {
+            let has = true
+            for (let i = 0; i < characters.length; i++) {
+                if (characters[i].internalType === 'imartiz') {
+                    has = false
+                }
+            }
+            if (has) {
+                spawnEnemy('imartiz', 3.0)
+            } else {
+                spawnEnemy('dslime', 1.0)
+                for (let i = 0; i < 4; i++) {
+                    rng[2] = 0.8 + 0.4 * Math.random()
+                    spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][i], rng[2])
+                }
+            }
+            spawnEnemy('dslime', 1.0)
+        }
+        getCharacterList()
         turnOrder = []
         state = 0
     }
@@ -743,10 +883,10 @@ function doThing() {
                                     currChar.trueStats[1] -= 5
                                 }
                                 if (rng[0] === 3 && currChar.trueStats[1] >= 4) {
-                                    if (Math.random() > (currChar.trueStats[0] / currChar.stats[0])) {
+                                    if (Math.random() < (currChar.trueStats[0] / currChar.stats[0])) {
                                         break;
                                     }
-                                    console.log(`${currChar.name} uses her weak healing to try to heal ${currChar.pronouns[3]}...`)
+                                    console.log(`${currChar.name} uses ${currChar.pronouns[2]} weak healing to try to heal ${currChar.pronouns[3]}...`)
                                     currChar.heal(currChar.id, 0.5 * currChar.trueStats[4])
 
                                     nextAction += 5000
@@ -766,7 +906,7 @@ function doThing() {
                                     }
                                     target = lowestHP.id
 
-                                    console.log(`${currChar.name} unleashes her ultimate attack: SUPERSTAR STRIKE!`)
+                                    console.log(`${currChar.name} unleashes ${currChar.pronouns[2]} Giga Power Move: SUPERSTAR STRIKE!`)
                                     tmp = [1, 0, target]
                                     moveFind = true
                                     state = 2
@@ -970,7 +1110,7 @@ function doThing() {
                                     currChar.trueStats[1] -= 2
                                 }
                                 if (rng[0] === 3 && currChar.trueStats[1] >= 7) {
-                                    target = getAllies(currChar.team)
+                                    target = getAllies(currChar.team, true, false)
                                     if (target.length < 1) {
                                         break;
                                     }
@@ -1039,6 +1179,9 @@ function doThing() {
                                             lowest = [getCharacter(target[tg]).trueStats[0] / getCharacter(target[tg]).stats[0], tg, getCharacter(target[tg]).stats[0]]
                                         }
                                     }
+                                    if (lowest[0] >= 0.75) {
+                                        break;
+                                    }
                                     target = lowest[1]
                                     let healing = Math.min(0.5 * currChar.trueStats[1], lowest[2] * 0.5 * (1 - lowest[0]))
 
@@ -1049,6 +1192,29 @@ function doThing() {
                                     moveFind = true
                                     state = -1
                                     currChar.trueStats[1] -= healing
+                                }
+                                if (rng[0] === 2 && currChar.gp >= 100) {
+                                    target = getAllies(currChar.team, true, false)
+                                    if (target.length < 1) {
+                                        break;
+                                    }
+
+                                    console.log(`${currChar.name} unleashes ${currChar.pronouns[2]} Giga Power Move, %cRadial Charm!%c!`, 'font-weight: bold;', 'font-weight: normal;')
+                                    for (let i = 0; i < target.length; i++) {
+                                        currChar.heal(target[i], 0.75 * currChar.trueStats[4])
+                                        currChar.damage(target[i], 0, 'm', currChar.trueStats[7], 0, [ELEMENTS.Fairy], [0, 1], [
+                                            {
+                                                effectType: 'regen',
+                                                strength: 0.1 * currChar.trueStats[4],
+                                                length: 5
+                                            }
+                                        ])
+                                    }
+        
+                                    nextAction += 5000
+                                    moveFind = true
+                                    state = -1
+                                    currChar.gp -= 100
                                 }
                             }
                         }
@@ -1067,13 +1233,60 @@ function doThing() {
                                     currChar.state = {move: null, moveName: null, turns: 0, targets: [], lifeSteal: false}
                                 }
                                 if (currChar.state.move === null) {
-                                    rng[0] = Math.floor(Math.random() * 2)
-                                    if (rng[0] === 0) {
-                                        currChar.state = {move: 'gigaDrain', moveName: 'giga drain', turns: 2, targets: [], lifeSteal: false}
+                                    rng[0] = Math.floor(Math.random() * 1)
+                                    if (rng[0] === 0 && currChar.trueStats[1] >= 6) {
+                                        currChar.state = {move: 'gigaDrain', moveName: 'Giga Drain', turns: 2, targets: [], lifeSteal: false}
                                         target = getTargets(currChar.team)
-                                        target = target[Math.floor(Math.random() * target.length)]
-                                        console.log(`${currChar.name} slams ${getCharacter(target).name} with ${currChar.pronouns[2]} tail!`)
-                                        currChar.damage(target, 1.0 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [])
+                                        currChar.state.targets[0] = target[Math.floor(Math.random() * target.length)]
+                                        console.log(`${currChar.name} charges Giga Drain against ${getCharacter(currChar.state.targets[0]).name}!`)
+                                        
+            
+                                        nextAction += 5000
+                                        moveFind = true
+                                        state = -1
+                                        currChar.trueStats[1] -= 6
+                                    }
+                                    if (rng[0] === 1) {
+                                        currChar.state = {move: 'leafBlade', moveName: 'Leaf Blade', turns: 3, targets: [], lifeSteal: false}
+                                        target = getTargets(currChar.team)
+                                        currChar.state.targets[0] = target[Math.floor(Math.random() * target.length)]
+                                        console.log(`${currChar.name} sharpens ${currChar.pronouns[2]} leafy tail!`)
+                                        
+            
+                                        nextAction += 5000
+                                        moveFind = true
+                                        state = -1
+                                    }
+                                    if (rng[0] === 2 && currChar.trueStats[1] >= 8) {
+                                        currChar.state = {move: 'leafStorm', moveName: 'Leaf Storm', turns: 3, targets: [], lifeSteal: false}
+                                        target = getTargets(currChar.team)
+                                        currChar.state.targets[0] = target[Math.floor(Math.random() * target.length)]
+                                        console.log(`${currChar.name} gathers leaves for a Leaf Storm!`)
+                                        
+            
+                                        nextAction += 5000
+                                        moveFind = true
+                                        state = -1
+                                        currChar.trueStats[1] -= 8
+                                    }
+                                    if (rng[0] === 3 && currChar.trueStats[1] >= 5) {
+                                        currChar.state = {move: 'energyBall', moveName: 'Energy Ball', turns: 2, targets: [], lifeSteal: false}
+                                        target = getTargets(currChar.team)
+                                        currChar.state.targets[0] = target[Math.floor(Math.random() * target.length)]
+                                        console.log(`${currChar.name} is storing energy!`)
+                                        
+            
+                                        nextAction += 5000
+                                        moveFind = true
+                                        state = -1
+                                        currChar.trueStats[1] -= 5
+                                    }
+                                    if (rng[0] === 4) {
+                                        currChar.state = {move: 'swat', moveName: 'Swat', turns: 2, targets: [], lifeSteal: false}
+                                        target = getTargets(currChar.team)
+                                        currChar.state.targets[0] = target[Math.floor(Math.random() * target.length)]
+                                        console.log(`${currChar.name} is pulling ${currChar.pronouns[2]} paw back for a \"get off me\" smack!`)
+                                        
             
                                         nextAction += 5000
                                         moveFind = true
@@ -1081,12 +1294,7 @@ function doThing() {
                                     }
                                 } else {
                                     currChar.state.turns--
-                                    if (currChar.state.turns <= 0) {
-                                        if (currChar.state.move === 'gigaDrain') {
-
-                                        }
-                                    } else {
-                                        console.log(`${currChar.name} is still charging ${currChar.state.moveName}... (${currChar.state.turns} turns left)`)
+                                    if (currChar.state.move === 'gigaDrain' | currChar.state.move === 'leafBlade' | currChar.state.move === 'leafStorm' | currChar.state.move === 'energyBall' | currChar.state.move === 'swat') {
                                         currChar.state.targets[0] = getTargets(currChar.team)
                                         let lowestHP = {hp: Infinity, id: 0}
                                         for (let enemy = 0; enemy < currChar.state.targets[0].length; enemy++) {
@@ -1096,6 +1304,100 @@ function doThing() {
                                             }
                                         }
                                         currChar.state.targets[0] = lowestHP.id
+                                    }
+                                    if (currChar.state.turns <= 0) {
+                                        if (currChar.state.move === 'gigaDrain') {
+                                            console.log(`${currChar.name}'s ${currChar.state.moveName} will strike ${getCharacter(currChar.state.targets[0]).name}!`)
+                                            currChar.state.lifeSteal = true
+                                            currChar.damage(currChar.state.targets[0], 1.6 * currChar.trueStats[4], 'm', currChar.trueStats[7], 0, [ELEMENTS.Grass])
+                                            currChar.state.move = null
+                                            currChar.state.moveName = null
+                                        }
+                                        if (currChar.state.move === 'leafBlade') {
+                                            console.log(`${currChar.name} will slice ${getCharacter(currChar.state.targets[0]).name} with ${currChar.pronouns[2]} ${currChar.state.moveName}!`)
+
+                                            currChar.damage(currChar.state.targets[0], 1.5 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [ELEMENTS.Grass], [25, 2])
+                                            currChar.state.move = null
+                                            currChar.state.moveName = null
+                                        }
+                                        if (currChar.state.move === 'leafStorm') {
+                                            console.log(`${currChar.name} will summon a powerful ${currChar.state.moveName} against their enemies!`)
+                                            
+                                            currChar.damage(currChar.state.targets[0], 2.4 * currChar.trueStats[4], 'm', currChar.trueStats[7], 0, [ELEMENTS.Grass])
+
+                                            let lastTarget = currChar.state.targets[0]
+                                            currChar.state.targets[0] = getTargets(currChar.team)
+                                            for (let i = 0; i < currChar.state.targets[0].length; i++) {
+                                                if (currChar.state.targets[0][i] === lastTarget) { continue; }
+                                                currChar.damage(currChar.state.targets[0][i], 0.8 * currChar.trueStats[4], 'm', currChar.trueStats[7] * 0.5, 0, [ELEMENTS.Grass])
+                                            }
+                                            
+                                            currChar.state.move = null
+                                            currChar.state.moveName = null
+                                        }
+                                        if (currChar.state.move === 'energyBall') {
+                                            console.log(`${currChar.name} shoots an ${currChar.state.moveName} against ${getCharacter(currChar.state.targets[0]).name}!!`)
+                                            
+                                            currChar.damage(currChar.state.targets[0], 1.5 * currChar.trueStats[4], 'm', currChar.trueStats[7], 0, [ELEMENTS.Grass], [10, 2], [{effectType: 'mdefDec', strength: 0.5, length: 3}])
+                                            
+                                            currChar.state.move = null
+                                            currChar.state.moveName = null
+                                        }
+                                        if (currChar.state.move === 'swat') {
+                                            console.log(`${currChar.name} tries to ${currChar.state.moveName} away ${getCharacter(currChar.state.targets[0]).name}!!`)
+                                            
+                                            currChar.damage(currChar.state.targets[0], 1.35 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [ELEMENTS.Grass], [10, 2], [{effectType: 'stun', strength: 1.0, length: 2}])
+                                            
+                                            currChar.state.move = null
+                                            currChar.state.moveName = null
+                                        }
+                                    } else {
+                                        console.log(`${currChar.name} is still charging ${currChar.state.moveName}... (${currChar.state.turns} turns left)`)
+                                    }
+                                    nextAction += 5000
+                                    moveFind = true
+                                    state = -1
+                                }
+                            }
+                        }
+                        break;
+                    case 'auroram':
+                        if (state === 0) {
+                            let moveFind = false
+                            let iterations = 0
+                            while (!moveFind) {
+                                iterations++
+                                if (iterations >= 1000) {
+                                    throw new Error(`[ERROR] ${currChar.name} got stuck!`)
+                                }
+        
+                                if (currChar.state === 0) {
+                                    currChar.state = {thighHighs: ['red', 'white']}
+                                    currChar.doStatusEffects()
+                                }
+
+                                let averageTeamHP = 0
+                                let allies = []
+                                for (let i = 0; i < characters.length; i++) {
+                                    if (characters[i].team === currChar.team && characters[i].alive) {
+                                        allies.push(characters[i].id)
+                                    }
+                                }
+                                for (let tg = 0; tg < allies.length; tg++) {
+                                    averageTeamHP += (getCharacter(allies[tg]).trueStats[0] / getCharacter(allies[tg]).stats[0]) / allies.length
+                                }
+
+                                if (currChar.state.thighHighs[0] === 'red') {
+                                    rng[0] = Math.floor(Math.random() * 1)
+                                    if (rng[0] === 0) {
+                                        target = getTargets(currChar.team)
+                                        target = target[Math.floor(Math.random() * target.length)]
+                                        console.log(`${currChar.name} flamingly punches ${getCharacter(target).name}!`)
+                                        currChar.damage(target, 0.85 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [ELEMENTS.Fighting, ELEMENTS.Fire], [[25, 2], [1, 10]])
+            
+                                        nextAction += 5000
+                                        moveFind = true
+                                        state = -1
                                     }
                                 }
                             }
