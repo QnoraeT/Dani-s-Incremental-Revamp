@@ -6,8 +6,9 @@ function updatePlayerData(player) {
         player.value.version = 0;
     }
     if (player.value.version === 0) {
-        // player.value.displayVersion
-        // player.value.version = 1;
+        // player.value.displayVersion = '1.0.0'
+        player.value.kua.enhancers.enhanceXP = [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0]
+        player.value.version = 1;
     }
     if (player.value.version === 1) {
 

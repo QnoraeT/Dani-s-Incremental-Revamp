@@ -318,6 +318,7 @@ function reset(layer, override) {
                 player.value.bestPointsInCol = c.d0;
                 player.value.kua.enhancers.sources = [c.d0, c.d0, c.d0],
                 player.value.kua.enhancers.enhancers = [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
+                player.value.kua.enhancers.enhanceXP = [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
                 player.value.kua.enhancers.enhancePow = [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
                 player.value.kua.enhancers.xpSpread = c.d1,
                 player.value.kua.enhancers.inExtraction = 0,
@@ -450,6 +451,7 @@ function resetPlayer() {
                 unlocked: false,
                 sources: [c.d0, c.d0, c.d0],
                 enhancers: [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
+                enhanceXP: [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
                 enhancePow: [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
                 xpSpread: c.d1,
                 inExtraction: 0,

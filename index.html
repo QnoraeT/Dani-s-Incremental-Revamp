@@ -35,7 +35,7 @@
         <div v-if="tmp.runGame">
             <div class="flex-container" style="background-color: #ffffff20;">
                 <div style="flex-grow: 1; flex-basis: 0; text-align: left; text-shadow: #ffffff 0vw 0vw 0.4vw;" class="bigText whiteText grayShadow"> {{format(player.points, 3)}}</div>
-                <div style="flex-grow: 1; flex-basis: 0; text-align: center; text-shadow: #ffff00 0vw 0vw 0.24vw;" class="mediumBigText yellowText" style="text-shadow: 0.16vw 0.16vw #880;">FPS: {{otherGameStuffIg.FPS}}</div>
+                <div style="flex-grow: 1; flex-basis: 0; text-align: center; text-shadow: #ffff00 0vw 0vw 0.24vw;" class="mediumBigText yellowText">FPS: {{otherGameStuffIg.FPS}}</div>
                 <div style="flex-grow: 1; flex-basis: 0; text-align: right; text-shadow: #ffffff 0vw 0vw 0.4vw;" class="bigText whiteText grayShadow">{{format(player.pps, 3)}}/s </div>
             </div>
             <div id="tabs">
@@ -245,6 +245,68 @@
                                         <span style="vertical-align: bottom;"><b>Cost:</b><br>{{format(item.cost, 1)}} KPower</span>
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-container" style="flex-direction: column" v-if="tab[tab.currTab][0] === 1">
+                    <div class="flex-container" style="margin-left: auto; margin-right: auto; flex-direction: row; flex-wrap: wrap; justify-content: center; margin-top: 1vw; margin-bottom: 1vw; width: 50vw; align-content: center;">
+                        <div v-for="(item, index) in KUA_ENHANCERS.sources">
+                            <div class="flex-container" style="flex-direction: column; margin: 0.2vw;">
+                                <button style="text-align: center; font-size: 1.0667vw" 
+                                v-bind:class="{ nope: !tmp.kuaSourcesCanBuy[index], ok: tmp.kuaSourcesCanBuy[index] }"
+                                class="whiteText mediumButton fontVerdana kuaButton" @click="buyKuaEnhSourceUPG(index)">
+                                    <h3 style="margin-top: 0.5vw; font-size: 1.15vw">Enhancer Source {{index + 1}}: {{format(player.kua.enhancers.sources[index])}}</h3>
+                                    +1 Enhancer.
+                                    <br><span>Cost: {{format(KUA_ENHANCERS.sources[index].cost(player.kua.enhancers.sources[index]), 2)}} {{KUA_ENHANCERS.sources[index].sourceName}}</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button style="text-align: center; font-size: 1.0667vw" 
+                        v-bind:class="{ nopeFill: !player.auto.kuaSources, okFill: player.auto.kuaSources }"
+                        class="whiteText thinMediumButton fontVerdana kuaButton2" v-if="false" @click="player.auto.kuaSources = !player.auto.kuaSources">
+                            <b>Enhancer Sources Autobuyer: {{player.auto.kuaSources?"On":"Off"}}</b>
+                        </button>
+                        <div class="flex-container" style="flex-direction: column; align-items: center">
+                            <span style="font-size: 1.6vw" class="whiteText fontVerdana">
+                                You have {{format(Decimal.sub(tmp.kuaTotalEnhSources, tmp.kuaEnhSourcesUsed))}} / {{format(tmp.kuaTotalEnhSources)}} Enhancers.
+                                <span v-if="tmp.kuaEnhShowSlow">The enhancer XP is slowing down! ({{formatPerc(tmp.kuaEnhSlowdown, 2)}}%)</span>
+                            </span>
+                            <button style="text-align: center; font-size: 1.0667vw" 
+                            class="whiteText thinMediumButton fontVerdana kuaButton2" @click="kuaEnhReset()">
+                                Unallocate every enhancer.
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-container" style="flex-direction: column; align-items: center;">
+                        <div v-for="(item, index) in KUA_ENHANCERS.enhances">
+                            <div class="flex-container">
+                                <div v-bind:style="{ color: item.color, border: `0.3vw solid ${item.color}`, backgroundColor: `${colorChange(item.color, 0.25, 1.0)}` }" style="margin-top: -0.3vw; width: 50vw; height: 8vw; text-align: center;">
+                                    <div class="flex-container" style="flex-direction: column; margin: 0.5vw; margin-top: 0vw">
+                                        <span style="margin-top: 0.5vw; font-size: 1.4vw"><b>Enhancer {{index + 1}} x{{player.kua.enhancers.enhancers[index]}} (Power: {{format(player.kua.enhancers.enhancePow[index], 2)}}%)</b></span>
+                                        <div class="flex-container" style="justify-content: space-between; margin-top: 0.5vw">
+                                            <div class="slidecontainer" style="width: 15vw">
+                                                <input type="range" min="0" max="100" value="0" class="slider" id="myRange">
+                                            </div>
+                                            <div class="flex-container" style="flex-direction: column;">
+                                                <span style="font-size: 1.4vw">XP: {{format(player.kua.enhancers.enhanceXP[index], 2)}} ({{format(tmp.kuaTrueSourceXPGen[index], 2)}}/s)</span>
+                                                <span style="font-size: 1vw">{{item.desc}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button @click="kuaEnh(index, Infinity)" v-bind:style="{ color: item.color, border: `0.3vw solid ${item.color}`, backgroundColor: `${colorChange(item.color, 0.25, 1.0)}` }" style="margin-top: -0.3vw; margin-left: -0.3vw; width: 8vw; height: 8.45vw; text-align: center; font-size: 1.4vw" class="fontVerdana whiteText"> 
+                                    Add All
+                                </button>
+                                <button @click="kuaEnh(index, 1)" v-bind:style="{ color: item.color, border: `0.3vw solid ${item.color}`, backgroundColor: `${colorChange(item.color, 0.25, 1.0)}` }" style="margin-top: -0.3vw; margin-left: -0.3vw; width: 8vw; height: 8.45vw; text-align: center; font-size: 1.4vw" class="fontVerdana whiteText"> 
+                                    Add 1
+                                </button>
+                                <button @click="kuaEnh(index, -1)" v-bind:style="{ color: item.color, border: `0.3vw solid ${item.color}`, backgroundColor: `${colorChange(item.color, 0.25, 1.0)}` }" style="margin-top: -0.3vw; margin-left: -0.3vw; width: 8vw; height: 8.45vw; text-align: center; font-size: 1.4vw" class="fontVerdana whiteText"> 
+                                    Remove 1
+                                </button>
+                                <button @click="kuaEnh(index, -Infinity)" v-bind:style="{ color: item.color, border: `0.3vw solid ${item.color}`, backgroundColor: `${colorChange(item.color, 0.25, 1.0)}` }" style="margin-top: -0.3vw; margin-left: -0.3vw; width: 8vw; height: 8.45vw; text-align: center; font-size: 1.4vw" class="fontVerdana whiteText"> 
+                                    Remove All
+                                </button>
                             </div>
                         </div>
                     </div>

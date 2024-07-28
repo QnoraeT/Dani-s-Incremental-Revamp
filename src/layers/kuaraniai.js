@@ -112,7 +112,7 @@ const KUA_UPGRADES = {
         },
         { // 9
             get desc() {
-                return `KShards delay Upgrade 2's cost growth (before scaling). Currently: +${format(this.eff, 2)} purchases`;
+                return `KShards delay Upgrade 2's cost growth (after scaling). Currently: +${format(this.eff, 2)} purchases`;
             },
             get eff() {
                 let i = Decimal.max(player.value.kua.kshards.total, c.d10);
@@ -287,6 +287,7 @@ const KUA_UPGRADES = {
 
 // player.value.kua.enhancers.sources = [c.d0, c.d0, c.d0],
 // player.value.kua.enhancers.enhancers = [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
+// player.value.kua.enhancers.enhanceXP = [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
 // player.value.kua.enhancers.enhancePow = [c.d0, c.d0, c.d0, c.d0, c.d0, c.d0, c.d0],
 // player.value.kua.enhancers.xpSpread = c.d1,
 // player.value.kua.enhancers.inExtraction = 0,
@@ -296,32 +297,38 @@ const KUA_UPGRADES = {
 const KUA_ENHANCERS = {
     sources: [
         {
+            get source() { return player.value.points; },
+            sourceName: 'points',
             cost(level) {
-                let cost = Decimal.pow(1e6, smoothExp(Decimal.max(level, 0), 1.05, false)).mul(1e24)
+                let cost = Decimal.pow(1e12, smoothExp(Decimal.max(level, 0), 1.25, false)).mul(1e24)
                 return cost
             },
             target(amount) {
-                let levels = smoothExp(Decimal.max(amount, 1e18).div(1e18).log(1e6), 1.05, true)
+                let levels = smoothExp(Decimal.max(amount, 1e24).div(1e24).log(1e12), 1.25, true)
                 return levels
             }
         },
         {
+            get source() { return player.value.generators.prai.amount; },
+            sourceName: 'PRai',
             cost(level) {
-                let cost = Decimal.pow(1e3, smoothExp(Decimal.max(level, 0), 1.025, false)).mul(1e12)
+                let cost = Decimal.pow(1e6, smoothExp(Decimal.max(level, 0), 1.1, false)).mul(1e12)
                 return cost
             },
             target(amount) {
-                let levels = smoothExp(Decimal.max(amount, 1e9).div(1e9).log(1e3), 1.025, true)
+                let levels = smoothExp(Decimal.max(amount, 1e12).div(1e12).log(1e6), 1.1, true)
                 return levels
             }
         },
         {
+            get source() { return player.value.kua.amount; },
+            sourceName: 'Kuaraniai',
             cost(level) {
                 let cost = Decimal.pow(10, smoothPoly(Decimal.max(level, 0), 2, 50, false)).mul(0.01)
                 return cost
             },
             target(amount) {
-                let levels = smoothPoly(Decimal.max(amount, 0.01).div(0.01).log(10), 2, 50, true)
+                let levels = smoothPoly(Decimal.max(amount, 0.01).div(0.01).log10(), 2, 50, true)
                 return levels
             }
         },
@@ -329,11 +336,60 @@ const KUA_ENHANCERS = {
     enhances: [
         {
             color: "#ffffff",
-            effect(xp, pow) {
-                let effect = 0
-                return effect
+            get desc() { return `Increase UP1's base by +${format(this.effect(), 4)}`; },
+            effect(xp = player.value.kua.enhancers.enhanceXP[0], pow = player.value.kua.enhancers.enhancePow[0]) {
+                let effect = Decimal.max(xp, 0).mul(0.01).add(1).ln().mul(0.1).add(1).pow(pow).sub(1)
+                return effect;
             }
-        }
+        },
+        {
+            color: "#ffffff",
+            get desc() { return `Increase UP2's base by +${format(this.effect(), 4)}`; },
+            effect(xp = player.value.kua.enhancers.enhanceXP[1], pow = player.value.kua.enhancers.enhancePow[1]) {
+                let effect = Decimal.max(xp, 0).mul(0.00025).add(1).root(10).sub(1).mul(10).mul(pow)
+                return effect;
+            }
+        },
+        {
+            color: "#ffffff",
+            get desc() { return `Increase UP3's base by +${format(this.effect(), 4)}`; },
+            effect(xp = player.value.kua.enhancers.enhanceXP[2], pow = player.value.kua.enhancers.enhancePow[2]) {
+                let effect = Decimal.max(xp, 0).mul(0.01).add(1).ln().mul(0.01).add(1).pow(pow).sub(1)
+                return effect;
+            }
+        },
+        {
+            color: "#8000ff",
+            get desc() { return `Weaken UP4's cost growth (after scaling) by ${formatPerc(this.effect(), 3)}`; },
+            effect(xp = player.value.kua.enhancers.enhanceXP[3], pow = player.value.kua.enhancers.enhancePow[3]) {
+                let effect = Decimal.max(xp, 0).mul(0.01).add(1).ln().mul(0.1).mul(pow).add(1)
+                return effect;
+            }
+        },
+        {
+            color: "#8000ff",
+            get desc() { return `Weaken UP5's cost growth (after scaling) by ${formatPerc(this.effect(), 3)}`; },
+            effect(xp = player.value.kua.enhancers.enhanceXP[4], pow = player.value.kua.enhancers.enhancePow[4]) {
+                let effect = Decimal.max(xp, 0).mul(0.01).add(1).ln().mul(0.1).mul(pow).add(1)
+                return effect;
+            }
+        },
+        {
+            color: "#8000ff",
+            get desc() { return `Weaken UP6's cost growth (after scaling) by ${formatPerc(this.effect(), 3)}`; },
+            effect(xp = player.value.kua.enhancers.enhanceXP[5], pow = player.value.kua.enhancers.enhancePow[5]) {
+                let effect = Decimal.max(xp, 0).mul(0.01).add(1).ln().mul(0.1).mul(pow).add(1)
+                return effect;
+            }
+        },
+        {
+            color: "#c0d0e0",
+            get desc() { return `Weaken PR2's cost growth (before scaling) by ${formatPerc(this.effect(), 3)}`; },
+            effect(xp = player.value.kua.enhancers.enhanceXP[6], pow = player.value.kua.enhancers.enhancePow[6]) {
+                let effect = Decimal.max(xp, 0).mul(0.005).add(1).ln().mul(0.05).mul(pow).add(1)
+                return effect;
+            }
+        },
     ]
 }
 
@@ -346,7 +402,33 @@ function updateKua(type, delta) {
     let scal, pow, sta, i, j, k, generate;
     switch (type) {
         case "enhancers":
+            if (tmp.value.kuaBaseSourceXPGen === undefined) { tmp.value.kuaBaseSourceXPGen = []; }
+            if (tmp.value.kuaTrueSourceXPGen === undefined) { tmp.value.kuaTrueSourceXPGen = []; }
 
+            tmp.value.kuaSourcesCanBuy = [false, false, false];
+            tmp.value.kuaTotalEnhSources = c.d0;
+            tmp.value.kuaEnhSourcesUsed = c.d0;
+            tmp.value.kuaEnhShowSlow = false;
+
+            let decayExp = c.d10;
+            tmp.value.kuaEnhSlowdown = Decimal.div(decayExp, c.d10);
+            for (let i = 0; i < KUA_ENHANCERS.sources.length; i++) {
+
+                tmp.value.kuaTotalEnhSources = Decimal.add(tmp.value.kuaTotalEnhSources, player.value.kua.enhancers.sources[i]);
+                tmp.value.kuaEnhSourcesUsed = Decimal.add(tmp.value.kuaEnhSourcesUsed, player.value.kua.enhancers.enhancers[i]);
+                tmp.value.kuaSourcesCanBuy[i] = Decimal.gte(KUA_ENHANCERS.sources[i].source, KUA_ENHANCERS.sources[i].cost(player.value.kua.enhancers.sources[i]));
+
+                tmp.value.kuaBaseSourceXPGen[i] = Decimal.pow(c.d1_1, player.value.kua.enhancers.enhancers[i]).mul(player.value.kua.enhancers.enhancers[i]);
+
+                generate = tmp.value.kuaBaseSourceXPGen[i].mul(delta);
+
+                let lastXP = player.value.kua.enhancers.enhanceXP[i]
+                player.value.kua.enhancers.enhanceXP[i] = Decimal.add(player.value.kua.enhancers.enhanceXP[i], c.d1).root(decayExp).sub(c.d1).mul(decayExp).exp().sub(c.d1).add(generate).add(c.d1).ln().div(decayExp).add(c.d1).pow(decayExp).sub(c.d1);
+                tmp.value.kuaTrueSourceXPGen[i] = Decimal.sub(player.value.kua.enhancers.enhanceXP[i], lastXP);
+
+                tmp.value.kuaEnhShowSlow = tmp.value.kuaEnhShowSlow || Decimal.gte(player.value.kua.enhancers.enhanceXP[i], c.d10);
+            }
+            
             break;
         case "kua":
             player.value.kua.timeInKua = Decimal.add(player.value.kua.timeInKua, delta);
@@ -478,6 +560,7 @@ function updateKua(type, delta) {
 
             setAchievement(12, Decimal.gte(player.value.generators.prai.totalInKua, c.e12));
             setAchievement(13, Decimal.gte(player.value.kua.amount, c.d0_1));
+            setAchievement(34, Decimal.gte(player.value.kua.amount, c.em2));
             setAchievement(19, tmp.value.kuaPending.gte(c.d2_5) && Decimal.eq(player.value.generators.prai.times, c.d0));
             setAchievement(29, Decimal.gte(player.value.kua.amount, c.e7));
             setAchievement(30, Decimal.gte(player.value.generators.prai.totalInKua, c.e90));
@@ -503,4 +586,22 @@ function buyKPowerUpg(id) {
             player.value.kua.kpower.amount = player.value.kua.kpower.amount.sub(KUA_UPGRADES.KPower[id].cost);
         }
     }
+}
+
+function buyKuaEnhSourceUPG(i, max = false) {
+    if (Decimal.gte(KUA_ENHANCERS.sources[i].source, KUA_ENHANCERS.sources[i].cost(player.value.kua.enhancers.sources[i]))) {
+        if (max) {
+            player.value.kua.enhancers.sources[i] = Decimal.max(player.value.kua.enhancers.sources[i], KUA_ENHANCERS.sources[i].target(KUA_ENHANCERS.sources[i].source).floor(c.d1))
+        } else {
+            player.value.kua.enhancers.sources[i] = Decimal.add(player.value.kua.enhancers.sources[i], c.d1)
+        }
+    }
+}
+
+function kuaEnh(id, amt) {
+
+}
+
+function kuaEnhReset() {
+    
 }

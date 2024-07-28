@@ -19,6 +19,30 @@ const listS = ["", "k", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No"];
 const list2 = ["", "U", "D", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No"];
 const list10 = ["", "Dc", "Vg", "Tr", "Qe", "Qt", "Se", "St", "Og", "Nv", "Ce"];
 
+function format(num, int = 1, dec = 1, limit = 10000) {
+    if (num > limit){
+        let abb;
+        let abbN = Math.floor(Math.log10(num) / 2.99999999);
+        if (abbN >= listS.length){
+            abb = list2[(abbN - 1) % 10] + list10[Math.floor((abbN - 1) / 10)];
+        } else {
+            abb = listS[abbN];
+        }
+        num = 10 ** (Math.log10(num) % 3);
+        return `${num.toFixed(dec)} ${abb}`;
+    } else {
+        let n = num;
+        if (int === -1) {
+            n = Math.floor(num);
+        } else if (int === 0) {
+            n = Math.round(num);
+        } else if (int === 1) {
+            n = Math.ceil(num);
+        }
+        return n.toLocaleString();
+    }
+}
+
 const ELEMENTS = {
     Normal: "Normal",
     Fire: "Fire",
@@ -159,30 +183,6 @@ function checkEveryType(defending) {
     }
 }
 
-function format(num, dec, limit = 10000, int = 1) {
-    if (num > limit){
-        let abb;
-        let abbN = Math.floor(Math.log10(num) / 2.99999999);
-        if (abbN >= listS.length){
-            abb = list2[(abbN - 1) % 10] + list10[Math.floor((abbN - 1) / 10)];
-        } else {
-            abb = listS[abbN];
-        }
-        num = 10 ** (Math.log10(num) % 3);
-        return `${num.toFixed(dec)} ${abb}`;
-    } else {
-        let n = num;
-        if (int === -1) {
-            n = Math.floor(num);
-        } else if (int === 0) {
-            n = Math.round(num);
-        } else if (int === 1) {
-            n = Math.ceil(num);
-        }
-        return n.toLocaleString();
-    }
-}
-
 class Character {
     constructor(name, baseStats, level, xpGain, team, idType, pronouns, elements, lvReq = [Infinity, Infinity, Infinity], levelSet) {
         this.id = id
@@ -233,7 +233,9 @@ class Character {
                 newStats.push(Math.max(0, (this.baseStats[i] * levelFactor) - this.stats[i]) * (this.level % 25 == 0 ? 1 : 0.75 + 0.5 * Math.random()))
                 let before = Math.ceil(this.stats[i])
                 this.stats[i] += newStats[i]
-                console.log(`${this.name}'s ${["HP", "MP", "PATK", "PDEF", "MATK", "MDEF", "SPD", "ACC", "EVA"][i]} increased by +${Math.ceil(this.stats[i]) - before}!`)
+                if (Math.ceil(this.stats[i]) - before > 0) {
+                    console.log(`${this.name}'s ${["HP", "MP", "PATK", "PDEF", "MATK", "MDEF", "SPD", "ACC", "EVA"][i]} increased by +${Math.ceil(this.stats[i]) - before}!`)
+                }
                 this.trueStats[i] = this.stats[i]
             }
             this.doStatusEffects()
@@ -259,6 +261,7 @@ class Character {
                 case 'poison':
                 case 'burn':
                 case 'stun':
+                case 'burn':
                 case 'regen':
                     break;
                 case 'slow':
@@ -295,18 +298,22 @@ class Character {
             this.statusEffects[i].length--
             switch (this.statusEffects[i].effectType) {
                 case 'poison':
-                    console.log(`${this.name} takes poison damage! (${this.statusEffects[i].length} turns, ${Math.ceil(this.statusEffects[i].strength)} base damage)`)
-                    this.damage(this.id, this.statusEffects[i].strength, 'p', Infinity, 1, [ELEMENTS.Poison], [0, 1])
+                    console.log(`${this.name} takes poison damage! (${this.statusEffects[i].length} turns, ${format(this.statusEffects[i].strength)} base damage)`)
+                    this.damage(this.id, this.statusEffects[i].strength, 'p', Infinity, 1, [ELEMENTS.Poison], [0, 1], [], true)
                     break;
                 case 'burn':
-                    console.log(`${this.name} takes burn damage! (${this.statusEffects[i].length} turns, ${Math.ceil(this.statusEffects[i].strength * this.statusEffects[i].length)}↓ base damage)`)
-                    this.damage(this.id, this.statusEffects[i].strength * this.statusEffects[i].length, 'p', Infinity, 1, [ELEMENTS.Fire], [0, 1])
+                    console.log(`${this.name} takes burn damage! (${this.statusEffects[i].length} turns, ${format(this.statusEffects[i].strength * this.statusEffects[i].length)}↓ base damage)`)
+                    this.damage(this.id, this.statusEffects[i].strength * this.statusEffects[i].length, 'p', Infinity, 1, [ELEMENTS.Fire], [0, 1], [], true)
+                    break;
+                case 'bleed':
+                    console.log(`${this.name} is bleeding! (${this.statusEffects[i].length} turns, ${format(this.statusEffects[i].strength * this.statusEffects[i].length)}↓ base damage)`)
+                    this.damage(this.id, this.statusEffects[i].strength * this.statusEffects[i].length, 'p', Infinity, 1, [], [0, 1], [], true)
                     break;
                 case 'stun':
                     console.log(`${this.name} is stunned! (${this.statusEffects[i].length} turns)`)
                     break;
                 case 'regen':
-                    console.log(`${this.name} regenerates! (${this.statusEffects[i].length} turns, ${Math.ceil(this.statusEffects[i].strength)} base damage)`)
+                    console.log(`${this.name} regenerates! (${this.statusEffects[i].length} turns, ${format(this.statusEffects[i].strength)} base damage)`)
                     this.heal(this.id, this.statusEffects[i].strength)
                     break;
                 case 'slow':
@@ -318,25 +325,25 @@ class Character {
                 case 'patkDec':
                     before = Math.ceil(before2[2])
                     before2[2] *= this.statusEffects[i].strength
-                    console.log(`${this.name}'s PATK is ${Math.ceil(before2[2]) - before >= 1 ? '+' : ''}${Math.ceil(before2[2]) - before} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
+                    console.log(`${this.name}'s PATK is ${Math.ceil(before2[2]) - before >= 1 ? '+' : ''}${format(Math.ceil(before2[2]) - before)} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
                     break;
                 case 'pdefInc':
                 case 'pdefDec':
                     before = Math.ceil(before2[3])
                     before2[3] *= this.statusEffects[i].strength
-                    console.log(`${this.name}'s PDEF is ${Math.ceil(before2[3]) - before >= 1 ? '+' : ''}${Math.ceil(before2[3]) - before} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
+                    console.log(`${this.name}'s PDEF is ${Math.ceil(before2[3]) - before >= 1 ? '+' : ''}${format(Math.ceil(before2[3]) - before)} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
                     break;
                 case 'matkInc':
                 case 'matkDec':
                     before = Math.ceil(before2[4])
                     before2[4] *= this.statusEffects[i].strength
-                    console.log(`${this.name}'s MATK is ${Math.ceil(before2[4]) - before >= 1 ? '+' : ''}${Math.ceil(before2[4]) - before} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
+                    console.log(`${this.name}'s MATK is ${Math.ceil(before2[4]) - before >= 1 ? '+' : ''}${format(Math.ceil(before2[4]) - before)} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
                     break;
                 case 'mdefInc':
                 case 'mdefDec':
                     before = Math.ceil(before2[5])
                     before2[5] *= this.statusEffects[i].strength
-                    console.log(`${this.name}'s MDEF is ${Math.ceil(before2[5]) - before >= 1 ? '+' : ''}${Math.ceil(before2[5]) - before} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
+                    console.log(`${this.name}'s MDEF is ${Math.ceil(before2[5]) - before >= 1 ? '+' : ''}${format(Math.ceil(before2[5]) - before)} (${this.statusEffects[i].length} turns, ${this.statusEffects[i].strength}x effect)`)
                     break;
                 default:
                     throw new Error(`${this.statusEffects[i].effectType} is not a valid status effect`)
@@ -357,7 +364,7 @@ class Character {
             }
         )
     }
-    damage(who, damage, type, acc, pierce, elements, crit = [[10, 2]], effectList = []) {
+    damage(who, damage, type, acc, pierce, elements, crit = [[10, 2]], effectList = [], ignoreATK = false) {
         damageQueue.push(
             {
                 type: 0,
@@ -369,7 +376,8 @@ class Character {
                 defPierce: pierce,
                 elements: elements,
                 crit: crit,
-                statusEffectList: effectList
+                statusEffectList: effectList,
+                ignoreATK: ignoreATK
             }
         )
     }
@@ -387,7 +395,7 @@ class Character {
             if (this.trueStats[0] <= 0) {
                 this.trueStats[0] = 0
                 if (this.alive) {
-                    console.error(`${this.name} was defeated! They gained ${Math.floor(this.xpGain)} XP!`)
+                    console.error(`${this.name} was defeated! They gained ${format(this.xpGain, -1)} XP!`)
                 }
                 this.alive = false
                 for (let i = 0; i < characters.length; i++) {
@@ -480,12 +488,12 @@ let characters = [//             HP  MP  PA  PD  MA  MD  SP  AC  EV
 const ENEMIES = {
     gslime: {
         name: 'Green Slime',
-        HP: 45,
+        HP: 40,
         MP: 7,
-        PATK: 6,
-        PDEF: 3,
-        MATK: 5,
-        MDEF: 2,
+        PATK: 8,
+        PDEF: 5,
+        MATK: 7,
+        MDEF: 4,
         SPD: 11,
         ACC: 7,
         EVA: 7,
@@ -496,12 +504,12 @@ const ENEMIES = {
     },
     rslime: {
         name: 'Red Slime',
-        HP: 40,
+        HP: 32,
         MP: 16,
-        PATK: 5,
-        PDEF: 2,
-        MATK: 9,
-        MDEF: 3,
+        PATK: 6,
+        PDEF: 5,
+        MATK: 10,
+        MDEF: 7,
         SPD: 8,
         ACC: 5,
         EVA: 8,
@@ -512,12 +520,12 @@ const ENEMIES = {
     },
     yslime: {
         name: 'Yellow Slime',
-        HP: 30,
+        HP: 24,
         MP: 12,
-        PATK: 8,
-        PDEF: 1,
-        MATK: 9,
-        MDEF: 2,
+        PATK: 9,
+        PDEF: 2,
+        MATK: 11,
+        MDEF: 5,
         SPD: 17,
         ACC: 7,
         EVA: 15,
@@ -530,10 +538,10 @@ const ENEMIES = {
         name: 'Blue Slime',
         HP: 60,
         MP: 10,
-        PATK: 4,
-        PDEF: 6,
-        MATK: 4,
-        MDEF: 7,
+        PATK: 6,
+        PDEF: 9,
+        MATK: 6,
+        MDEF: 10,
         SPD: 5,
         ACC: 10,
         EVA: 2,
@@ -546,15 +554,15 @@ const ENEMIES = {
         name: 'Dark Slime',
         HP: 110,
         MP: 40,
-        PATK: 5,
-        PDEF: 8,
+        PATK: 7,
+        PDEF: 9,
         MATK: 12,
-        MDEF: 12,
+        MDEF: 13,
         SPD: 16,
         ACC: 15,
         EVA: 20,
         XP: 12,
-        Level: 4,
+        Level: 3,
         pronouns: 'random',
         elements: [ELEMENTS.Dark]
     },
@@ -570,14 +578,94 @@ const ENEMIES = {
         ACC: 14,
         EVA: 13,
         XP: 20,
-        Level: 4,
+        Level: 5,
         pronouns: 0,
         elements: [ELEMENTS.Fairy]
+    },
+    greyWolf: {
+        name: 'Grey Wolf',
+        HP: 35,
+        MP: 0,
+        PATK: 12,
+        PDEF: 8,
+        MATK: 0,
+        MDEF: 8,
+        SPD: 16,
+        ACC: 18,
+        EVA: 15,
+        XP: 6,
+        Level: 3,
+        pronouns: 'random',
+        elements: [ELEMENTS.Normal]
+    },
+    wildCat: {
+        name: 'Wild Cat',
+        HP: 22,
+        MP: 0,
+        PATK: 10,
+        PDEF: 9,
+        MATK: 0,
+        MDEF: 9,
+        SPD: 23,
+        ACC: 25,
+        EVA: 12,
+        XP: 6.5,
+        Level: 3,
+        pronouns: 'random',
+        elements: [ELEMENTS.Normal]
+    },
+    whiteCat: {
+        name: 'White Cat',
+        HP: 180,
+        MP: 60,
+        PATK: 13,
+        PDEF: 12,
+        MATK: 4,
+        MDEF: 7,
+        SPD: 10,
+        ACC: 20,
+        EVA: 10,
+        XP: 25,
+        Level: 5,
+        pronouns: 'random',
+        elements: [ELEMENTS.Normal]
+    },
+    blackCat: {
+        name: 'Black Cat',
+        HP: 60,
+        MP: 180,
+        PATK: 4,
+        PDEF: 7,
+        MATK: 13,
+        MDEF: 12,
+        SPD: 20,
+        ACC: 10,
+        EVA: 20,
+        XP: 25,
+        Level: 5,
+        pronouns: 'random',
+        elements: [ELEMENTS.Normal]
+    },
+    enchantedDog: {
+        name: 'Enchanted Dog',
+        HP: 55,
+        MP: 12,
+        PATK: 0,
+        PDEF: 40,
+        MATK: 25,
+        MDEF: 0,
+        SPD: 25,
+        ACC: 25,
+        EVA: 12,
+        XP: 20,
+        Level: 4,
+        pronouns: 'random',
+        elements: [ELEMENTS.Normal]
     },
     imartiz: {
         name: 'Inverse Martiz',
         HP: 45,
-        MP: 14,
+        MP: 25,
         PATK: 8,
         PDEF: 15,
         MATK: 5,
@@ -585,16 +673,16 @@ const ENEMIES = {
         SPD: 8,
         ACC: 12,
         EVA: 6,
-        XP: 30,
+        XP: 45,
         Level: 8,
         pronouns: 0,
         elements: [ELEMENTS.Fairy]
     },
 }
 
-function spawnEnemy(id, statModif) {
+function spawnEnemy(id, statModifAll = 1, levelChange = 0, xpMul = 1.0, statModif = {HP: 1, MP: 1, PATK: 1, PDEF: 1, MATK: 1, MDEF: 1, SPD: 1, ACC: 1, EVA: 1}) {
     let enemy = ENEMIES[id]
-    characters.push(new Character(enemy.name, [enemy.HP * statModif, enemy.MP * statModif, enemy.PATK * statModif, enemy.PDEF * statModif, enemy.MATK * statModif, enemy.MDEF * statModif, enemy.SPD * statModif, enemy.ACC * statModif, enemy.EVA * statModif], enemy.Level, enemy.XP * statModif * statModif, 1, id, enemy.pronouns === 'random' ? pronouns_list[Math.floor(Math.random() * 3)] : pronouns_list[enemy.pronouns], enemy.elements, [Infinity, Infinity, Infinity], false))
+    characters.push(new Character(enemy.name, [enemy.HP * statModif.HP * statModifAll, enemy.MP * statModif.MP * statModifAll, enemy.PATK * statModif.PATK * statModifAll, enemy.PDEF * statModif.PDEF * statModifAll, enemy.MATK * statModif.MATK * statModifAll, enemy.MDEF * statModif.MDEF * statModifAll, enemy.SPD * statModif.SPD * statModifAll, enemy.ACC * statModif.ACC * statModifAll, enemy.EVA * statModif.EVA * statModifAll], enemy.Level + levelChange, enemy.XP * xpMul, 1, id, enemy.pronouns === 'random' ? pronouns_list[Math.floor(Math.random() * 3)] : pronouns_list[enemy.pronouns], enemy.elements, [Infinity, Infinity, Infinity], false))
 }
 
 let characterListFixed = []
@@ -635,8 +723,8 @@ function doThing() {
         }
     }
     if (players === 0) {
-        console.error(`\nGame Over!`)
-        wave = Math.max(0, wave - 2)
+        console.error(`Game Over!`)
+        wave = Math.max(0, wave - 3)
         for (let i = 0; i < characters.length; i++) {
             if (characters[i].team !== 0) {
                 characters.splice(i, 1)
@@ -646,7 +734,6 @@ function doThing() {
                 characters[i].trueStats[0] = characters[i].stats[0]
                 characters[i].trueStats[1] = characters[i].stats[1]
                 characters[i].alive = true
-                characters[i].gp = 0
                 characters[i].statusEffects = []
             }
         }
@@ -666,30 +753,30 @@ function doThing() {
         if (wave === 1) {
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 4)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
         }
         if (wave === 2) {
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 4)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 4)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
         }
         if (wave === 3) {
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 4)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 4)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 4)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
         }
         if (wave === 4) {
-            rng[2] = 0.6 + 0.3 * Math.random()
-            spawnEnemy('dslime', rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            spawnEnemy('dslime', rng[2], 0, rng[2] * rng[2])
         }
         if (wave === 5) {
             let has = true
@@ -699,11 +786,11 @@ function doThing() {
                 }
             }
             if (has) {
-                spawnEnemy('dessb', 2.0)
+                spawnEnemy('dessb', 1.0, 0, 1.0, {HP: 10.0, MP: 1.0, PATK: 1.0, PDEF: 1.0, MATK: 1.0, MDEF: 1.0, SPD: 1.0, ACC: 1.0, EVA: 1.0})
             } else {
                 for (let i = 0; i < 4; i++) {
                     rng[2] = 0.8 + 0.4 * Math.random()
-                    spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][i], rng[2])
+                    spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][i], rng[2], 0, rng[2] * rng[2])
                 }
             }
         }
@@ -720,44 +807,44 @@ function doThing() {
 
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 5)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime', 'dslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime', 'dslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 4)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 4)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 4)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
         }
         if (wave === 7 || wave === 8) {
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 5)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime', 'dslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime', 'dslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 4)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 4)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 4)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
         }
         if (wave === 9) {
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 5)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime', 'dslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime', 'dslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 5)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime', 'dslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime', 'dslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 4)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 4)
-            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2])
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
         }
         if (wave === 10) {
             let has = true
@@ -767,12 +854,12 @@ function doThing() {
                 }
             }
             if (has) {
-                spawnEnemy('imartiz', 3.0)
+                spawnEnemy('imartiz', 1.0, 0, 1.0, {HP: 10.0, MP: 10.0, PATK: 1.0, PDEF: 1.0, MATK: 1.0, MDEF: 1.0, SPD: 1.0, ACC: 1.0, EVA: 1.0})
             } else {
                 spawnEnemy('dslime', 1.0)
                 for (let i = 0; i < 4; i++) {
                     rng[2] = 0.8 + 0.4 * Math.random()
-                    spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][i], rng[2])
+                    spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][i], rng[2], 0, rng[2] * rng[2])
                 }
             }
             spawnEnemy('dslime', 1.0)
@@ -857,7 +944,7 @@ function doThing() {
                                     target = getTargets(currChar.team)
                                     target = target[Math.floor(Math.random() * target.length)]
                                     console.log(`${currChar.name} strongly punches ${getCharacter(target).name}!`)
-                                    currChar.damage(target, 1.0 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [ELEMENTS.Fighting])
+                                    currChar.damage(target, 1.0, 'p', currChar.trueStats[7], 0, [ELEMENTS.Fighting])
         
                                     nextAction += 5000
                                     moveFind = true
@@ -887,7 +974,7 @@ function doThing() {
                                         break;
                                     }
                                     console.log(`${currChar.name} uses ${currChar.pronouns[2]} weak healing to try to heal ${currChar.pronouns[3]}...`)
-                                    currChar.heal(currChar.id, 0.5 * currChar.trueStats[4])
+                                    currChar.heal(currChar.id, 1.0 * currChar.trueStats[4])
 
                                     nextAction += 5000
                                     moveFind = true
@@ -897,25 +984,51 @@ function doThing() {
                                 if (rng[0] === 4 && currChar.gp >= 100) {
                                     currChar.gp -= 100
                                     target = getTargets(currChar.team)
+                                    let totalHP = 0
                                     let lowestHP = {hp: Infinity, id: 0}
                                     for (let enemy = 0; enemy < target.length; enemy++) {
+                                        totalHP += getCharacter(target[enemy]).stats[0]
                                         if (lowestHP.hp > getCharacter(target[enemy]).trueStats[0] / getCharacter(target[enemy]).stats[0]) {
                                             lowestHP.hp = getCharacter(target[enemy]).trueStats[0] / getCharacter(target[enemy]).stats[0]
                                             lowestHP.id = target[enemy]
                                         }
                                     }
                                     target = lowestHP.id
-
+                                    if (totalHP / currChar.stats[0] < 2) {
+                                        break;
+                                    }
                                     console.log(`${currChar.name} unleashes ${currChar.pronouns[2]} Giga Power Move: SUPERSTAR STRIKE!`)
                                     tmp = [1, 0, target]
                                     moveFind = true
                                     state = 2
                                     nextAction += 2000
                                 }
+                                if (rng[0] === 5 && currChar.level >= 3) {
+                                    target = getTargets(currChar.team)
+                                    if (target.length <= 1) {
+                                        break;
+                                    }
+                                    target = target[Math.floor(Math.random() * target.length)]
+                                    let target2 = getTargets(currChar.team)
+                                    for (let i = 0; i < target2.length; i++) {
+                                        if (target2[i] === target) {
+                                            target.splice(i, 1)
+                                            i--
+                                        }
+                                    }
+                                    target2 = target[Math.floor(Math.random() * target2.length)]
+                                    console.log(`${currChar.name} throws ${getCharacter(target).name} at ${getCharacter(target).name}!`)
+                                    currChar.damage(target, 0.75, 'p', currChar.trueStats[7], 0, [ELEMENTS.Fighting])
+                                    currChar.damage(target2, 1.2, 'p', currChar.trueStats[7], 0, [ELEMENTS.Fighting])
+
+                                    nextAction += 5000
+                                    moveFind = true
+                                    state = -1
+                                }
                             }
                         }
                         if (state === 1) {
-                            currChar.damage(tmp[1], 0.4 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [ELEMENTS.Fighting])
+                            currChar.damage(tmp[1], 0.4, 'p', currChar.trueStats[7], 0, [ELEMENTS.Fighting])
                             nextAction += 750
                             tmp[0]--
                             if (tmp[0] < 1) {
@@ -959,82 +1072,67 @@ function doThing() {
                                 }
                             }
                             if (tmp[1] === 0) {
-                                let EM = []
-                                if (Math.random() < 0.25) {
-                                    EM = [
-                                        {
-                                            effectType: 'pdefDec',
-                                            strength: 0.833,
-                                            length: 2
-                                        }
-                                    ]
-                                }
-                                currChar.damage(tmp[2], 0.8 * currChar.trueStats[2], 'p', currChar.trueStats[7] * 1.5, 0, [ELEMENTS.Fighting], [[10, 2]], EM)
+                                currChar.damage(tmp[2], 0.8, 'p', currChar.trueStats[7] * 1.5, 0, [ELEMENTS.Fighting], [[10, 2]], [
+                                    {
+                                        effectType: 'pdefDec',
+                                        strength: 0.833,
+                                        length: 2,
+                                        chance: 0.25
+                                    }
+                                ])
                                 nextAction += 1500
                                 tmp[0]--
                             }
                             if (tmp[1] === 1) {
-                                let EM = []
-                                if (Math.random() < 0.1) {
-                                    EM = [
-                                        {
-                                            effectType: 'pdefDec',
-                                            strength: 0.833,
-                                            length: 2
-                                        }
-                                    ]
-                                }
-                                currChar.damage(tmp[2], 0.3 * currChar.trueStats[2], 'p', currChar.trueStats[7] * 1.5, 0, [ELEMENTS.Fighting], [[10, 2]], EM)
+                                currChar.damage(tmp[2], 0.3, 'p', currChar.trueStats[7] * 1.5, 0, [ELEMENTS.Fighting], [[10, 2]], [
+                                    {
+                                        effectType: 'pdefDec',
+                                        strength: 0.833,
+                                        length: 2,
+                                        chance: 0.1
+                                    }
+                                ])
                                 nextAction += 150
                                 tmp[0]--
                             }
                             if (tmp[1] === 2) {
-                                let EM = []
-                                if (Math.random() < 0.1) {
-                                    EM = [
-                                        {
-                                            effectType: 'pdefDec',
-                                            strength: 0.833,
-                                            length: 2
-                                        }
-                                    ]
-                                }
-                                currChar.damage(tmp[2], 0.5 * currChar.trueStats[2], 'p', currChar.trueStats[7] * 1.5, 0, [ELEMENTS.Fighting], [[10, 2]], EM)
+                                currChar.damage(tmp[2], 0.5, 'p', currChar.trueStats[7] * 1.5, 0, [ELEMENTS.Fighting], [[10, 2]], [
+                                    {
+                                        effectType: 'pdefDec',
+                                        strength: 0.833,
+                                        length: 2,
+                                        chance: 0.1
+                                    }
+                                ])
                                 nextAction += 250
                                 tmp[0]--
                             }
                             if (tmp[1] === 3) {
-                                let EM = []
-                                if (Math.random() < 0.1) {
-                                    EM = [
-                                        {
-                                            effectType: 'pdefDec',
-                                            strength: 0.833,
-                                            length: 2
-                                        }
-                                    ]
-                                }
-                                currChar.damage(tmp[2], 0.4 * currChar.trueStats[2], 'p', currChar.trueStats[7] * 1.5, 0, [ELEMENTS.Fighting], [[10, 2]], EM)
+                                currChar.damage(tmp[2], 0.4, 'p', currChar.trueStats[7] * 1.5, 0, [ELEMENTS.Fighting], [[10, 2]], [
+                                    {
+                                        effectType: 'pdefDec',
+                                        strength: 0.833,
+                                        length: 2,
+                                        chance: 0.1
+                                    }
+                                ])
                                 nextAction += 200
                                 tmp[0]--
                             }
                             if (tmp[1] === 4) {
-                                let EM = []
-                                if (Math.random() < 0.1) {
-                                    EM = [
-                                        {
-                                            effectType: 'pdefDec',
-                                            strength: 0.833,
-                                            length: 2
-                                        }
-                                    ]
-                                }
-                                currChar.damage(tmp[2], 0.3 * currChar.trueStats[2], 'p', currChar.trueStats[7] * 1.5, 0, [ELEMENTS.Fighting], [[10, 2]], EM)
+                                currChar.damage(tmp[2], 0.3, 'p', currChar.trueStats[7] * 1.5, 0, [ELEMENTS.Fighting], [[10, 2]], [
+                                    {
+                                        effectType: 'pdefDec',
+                                        strength: 0.833,
+                                        length: 2,
+                                        chance: 0.1
+                                    }
+                                ])
                                 nextAction += 150
                                 tmp[0]--
                             }
                             if (tmp[1] === 5) {
-                                currChar.damage(tmp[2], 1.3 * currChar.trueStats[2], 'p', currChar.trueStats[7] * 2, 0, [ELEMENTS.Fighting], [[100, 2], [10, 5]])
+                                currChar.damage(tmp[2], 1.3, 'p', currChar.trueStats[7] * 2, 0, [ELEMENTS.Fighting], [[100, 2], [10, 5]])
                                 nextAction += 2000
                                 tmp[0]--
                                 state = -1
@@ -1051,7 +1149,66 @@ function doThing() {
                                     throw new Error(`[ERROR] ${currChar.name} got stuck!`)
                                 }
         
-                                rng[0] = Math.floor(Math.random() * 4)
+                                rng[0] = Math.floor(Math.random() * 6)
+
+                                if (currChar.state === 0) {
+                                    currChar.state = { chocBombs: [] }
+                                }
+                                for (let i = 0; i < currChar.state.chocBombs.length; i++) {
+                                    currChar.state.chocBombs[i][1] -= 1
+                                    if (currChar.state.chocBombs[i][1] <= 0) {
+                                        console.log(`${currChar.name}'s ${['chocolate', 'strawberry', 'vanilla', 'coffee', 'blueberry', 'green tea', 'peppermint'][currChar.state.chocBombs[i][0]]} bomb explodes!`)
+                                        switch (currChar.state.chocBombs[i][0]) {
+                                            case 0:
+                                                target = getTargets(currChar.team)
+                                                for (let i = 0; i < target.length; i++) {
+                                                    currChar.damage(target[i], 0.55, 'm', currChar.trueStats[7], 0, [ELEMENTS.Fairy])
+                                                }
+                                                break;
+                                            case 1:
+                                                target = getAllies(currChar.team, true, false)
+                                                for (let i = 0; i < target.length; i++) {
+                                                    currChar.heal(target[i], 0.333 * currChar.trueStats[4])
+                                                }
+                                                break;
+                                            case 2:
+                                                target = getTargets(currChar.team)
+                                                for (let i = 0; i < target.length; i++) {
+                                                    currChar.damage(target[i], 0.25, 'm', currChar.trueStats[7], 0, [ELEMENTS.Fairy], [[50, 2], [10, 4]], [{effectType: 'pdefDec', strength: 0.8, length: 3, chance: 0.5}, {effectType: 'mdefDec', strength: 0.8, length: 3, chance: 0.5}])
+                                                }
+                                                break;
+                                            case 3:
+                                                target = getTargets(currChar.team)
+                                                for (let i = 0; i < target.length; i++) {
+                                                    currChar.damage(target[i], 0.25, 'm', currChar.trueStats[7], 0, [ELEMENTS.Fairy], [[10, 2]], [{effectType: 'burn', strength: 0.04, length: 2 + Math.floor(Math.random() * 2), chance: 0.5}])
+                                                }
+                                                break;
+                                            case 4:
+                                                target = getTargets(currChar.team)
+                                                for (let i = 0; i < target.length; i++) {
+                                                    currChar.damage(target[i], 0.4, 'm', currChar.trueStats[7], 0, [ELEMENTS.Fairy, ELEMENTS.Water], [[10, 2]], [{effectType: 'slow', strength: 0.75, length: 2 + Math.floor(Math.random() * 2), chance: 0.5}])
+                                                }
+                                                break; 
+                                            case 5:
+                                                target = getTargets(currChar.team)
+                                                for (let i = 0; i < target.length; i++) {
+                                                    currChar.damage(target[i], 0.4, 'm', currChar.trueStats[7], 0, [ELEMENTS.Fairy, ELEMENTS.Poison, ELEMENTS.Grass], [[10, 2]], [{effectType: 'poison', strength: 0.1, length: 2 + Math.floor(Math.random() * 2), chance: 0.5}])
+                                                }
+                                                break; 
+                                            case 6:
+                                                target = getTargets(currChar.team)
+                                                for (let i = 0; i < target.length; i++) {
+                                                    currChar.damage(target[i], 0.45, 'm', currChar.trueStats[7], 0, [ELEMENTS.Fairy], [[10, 2]], [{effectType: 'stun', strength: 1.0, length: 1 + Math.floor(Math.random() * 2), chance: 0.25}])
+                                                }
+                                                break; 
+                                            default:
+                                                throw new Error(`${currChar.state.chocBombs[i][0]} is not a valid chocolate bomb type :c`)
+                                        }
+                                    } else {
+                                        console.log(`${currChar.name}'s ${['chocolate', 'strawberry', 'vanilla', 'coffee', 'blueberry', 'green tea', 'peppermint'][currChar.state.chocBombs[i][0]]} bomb is ticking... (${currChar.state.chocBombs[i][1]} turns left)`)
+                                    }
+                                } 
+
                                 let averageTeamHP = 0
                                 let allies = []
                                 for (let i = 0; i < characters.length; i++) {
@@ -1069,7 +1226,7 @@ function doThing() {
                                     target = getTargets(currChar.team)
                                     target = target[Math.floor(Math.random() * target.length)]
                                     console.log(`${currChar.name} kicks ${getCharacter(target).name}!`)
-                                    currChar.damage(target, 0.6 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [ELEMENTS.Fighting])
+                                    currChar.damage(target, 0.6, 'p', currChar.trueStats[7], 0, [ELEMENTS.Fighting])
         
                                     nextAction += 5000
                                     moveFind = true
@@ -1082,7 +1239,7 @@ function doThing() {
                                     }
                                     console.log(`${currChar.name} swipes the opposing team with chocolate!`)
                                     for (let i = 0; i < target.length; i++) {
-                                        currChar.damage(target[i], 0.35 * currChar.trueStats[4], 'm', currChar.trueStats[7], 0, [ELEMENTS.Fairy])
+                                        currChar.damage(target[i], 0.35, 'm', currChar.trueStats[7], 0, [ELEMENTS.Fairy])
                                     }
         
                                     nextAction += 5000
@@ -1101,8 +1258,11 @@ function doThing() {
                                         }
                                     }
                                     target = lowest[1]
+                                    if (lowest[0] >= 0.75 || getCharacter(lowest[1]).team !== currChar.team) {
+                                        break;
+                                    }
                                     console.log(`${currChar.name} feeds ${getCharacter(target).name} chocolate!`)
-                                    currChar.heal(target, 0.4 * currChar.trueStats[4])
+                                    currChar.heal(target, 0.5 * currChar.trueStats[4])
         
                                     nextAction += 5000
                                     moveFind = true
@@ -1134,6 +1294,31 @@ function doThing() {
                                     state = -1
                                     currChar.trueStats[1] -= 7
                                 }   
+                                if (rng[0] === 4 && currChar.trueStats[1] >= 4) {
+                                    target = getTargets(currChar.team)
+                                    target = target[Math.floor(Math.random() * target.length)]
+                                    console.log(`${currChar.name} shoots a chocolate lazer at ${getCharacter(target).name}!`)
+                                    currChar.damage(target, 0.6, 'm', currChar.trueStats[7], 0, [ELEMENTS.Fairy], [10, 2], [{effectType: 'slow', strength: 0.75, length: 3}])
+        
+                                    nextAction += 5000
+                                    moveFind = true
+                                    state = -1
+                                    currChar.trueStats[1] -= 4
+                                }
+                                if (rng[0] === 5 && currChar.trueStats[1] >= 10) {
+                                    target = getTargets(currChar.team)
+                                    if (Math.random() > 0.2 * (3 - target.length)) {
+                                        break;
+                                    }
+                                    let type = [Math.floor(Math.random() * 7), 3]
+                                    console.log(`${currChar.name} throws a ${['chocolate', 'strawberry', 'vanilla', 'coffee', 'blueberry', 'green tea', 'peppermint'][type[0]]} bomb at ${getCharacter(target).name}!`)
+                                    currChar.state.chocBombs.push(type)
+
+                                    nextAction += 5000
+                                    moveFind = true
+                                    state = -1
+                                    currChar.trueStats[1] -= 10
+                                }
                             }
                         }
                         break;
@@ -1147,7 +1332,12 @@ function doThing() {
                                     throw new Error(`[ERROR] ${currChar.name} got stuck!`)
                                 }
         
-                                rng[0] = Math.floor(Math.random() * 2)
+                                if (currChar.state === 0) {
+                                    currChar.state = { crystals: 0, cryMax: 12, targets: [] }
+                                }
+                                currChar.state.crystals = Math.min(currChar.state.cryMax, currChar.state.crystals + 1 + Math.floor(Math.random()))
+                                
+                                rng[0] = Math.floor(Math.random() * 7)
                                 let averageTeamHP = 0
                                 let allies = []
                                 for (let i = 0; i < characters.length; i++) {
@@ -1162,7 +1352,7 @@ function doThing() {
                                     target = getTargets(currChar.team)
                                     target = target[Math.floor(Math.random() * target.length)]
                                     console.log(`${currChar.name} slams ${getCharacter(target).name} with ${currChar.pronouns[2]} tail!`)
-                                    currChar.damage(target, 1.0 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [])
+                                    currChar.damage(target, 1.0, 'p', currChar.trueStats[7], 0, [])
         
                                     nextAction += 5000
                                     moveFind = true
@@ -1198,7 +1388,9 @@ function doThing() {
                                     if (target.length < 1) {
                                         break;
                                     }
-
+                                    if (averageTeamHP >= 0.6) {
+                                        break;
+                                    }
                                     console.log(`${currChar.name} unleashes ${currChar.pronouns[2]} Giga Power Move, %cRadial Charm!%c!`, 'font-weight: bold;', 'font-weight: normal;')
                                     for (let i = 0; i < target.length; i++) {
                                         currChar.heal(target[i], 0.75 * currChar.trueStats[4])
@@ -1207,7 +1399,17 @@ function doThing() {
                                                 effectType: 'regen',
                                                 strength: 0.1 * currChar.trueStats[4],
                                                 length: 5
-                                            }
+                                            },
+                                            {
+                                                effectType: 'matkInc',
+                                                strength: 1.5,
+                                                length: 5
+                                            },
+                                            {
+                                                effectType: 'mdefInc',
+                                                strength: 1.5,
+                                                length: 5
+                                            },
                                         ])
                                     }
         
@@ -1215,6 +1417,83 @@ function doThing() {
                                     moveFind = true
                                     state = -1
                                     currChar.gp -= 100
+                                }
+                                if (rng[0] === 3 && currChar.state.crystals >= 1) {
+                                    if (Math.random() > (currChar.state.crystals / currChar.state.cryMax)) {
+                                        break;
+                                    }
+                                    let used = Math.floor(Math.random() * currChar.state.crystals) + 1
+                                    target = getTargets(currChar.team)
+                                    target = target[Math.floor(Math.random() * target.length)]
+                                    console.log(`${currChar.name} throws ${used} crystals!`)
+                                    for (let i = 0; i < used; i++) {
+                                        currChar.state.targets[0] = getTargets(currChar.team)
+                                        let highestHP = {hp: 0, id: 0}
+                                        for (let enemy = 0; enemy < currChar.state.targets[0].length; enemy++) {
+                                            if (highestHP.hp < getCharacter(currChar.state.targets[0][enemy]).trueStats[0] / getCharacter(currChar.state.targets[0][enemy]).stats[0]) {
+                                                highestHP.hp = getCharacter(currChar.state.targets[0][enemy]).trueStats[0] / getCharacter(currChar.state.targets[0][enemy]).stats[0]
+                                                highestHP.id = currChar.state.targets[0][enemy]
+                                            }
+                                        }
+                                        currChar.state.targets[0] = highestHP.id
+                                        currChar.damage(currChar.state.targets[0], 0.3, 'p', currChar.trueStats[7], 0, [], [[10, 2]], [{effectType: "bleed", strength: 0.07, length: 4, chance: 0.5}])
+                                    }
+        
+                                    nextAction += 5000
+                                    moveFind = true
+                                    state = -1
+                                    currChar.state.crystals -= used
+                                }
+                                if (rng[0] === 4 && (currChar.trueStats[1] / currChar.stats[1]) > 0.25) {
+                                    let used = Math.floor(Math.min(currChar.state.cryMax, currChar.state.crystals + (currChar.trueStats[1] / currChar.stats[1] * 4)) - currChar.state.crystals)
+                                    if (used <= 0) {
+                                        break;
+                                    }
+
+                                    console.log(`${currChar.name} forms ${used} crystals with ${currChar.pronouns[2]} MP/fluid! ${currChar.pronouns[0]} now has ${currChar.state.crystals} / ${currChar.state.cryMax}`)
+
+                                    currChar.trueStats[1] -= used * currChar.stats[1] / 8
+                                    nextAction += 5000
+                                    moveFind = true
+                                    state = -1
+                                }
+                                if (rng[0] === 5) {
+                                    target = getTargets(currChar.team)
+                                    target = target[Math.floor(Math.random() * target.length)]
+                                    console.log(`${currChar.name} tries to smash in ${getCharacter(target).name}'s head!`)
+                                    currChar.damage(target, 2.4, 'p', currChar.trueStats[7] * 0.5, 0, [[10, 2]], [{effectType: 'stun', strength: 1.0, length: 2, chance: 0.5}])
+        
+                                    nextAction += 5000
+                                    moveFind = true
+                                    state = -1
+                                }
+                                if (rng[0] === 6 && currChar.gp >= 5) {
+                                    target = getAllies(currChar.team)
+                                    if (target.length < 1) {
+                                        break;
+                                    }
+                                    let lowest = [1, 0, 0]
+                                    for (let tg = 0; tg < target.length; tg++) {
+                                        if (lowest[0] > getCharacter(target[tg]).trueStats[0] / getCharacter(target[tg]).stats[0]) {
+                                            lowest = [getCharacter(target[tg]).trueStats[0] / getCharacter(target[tg]).stats[0], tg, getCharacter(target[tg]).stats[0]]
+                                        }
+                                    }
+                                    if (lowest[0] >= 0.75) {
+                                        break;
+                                    }
+                                    target = lowest[1]
+                                    console.log(`${currChar.name} hugs ${getCharacter(target).name} and offers them to hug ${currChar.pronouns[1]} back!`)
+                                    currChar.heal(target, 0.2 * currChar.trueStats[2])
+                                    currChar.damage(target, 0, 'm', Infinity, 0, [], [0, 2], [
+                                        {effectType: 'regen', strength: 0.075, length: 5},
+                                        {effectType: 'pdefInc', strength: 1.25, length: 4},
+                                        {effectType: 'mdefInc', strength: 1.25, length: 4},
+                                    ])
+        
+                                    nextAction += 5000
+                                    moveFind = true
+                                    state = -1
+                                    currChar.gp -= 5
                                 }
                             }
                         }
@@ -1309,27 +1588,27 @@ function doThing() {
                                         if (currChar.state.move === 'gigaDrain') {
                                             console.log(`${currChar.name}'s ${currChar.state.moveName} will strike ${getCharacter(currChar.state.targets[0]).name}!`)
                                             currChar.state.lifeSteal = true
-                                            currChar.damage(currChar.state.targets[0], 1.6 * currChar.trueStats[4], 'm', currChar.trueStats[7], 0, [ELEMENTS.Grass])
+                                            currChar.damage(currChar.state.targets[0], 1.6, 'm', currChar.trueStats[7], 0, [ELEMENTS.Grass])
                                             currChar.state.move = null
                                             currChar.state.moveName = null
                                         }
                                         if (currChar.state.move === 'leafBlade') {
                                             console.log(`${currChar.name} will slice ${getCharacter(currChar.state.targets[0]).name} with ${currChar.pronouns[2]} ${currChar.state.moveName}!`)
 
-                                            currChar.damage(currChar.state.targets[0], 1.5 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [ELEMENTS.Grass], [25, 2])
+                                            currChar.damage(currChar.state.targets[0], 1.5, 'p', currChar.trueStats[7], 0, [ELEMENTS.Grass], [25, 2])
                                             currChar.state.move = null
                                             currChar.state.moveName = null
                                         }
                                         if (currChar.state.move === 'leafStorm') {
                                             console.log(`${currChar.name} will summon a powerful ${currChar.state.moveName} against their enemies!`)
                                             
-                                            currChar.damage(currChar.state.targets[0], 2.4 * currChar.trueStats[4], 'm', currChar.trueStats[7], 0, [ELEMENTS.Grass])
+                                            currChar.damage(currChar.state.targets[0], 2.4, 'm', currChar.trueStats[7], 0, [ELEMENTS.Grass])
 
                                             let lastTarget = currChar.state.targets[0]
                                             currChar.state.targets[0] = getTargets(currChar.team)
                                             for (let i = 0; i < currChar.state.targets[0].length; i++) {
                                                 if (currChar.state.targets[0][i] === lastTarget) { continue; }
-                                                currChar.damage(currChar.state.targets[0][i], 0.8 * currChar.trueStats[4], 'm', currChar.trueStats[7] * 0.5, 0, [ELEMENTS.Grass])
+                                                currChar.damage(currChar.state.targets[0][i], 0.8, 'm', currChar.trueStats[7] * 0.5, 0, [ELEMENTS.Grass])
                                             }
                                             
                                             currChar.state.move = null
@@ -1338,7 +1617,7 @@ function doThing() {
                                         if (currChar.state.move === 'energyBall') {
                                             console.log(`${currChar.name} shoots an ${currChar.state.moveName} against ${getCharacter(currChar.state.targets[0]).name}!!`)
                                             
-                                            currChar.damage(currChar.state.targets[0], 1.5 * currChar.trueStats[4], 'm', currChar.trueStats[7], 0, [ELEMENTS.Grass], [10, 2], [{effectType: 'mdefDec', strength: 0.5, length: 3}])
+                                            currChar.damage(currChar.state.targets[0], 1.5, 'm', currChar.trueStats[7], 0, [ELEMENTS.Grass], [[10, 2]], [{effectType: 'mdefDec', strength: 0.5, length: 3}])
                                             
                                             currChar.state.move = null
                                             currChar.state.moveName = null
@@ -1346,7 +1625,7 @@ function doThing() {
                                         if (currChar.state.move === 'swat') {
                                             console.log(`${currChar.name} tries to ${currChar.state.moveName} away ${getCharacter(currChar.state.targets[0]).name}!!`)
                                             
-                                            currChar.damage(currChar.state.targets[0], 1.35 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [ELEMENTS.Grass], [10, 2], [{effectType: 'stun', strength: 1.0, length: 2}])
+                                            currChar.damage(currChar.state.targets[0], 1.35, 'p', currChar.trueStats[7], 0, [ELEMENTS.Grass], [[10, 2]], [{effectType: 'stun', strength: 1.0, length: 2}])
                                             
                                             currChar.state.move = null
                                             currChar.state.moveName = null
@@ -1393,7 +1672,7 @@ function doThing() {
                                         target = getTargets(currChar.team)
                                         target = target[Math.floor(Math.random() * target.length)]
                                         console.log(`${currChar.name} flamingly punches ${getCharacter(target).name}!`)
-                                        currChar.damage(target, 0.85 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [ELEMENTS.Fighting, ELEMENTS.Fire], [[25, 2], [1, 10]])
+                                        currChar.damage(target, 0.85, 'p', currChar.trueStats[7], 0, [ELEMENTS.Fighting, ELEMENTS.Fire], [[25, 2], [1, 10]], [{effectType: 'burn', strength: 0.25, length: 1 + Math.floor(Math.random * 3), chance: 0.25}])
             
                                         nextAction += 5000
                                         moveFind = true
@@ -1421,7 +1700,7 @@ function doThing() {
                                     target = getTargets(currChar.team)
                                     target = target[Math.floor(Math.random() * target.length)]
                                     console.log(`${currChar.name} jumps on ${getCharacter(target).name}!`)
-                                    currChar.damage(target, 0.75 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [ELEMENTS.Normal])
+                                    currChar.damage(target, 0.75, 'p', currChar.trueStats[7], 0, [ELEMENTS.Normal])
         
                                     nextAction += 5000
                                     moveFind = true
@@ -1436,7 +1715,7 @@ function doThing() {
                                         yslime: 'strikes thunder on', 
                                         bslime: 'drenches'
                                     }[currChar.internalType]} ${getCharacter(target).name}!`)
-                                    currChar.damage(target, 0.75 * currChar.trueStats[4], 'm', currChar.trueStats[7], 0, [{
+                                    currChar.damage(target, 0.75, 'm', currChar.trueStats[7], 0, [{
                                         gslime: ELEMENTS.Grass, 
                                         rslime: ELEMENTS.Fire, 
                                         yslime: ELEMENTS.Electric, 
@@ -1452,37 +1731,34 @@ function doThing() {
                                     target = target[Math.floor(Math.random() * target.length)]
                                     console.log(`${currChar.name} ${{
                                         gslime: 'attempts to hit ' + getCharacter(target).name + ' with a toxic bite!', 
-                                        rslime: 'tries to burn ' + getCharacter(target).name + '!', 
+                                        rslime: 'tries to scorch ' + getCharacter(target).name + '!', 
                                         yslime: 'attempts to strike ' + getCharacter(target).name + ' with electrostatic discharge!', 
                                         bslime: 'tries to overwhelm ' + getCharacter(target).name + ' with water!'
                                     }[currChar.internalType]}`)
 
-                                    let EM = []
-                                    if (Math.random() >= 0.5) {
-                                        EM = [
-                                            {
-                                                effectType:{
-                                                    gslime: 'poison', 
-                                                    rslime: 'burn', 
-                                                    yslime: 'stun', 
-                                                    bslime: 'slow'
-                                                }[currChar.internalType],
-                                                strength: {
-                                                    gslime: 0.2 * currChar.trueStats[2], 
-                                                    rslime: 0.1 * currChar.trueStats[4], 
-                                                    yslime: 1.0, 
-                                                    bslime: 0.5
-                                                }[currChar.internalType],
-                                                length: Math.ceil((1 + Math.random() * 2) * (currChar.internalType === 'yslime' ? 0.5 : 1))
-                                            }
-                                        ]
-                                    }
-                                    currChar.damage(target, 0.5 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [{
+                                    currChar.damage(target, 0.5, 'p', currChar.trueStats[7], 0, [{
                                         gslime: ELEMENTS.Poison, 
                                         rslime: ELEMENTS.Fire, 
                                         yslime: ELEMENTS.Electric, 
                                         bslime: ELEMENTS.Water
-                                    }[currChar.internalType]], [[10, 2]], EM)
+                                    }[currChar.internalType]], [[10, 2]], [
+                                        {
+                                            effectType:{
+                                                gslime: 'poison', 
+                                                rslime: 'burn', 
+                                                yslime: 'stun', 
+                                                bslime: 'slow'
+                                            }[currChar.internalType],
+                                            strength: {
+                                                gslime: 0.2, 
+                                                rslime: 0.1, 
+                                                yslime: 1.0, 
+                                                bslime: 0.5
+                                            }[currChar.internalType],
+                                            length: Math.ceil((1 + Math.random() * 2) * (currChar.internalType === 'yslime' ? 0.5 : 1)),
+                                            chance: 0.5
+                                        }
+                                    ])
 
                                     nextAction += 5000
                                     moveFind = true
@@ -1507,7 +1783,7 @@ function doThing() {
                                     target = getTargets(currChar.team)
                                     target = target[Math.floor(Math.random() * target.length)]
                                     console.log(`${currChar.name} jumps on ${getCharacter(target).name}!`)
-                                    currChar.damage(target, 0.9 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [ELEMENTS.Dark])
+                                    currChar.damage(target, 0.9, 'p', currChar.trueStats[7], 0, [ELEMENTS.Dark])
         
                                     nextAction += 5000
                                     moveFind = true
@@ -1518,7 +1794,7 @@ function doThing() {
                                     target = target[Math.floor(Math.random() * target.length)]
                                     console.log(`${currChar.name} absorbs ${getCharacter(target).name}!`)
                                     currChar.state = 1
-                                    currChar.damage(target, 0.45 * currChar.trueStats[4], 'm', currChar.trueStats[7], 0, [ELEMENTS.Dark])
+                                    currChar.damage(target, 0.45, 'm', currChar.trueStats[7], 0, [ELEMENTS.Dark])
         
                                     nextAction += 5000
                                     moveFind = true
@@ -1529,13 +1805,13 @@ function doThing() {
                                     target = target[Math.floor(Math.random() * target.length)]
                                     console.log(`${currChar.name} slams down on ${getCharacter(target).name}!`)
 
-                                    currChar.damage(target, 1.2 * currChar.trueStats[2], 'p', currChar.trueStats[7], 0, [ELEMENTS.Dark])
+                                    currChar.damage(target, 1.2, 'p', currChar.trueStats[7], 0, [ELEMENTS.Dark])
 
                                     let lastTarget = target
                                     target = getTargets(currChar.team)
                                     for (let i = 0; i < target.length; i++) {
                                         if (target[i] === lastTarget) { continue; }
-                                        currChar.damage(target[i], 0.24 * currChar.trueStats[4], 'm', currChar.trueStats[7] * 0.5, 0, [ELEMENTS.Dark])
+                                        currChar.damage(target[i], 0.24, 'm', currChar.trueStats[7] * 0.5, 0, [ELEMENTS.Dark])
                                     }
                                     
                                     nextAction += 5000
@@ -1557,7 +1833,7 @@ function doThing() {
                                     target = target[Math.floor(Math.random() * target.length)]
                                     console.log(`${currChar.name} blasts a beam of dark energy at ${getCharacter(target).name}!`)
 
-                                    currChar.damage(target, 1.75 * currChar.trueStats[2], 'm', currChar.trueStats[7], 0, [ELEMENTS.Dark])
+                                    currChar.damage(target, 1.75, 'm', currChar.trueStats[7], 0, [ELEMENTS.Dark])
 
                                     nextAction += 5000
                                     moveFind = true
@@ -1610,7 +1886,8 @@ function doDamageQueue() {
             }
 
             let typeEff = getTypeEffective(currQueue.elements, getCharacter(currQueue.who).elements)
-            let DM = damageFormula(currQueue.amount, (1 - currQueue.defPierce) * getCharacter(currQueue.who).trueStats[currQueue.atkType === "p" ? 3 : 5])
+            let def = (1 - currQueue.defPierce) * getCharacter(currQueue.who).trueStats[currQueue.atkType === "p" ? 3 : 5]
+            let DM = (currQueue.ignoreATK ? 1 : currQueue.amount) * damageFormula(currQueue.ignoreATK ? currQueue.amount : getCharacter(currQueue.fromWhom).trueStats[currQueue.atkType === "p" ? 2 : 4], def)
             DM *= 0.75 + 0.5 * Math.random()
 
             let critRand = Math.random() * 100
@@ -1645,11 +1922,11 @@ function doDamageQueue() {
                 if (typeEff <= 0) {
                     console.log(`${getCharacter(currQueue.who).name} is immune...`)
                 } else if (typeEff < 1) {
-                    console.log(`${getCharacter(currQueue.who).name} suffers %c${format(before - Math.ceil(getCharacter(currQueue.who).trueStats[0]), 2)}%c not very effective damage... (${typeEff}x)`, 'font-weight: bold;', 'font-weight: normal;')
+                    console.log(`${getCharacter(currQueue.who).name} suffers %c${format(before - Math.ceil(getCharacter(currQueue.who).trueStats[0]))}%c not very effective damage... (${typeEff}x)`, 'font-weight: bold;', 'font-weight: normal;')
                 } else if (typeEff === 1) {
-                    console.log(`${getCharacter(currQueue.who).name} suffers %c${format(before - Math.ceil(getCharacter(currQueue.who).trueStats[0]), 2)}%c damage!`, 'font-weight: bold;', 'font-weight: normal;')
+                    console.log(`${getCharacter(currQueue.who).name} suffers %c${format(before - Math.ceil(getCharacter(currQueue.who).trueStats[0]))}%c damage!`, 'font-weight: bold;', 'font-weight: normal;')
                 } else if (typeEff > 1) {
-                    console.log(`${getCharacter(currQueue.who).name} suffers %c${format(before - Math.ceil(getCharacter(currQueue.who).trueStats[0]), 2)}%c super effective damage!! (${typeEff}x)`, 'font-weight: bold;', 'font-weight: normal;')
+                    console.log(`${getCharacter(currQueue.who).name} suffers %c${format(before - Math.ceil(getCharacter(currQueue.who).trueStats[0]))}%c super effective damage!! (${typeEff}x)`, 'font-weight: bold;', 'font-weight: normal;')
                 }
     
                 getCharacter(currQueue.who).damageScript(DM)
@@ -1657,22 +1934,25 @@ function doDamageQueue() {
             }
 
             for (let j = 0; j < EM.length; j++) {
-                console.log(`${getCharacter(currQueue.who).name}${{
-                    poison: ' has been poisoned!',
-                    burn: ' was burned!',
-                    stun: ' was stunned!',
-                    slow: ' was slowed!',
-                    patkInc: '\'s PATK increased!',
-                    pdefInc: '\'s PDEF increased!',
-                    matkInc: '\'s MATK increased!',
-                    mdefInc: '\'s MDEF increased!',
-                    patkDec: '\'s PATK decreased!',
-                    pdefDec: '\'s PDEF decreased!',
-                    matkDec: '\'s MATK decreased!',
-                    mdefDec: '\'s MDEF decreased!',
-                }[EM[j].effectType]}`)
-                getCharacter(currQueue.who).statusEffects.push(EM[j])
-                getCharacter(currQueue.fromWhom).response({state: "effect", damage: null, effects: EM[j]})
+                if (Math.random() < (EM[j].chance ?? 1)) {
+                    console.log(`${getCharacter(currQueue.who).name}${{
+                        poison: ' has been poisoned!',
+                        burn: ' was burned!',
+                        stun: ' was stunned!',
+                        slow: ' was slowed!',
+                        bleed: ' started bleeding!',
+                        patkInc: '\'s PATK increased!',
+                        pdefInc: '\'s PDEF increased!',
+                        matkInc: '\'s MATK increased!',
+                        mdefInc: '\'s MDEF increased!',
+                        patkDec: '\'s PATK decreased!',
+                        pdefDec: '\'s PDEF decreased!',
+                        matkDec: '\'s MATK decreased!',
+                        mdefDec: '\'s MDEF decreased!',
+                    }[EM[j].effectType]}`)
+                    getCharacter(currQueue.who).statusEffects.push(EM[j])
+                    getCharacter(currQueue.fromWhom).response({state: "effect", damage: null, effects: EM[j]})
+                }
             }
             if (EM.length > 0) {
                 getCharacter(currQueue.who).doStatusEffects()
@@ -1685,7 +1965,7 @@ function doDamageQueue() {
             let before = Math.ceil(getCharacter(currQueue.who).trueStats[0])
             getCharacter(currQueue.who).trueStats[0] = Math.min(getCharacter(currQueue.who).trueStats[0] + DM, getCharacter(currQueue.who).stats[0])
 
-            console.log(`${getCharacter(currQueue.who).name} was healed by %c${format(Math.ceil(getCharacter(currQueue.who).trueStats[0]) - before, 2)}%c HP!`, 'font-weight: bold;', 'font-weight: normal;')
+            console.log(`${getCharacter(currQueue.who).name} was healed by %c${format(Math.ceil(getCharacter(currQueue.who).trueStats[0]) - before)}%c HP!`, 'font-weight: bold;', 'font-weight: normal;')
 
             getCharacter(currQueue.who).damageScript(-DM)
             getCharacter(currQueue.fromWhom).response({state: "heal", damage: DM, effects: null})
@@ -1694,15 +1974,26 @@ function doDamageQueue() {
     damageQueue = []
 }
 
+/*
+ * This damage formula says:
+ * If you have no DEF, then you take the full damage.
+ * If you have DEF = ATK, then you take half the damage
+ * If you have 2x the DEF, then you take a third of the damage.
+ * If you have 3x the DEF, then you take a fourth of the damage.
+ */
 function damageFormula(atk, def) {
     if (atk === 0 && def === 0) { return 0; }
     return (atk * atk) / (atk + def)
 }
 
+/*
+ * This formula is exactly baseAcc at EVA = ACC
+ * It is also a sigmoid function.
+ */
 function dodgeFormula(acc, eva) {
-    return acc >= eva
-        ? 1 - ((1 - baseAcc) * ((eva * eva) / (acc * acc)))
-        : baseAcc * (acc * 2) / (acc + eva)
+    return (Math.tanh(-Math.log(Math.exp(-Math.atanh(2 * baseAcc - 1)) * eva / acc)) + 1) / 2
+    // return (Math.tanh(-2 * Math.log(Math.exp(-Math.atanh(2 * baseAcc - 1) * 0.5) * eva / acc)) + 1) / 2
+    // i feel like this evasion scaling is too harsh, but idk
 }
 
 function displayCharacter(id, type) {
@@ -1710,13 +2001,13 @@ function displayCharacter(id, type) {
     switch (type) {
         case 0:
             if (whom.team === 0) {
-                console.log(`${pad(whom.name, 15, " ")} | ${pad(whom.level, 5, " ")} | ${pad(Math.ceil(whom.trueStats[0]), 4, " ")} / ${pad(Math.ceil(whom.stats[0]), 4, " ")} | ${pad(Math.ceil(whom.trueStats[1]), 4, " ")} / ${pad(Math.ceil(whom.stats[1]), 4, " ")} | ${pad(Math.floor(whom.xp - whom.levelUpReq(whom.level - 1)), 4, " ")} / ${pad(Math.ceil(whom.levelUpReq(whom.level) - whom.levelUpReq(whom.level - 1)), 4, " ")} | ${pad(Math.ceil(whom.gp), 3, " ")}`)
+                console.log(`${pad(whom.name, 15, " ")} | ${pad(format(whom.level), 5, " ")} | ${pad(format(whom.trueStats[0]), 4, " ")} / ${pad(format(whom.stats[0]), 4, " ")} | ${pad(format(whom.trueStats[1]), 4, " ")} / ${pad(format(whom.stats[1]), 4, " ")} | ${pad(Math.floor(whom.xp - whom.levelUpReq(whom.level - 1)), 4, " ")} / ${pad(format(whom.levelUpReq(whom.level) - whom.levelUpReq(whom.level - 1)), 4, " ")} | ${pad(format(whom.gp), 3, " ")}`)
             } else {
-                console.log(`${pad(whom.name, 15, " ")} | ${pad(whom.level, 5, " ")} | ${pad(Math.ceil(whom.trueStats[0]), 4, " ")} / ${pad(Math.ceil(whom.stats[0]), 4, " ")} | ${pad(Math.ceil(whom.trueStats[1]), 4, " ")} / ${pad(Math.ceil(whom.stats[1]), 4, " ")} | ${pad(Math.ceil(whom.gp), 3, " ")}`)
+                console.log(`${pad(whom.name, 15, " ")} | ${pad(format(whom.level), 5, " ")} | ${pad(format(whom.trueStats[0]), 4, " ")} / ${pad(format(whom.stats[0]), 4, " ")} | ${pad(format(whom.trueStats[1]), 4, " ")} / ${pad(format(whom.stats[1]), 4, " ")} | ${pad(format(whom.gp), 3, " ")}`)
             }
             break;
         case 1:
-            console.log(`${whom.name} Level ${whom.level} (XP: ${Math.ceil(whom.xp)})\nHP: ${Math.ceil(whom.stats[0])}\nMP: ${Math.ceil(whom.stats[1])}\nPATK: ${Math.ceil(whom.stats[1])}\nPDEF: ${Math.ceil(whom.stats[2])}\nMATK: ${Math.ceil(whom.stats[3])}\nMDEF: ${Math.ceil(whom.stats[4])}\nSPD: ${Math.ceil(whom.stats[5])}`)
+            console.log(`${whom.name} Level ${whom.level} (XP: ${format(whom.xp)})\nHP: ${format(whom.stats[0])}\nMP: ${format(whom.stats[1])}\nPATK: ${format(whom.stats[1])}\nPDEF: ${format(whom.stats[2])}\nMATK: ${format(whom.stats[3])}\nMDEF: ${format(whom.stats[4])}\nSPD: ${format(whom.stats[5])}`)
             break;
         default:
             console.warn("what")
@@ -1748,5 +2039,8 @@ function getCharacterList() {
 }
 
 function getCharacter(id) {
+    if (characters[characterListFixed[id]] === undefined) {
+        throw new Error(`aw frick ${id} is not a character`)
+    }
     return characters[characterListFixed[id]]
 }
