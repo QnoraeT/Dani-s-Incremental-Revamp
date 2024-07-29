@@ -488,7 +488,7 @@ let characters = [//             HP  MP  PA  PD  MA  MD  SP  AC  EV
 const ENEMIES = {
     gslime: {
         name: 'Green Slime',
-        HP: 40,
+        HP: 30,
         MP: 7,
         PATK: 8,
         PDEF: 5,
@@ -504,7 +504,7 @@ const ENEMIES = {
     },
     rslime: {
         name: 'Red Slime',
-        HP: 32,
+        HP: 25,
         MP: 16,
         PATK: 6,
         PDEF: 5,
@@ -520,7 +520,7 @@ const ENEMIES = {
     },
     yslime: {
         name: 'Yellow Slime',
-        HP: 24,
+        HP: 20,
         MP: 12,
         PATK: 9,
         PDEF: 2,
@@ -536,7 +536,7 @@ const ENEMIES = {
     },
     bslime: {
         name: 'Blue Slime',
-        HP: 60,
+        HP: 45,
         MP: 10,
         PATK: 6,
         PDEF: 9,
@@ -552,7 +552,7 @@ const ENEMIES = {
     },
     dslime: {
         name: 'Dark Slime',
-        HP: 110,
+        HP: 100,
         MP: 40,
         PATK: 7,
         PDEF: 9,
@@ -740,7 +740,7 @@ function doThing() {
         nextAction += 5000
     }
 
-    if (enemies === 0 && wave < 11) {
+    if (enemies === 0 && wave < 15) {
         for (let i = 0; i < characters.length; i++) {
             if (characters[i].team !== 0) {
                 characters.splice(i, 1)
@@ -779,6 +779,63 @@ function doThing() {
             spawnEnemy('dslime', rng[2], 0, rng[2] * rng[2])
         }
         if (wave === 5) {
+            rng[2] = 0.8 + 0.4 * Math.random()
+            spawnEnemy('gslime', rng[2], 0, rng[2] * rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            spawnEnemy('rslime', rng[2], 0, rng[2] * rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            spawnEnemy('yslime', rng[2], 0, rng[2] * rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            spawnEnemy('bslime', rng[2], 0, rng[2] * rng[2])
+        }
+        if (wave === 6) {
+            rng[0] = Math.floor(Math.random * 4) + 2
+            for (let i = 0; i < rng[0]; i++) {
+                rng[2] = 0.8 + 0.4 * Math.random()
+                rng[3] = Math.floor(Math.random() * 4)
+                spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
+            }
+        }
+        if (wave === 7) {
+            rng[2] = 1.2 + 0.6 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
+            rng[0] = Math.floor(Math.random * 3) + 1
+            for (let i = 0; i < rng[0]; i++) {
+                rng[2] = 0.8 + 0.4 * Math.random()
+                rng[3] = Math.floor(Math.random() * 4)
+                spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
+            }
+        }
+        if (wave === 8) {
+            rng[2] = 1.2 + 0.6 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
+            rng[2] = 1.2 + 0.6 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
+            rng[0] = Math.floor(Math.random * 2) + 1
+            for (let i = 0; i < rng[0]; i++) {
+                rng[2] = 0.8 + 0.4 * Math.random()
+                rng[3] = Math.floor(Math.random() * 4)
+                spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
+            }
+        }
+        if (wave === 9) {
+            rng[2] = 1.2 + 0.6 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
+            rng[2] = 1.2 + 0.6 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
+            rng[2] = 1.2 + 0.6 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
+        }
+        if (wave === 10) {
             let has = true
             for (let i = 0; i < characters.length; i++) {
                 if (characters[i].internalType === 'dessb') {
@@ -794,7 +851,7 @@ function doThing() {
                 }
             }
         }
-        if (wave === 6) {
+        if (wave === 11) {
             let has = true
             for (let i = 0; i < characters.length; i++) {
                 if (characters[i].internalType === 'dessb') {
@@ -818,7 +875,7 @@ function doThing() {
             rng[3] = Math.floor(Math.random() * 4)
             spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
         }
-        if (wave === 7 || wave === 8) {
+        if (wave === 12 || wave === 13) {
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 5)
             spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime', 'dslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
@@ -832,7 +889,7 @@ function doThing() {
             rng[3] = Math.floor(Math.random() * 4)
             spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
         }
-        if (wave === 9) {
+        if (wave === 14) {
             rng[2] = 0.8 + 0.4 * Math.random()
             rng[3] = Math.floor(Math.random() * 5)
             spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime', 'dslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
@@ -846,7 +903,37 @@ function doThing() {
             rng[3] = Math.floor(Math.random() * 4)
             spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
         }
-        if (wave === 10) {
+        if (wave === 15) {
+            rng[2] = 0.8 + 0.4 * Math.random()
+            spawnEnemy('dslime', rng[2], 0, rng[2] * rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            spawnEnemy('dslime', rng[2], 0, rng[2] * rng[2])
+        }
+        if (wave === 16) {
+            for (let i = 0; i < 4; i++) {
+                rng[2] = 1.2 + 0.6 * Math.random()
+                spawnEnemy('gslime', rng[2], 0, rng[2] * rng[2])
+            }
+        }
+        if (wave === 17) {
+            for (let i = 0; i < 4; i++) {
+                rng[2] = 1.2 + 0.6 * Math.random()
+                spawnEnemy('rslime', rng[2], 0, rng[2] * rng[2])
+            }
+        }
+        if (wave === 18) {
+            for (let i = 0; i < 4; i++) {
+                rng[2] = 1.2 + 0.6 * Math.random()
+                spawnEnemy('yslime', rng[2], 0, rng[2] * rng[2])
+            }
+        }
+        if (wave === 19) {
+            for (let i = 0; i < 4; i++) {
+                rng[2] = 1.2 + 0.6 * Math.random()
+                spawnEnemy('bslime', rng[2], 0, rng[2] * rng[2])
+            }
+        }
+        if (wave === 20) {
             let has = true
             for (let i = 0; i < characters.length; i++) {
                 if (characters[i].internalType === 'imartiz') {
@@ -863,6 +950,30 @@ function doThing() {
                 }
             }
             spawnEnemy('dslime', 1.0)
+        }
+        if (wave === 21) {
+            let has = true
+            for (let i = 0; i < characters.length; i++) {
+                if (characters[i].internalType === 'imartiz') {
+                    has = false
+                }
+            }
+            if (has) {
+                characters.push(new Character("I. Martiz", [12, 16, 14, 7, 15, 9, 20, 14, 13], 1, 0, 0, 'imartiz', pronouns_list[0], [ELEMENTS.Fairy], [10, 12, 3], true))
+            }
+
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 5)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime', 'dslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
+            rng[2] = 0.8 + 0.4 * Math.random()
+            rng[3] = Math.floor(Math.random() * 4)
+            spawnEnemy(['gslime', 'rslime', 'yslime', 'bslime'][rng[3]], rng[2], 0, rng[2] * rng[2])
         }
         getCharacterList()
         turnOrder = []
