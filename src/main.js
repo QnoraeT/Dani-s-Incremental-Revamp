@@ -836,6 +836,4 @@ function loadGame() {
             // pen.fill();
         }
     }
-    
 }
-

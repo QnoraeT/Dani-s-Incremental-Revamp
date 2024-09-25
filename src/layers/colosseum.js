@@ -299,6 +299,7 @@ function challengeToggle(id) {
                     unlocked: player.value.kua.enhancers.unlocked,
                     sources: player.value.kua.enhancers.sources,
                     enhancers: player.value.kua.enhancers.enhancers,
+                    enhanceXP: player.value.kua.enhancers.enhanceXP,
                     enhancePow: player.value.kua.enhancers.enhancePow,
                     xpSpread: player.value.kua.enhancers.xpSpread,
                     inExtraction: player.value.kua.enhancers.inExtraction,
