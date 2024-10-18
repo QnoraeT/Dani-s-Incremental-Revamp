@@ -411,20 +411,22 @@ function updateKua(type, delta) {
             tmp.value.kuaEnhShowSlow = false;
 
             let decayExp = c.d10;
-            tmp.value.kuaEnhSlowdown = Decimal.div(decayExp, c.d10);
+            tmp.value.kuaEnhSlowdown = Decimal.div(decayExp, c.d10).mul(c.e2);
             for (let i = 0; i < KUA_ENHANCERS.sources.length; i++) {
+                tmp.value.kuaSourcesCanBuy[i] = Decimal.gte(KUA_ENHANCERS.sources[i].source, KUA_ENHANCERS.sources[i].cost(player.value.kua.enhancers.sources[i]));
+            }
 
+            for (let i = 0; i < KUA_ENHANCERS.enhances.length; i++) {
                 tmp.value.kuaTotalEnhSources = Decimal.add(tmp.value.kuaTotalEnhSources, player.value.kua.enhancers.sources[i]);
                 tmp.value.kuaEnhSourcesUsed = Decimal.add(tmp.value.kuaEnhSourcesUsed, player.value.kua.enhancers.enhancers[i]);
-                tmp.value.kuaSourcesCanBuy[i] = Decimal.gte(KUA_ENHANCERS.sources[i].source, KUA_ENHANCERS.sources[i].cost(player.value.kua.enhancers.sources[i]));
 
-                tmp.value.kuaBaseSourceXPGen[i] = Decimal.pow(c.d1_1, player.value.kua.enhancers.enhancers[i]).mul(player.value.kua.enhancers.enhancers[i]);
+                tmp.value.kuaBaseSourceXPGen[i] = Decimal.pow(player.value.kua.enhancers.enhancers[i], c.d1_5);
 
                 generate = tmp.value.kuaBaseSourceXPGen[i].mul(delta);
 
                 let lastXP = player.value.kua.enhancers.enhanceXP[i]
                 player.value.kua.enhancers.enhanceXP[i] = Decimal.add(player.value.kua.enhancers.enhanceXP[i], c.d1).root(decayExp).sub(c.d1).mul(decayExp).exp().sub(c.d1).add(generate).add(c.d1).ln().div(decayExp).add(c.d1).pow(decayExp).sub(c.d1);
-                tmp.value.kuaTrueSourceXPGen[i] = Decimal.sub(player.value.kua.enhancers.enhanceXP[i], lastXP);
+                tmp.value.kuaTrueSourceXPGen[i] = Decimal.sub(player.value.kua.enhancers.enhanceXP[i], lastXP).div(delta);
 
                 tmp.value.kuaEnhShowSlow = tmp.value.kuaEnhShowSlow || Decimal.gte(player.value.kua.enhancers.enhanceXP[i], c.d10);
             }
@@ -599,9 +601,12 @@ function buyKuaEnhSourceUPG(i, max = false) {
 }
 
 function kuaEnh(id, amt) {
-
+    let left = Decimal.sub(tmp.value.kuaTotalEnhSources, tmp.value.kuaEnhSourcesUsed)
+    player.value.kua.enhancers.enhancers[id] = Decimal.min(Decimal.add(left, player.value.kua.enhancers.enhancers[id]), Decimal.max(c.d0, Decimal.add(player.value.kua.enhancers.enhancers[id], amt)))
 }
 
 function kuaEnhReset() {
-    
+    for (let i = 0; i < player.value.kua.enhancers.enhancers.length; i++) {
+        player.value.kua.enhancers.enhancers[i] = c.d0;
+    }
 }
