@@ -1,103 +1,103 @@
 let questions = [
     {
-        "prompt": "Government is best defined here as a system for",
+        "prompt": "In order to be elected president, a candidate must",
         "questions": [
-            "collecting taxes",
-            "managing a community or nation and the officials who run that system",
-            "making war",
-            "building highways and bridges"
-        ],
-        "answer": 1
-    },
-    {
-        "prompt": "Politics is best defined as the process of",
-        "questions": [
-            "gaining and keeping control of a government",
-            "deal making and debate",
-            "making full use of a nation's resources",
-            "providing jobs for everyone"
-        ],
-        "answer": 0
-    },
-    {
-        "prompt": "A nation cannot exist without",
-        "questions": [
-            "a king",
-            "a legislature",
-            "sovereignty",
-            "free elections"
-        ],
-        "answer": 2
-    },
-    {
-        "prompt": "Laws in the American colonies were made by the",
-        "questions": [
-            "British Parliament",
-            "colonial governor",
-            "British monarchy",
-            "colonial assemblies"
+            "recieve a majority of the popular vote",
+            "be approved by the House of Representatives",
+            "belong to one of the major parties",
+            "recieve a majority of the electoral vote"
         ],
         "answer": 3
     },
     {
-        "prompt": "The significance of the establishment of the Virginia House of Burgesses in 1619 was that it",
+        "prompt": "Which of the following can happen under the Electoral College system? It is possible for a candidate to be elected president",
         "questions": [
-            "led to our system of checks and balances",
-            "brought an end to all conflicts with Native Americans",
-            "was the first elected assembly in Nortth America",
-            "introduced the confederate system of government"
-        ],
-        "answer": 2
-    },
-    {
-        "prompt": "Long before the revolutionary war, Americans had become used to self-government because",
-        "questions": [
-            "royal colonies has disappeared by 1700",
-            "their assemblies used the power of the purse to check the power of colonial governors",
-            "Parliament was eager to allow the colonies to run their own affairs",
-            "the British monarchy encouraged self-government"
+            "with just a plurality of the electoral vote",
+            "without a majority of the popular vote",
+            "with the least number of electoral votes",
+            "if the House of Representatives awards him or her disputed electoral votes"
         ],
         "answer": 1
     },
     {
-        "prompt": "The Magna Carta, the Petition of Right, and the English Bill of Rights all attempted to",
+        "prompt": "In case of a tie in the electoral college, the election is resolved by a",
         "questions": [
-            "limit the power of the English kings",
-            "extend the right to vote to all citizens",
-            "extend full rights to the American colonies",
-            "unite England and the American colonies"
+            "recount",
+            "vote in the House of Representatives",
+            "completely new election",
+            "run-off election"
+        ],
+        "answer": 1
+    },
+    {
+        "prompt": "In order to be nominated for president, a candidate must",
+        "questions": [
+            "win a majority of his or her's party convention delegates",
+            "be a war hero",
+            "be a successful governor",
+            "campaign in primary elections"
         ],
         "answer": 0
     },
     {
-        "prompt": "The ideas of John Locke",
+        "prompt": "The first presidential primary in the nation is held in the state of",
         "questions": [
-            "opposed democracy",
-            "influenced the colonists in their struggle against George III",
-            "supported tyranny",
-            "stressed religious toleration"
+            "Alaska",
+            "Iowa",
+            "New Hampshire",
+            "California"
         ],
-        "answer": 1
+        "answer": 2
     },
     {
-        "prompt": "The Declaration of Independance shows the influence of John Locke by stressing the importance of",
+        "prompt": "A number of presidents who have never held elective office have been",
         "questions": [
-            "a strong court system",
-            "a standing army",
-            "colonial assemblies",
-            "natural rights"
+            "generals",
+            "business leaders",
+            "religious leaders",
+            "journalists"
+        ],
+        "answer": 0
+    },
+    {
+        "prompt": "Which amendment allows the vice president to assume the presidency in case the president becomes incapacitated?",
+        "questions": [
+            "First",
+            "Tenth",
+            "Twenty-second",
+            "Twenty-fifth"
         ],
         "answer": 3
     },
     {
-        "prompt": "Thomas Jefferson statesi nthe Declaration of Independance that the main purpose of government is to",
+        "prompt": "A newly elected president officially begins his or her term",
         "questions": [
-            "maintain law and order",
-            "provide jobs for all",
-            "protect the people's rights",
-            "provide safety for its citizens"
+            "on the day after Election Day",
+            "on the day after the Electoral College meets",
+            "on Inauguration Day",
+            "as soon as the election results become official"
         ],
         "answer": 2
+    },
+    {
+        "prompt": "The vice president also serves as president of the",
+        "questions": [
+            "United States",
+            "Supreme Court",
+            "House of Representatives",
+            "U.S. Senate"
+        ],
+        "answer": 3
+    },
+    {
+        "prompt": "In 1985, President Ronald Reagan temporarily transferred presidential authority to",
+        "questions": [
+            "Vice President George. H. W. Bush",
+            "First Lady Nancy Reagan",
+            "House Speaker Thomas \"Tip\" O'Neill",
+            "former Secretary of State Alexander Haig"
+        ],
+        "answer": 0
     }
 ]
 
@@ -160,8 +160,11 @@ function start() {
     console.log(`\n%cPoints: ${points} / ${questions.length} (${(points / questions.length * 100).toFixed(1)}%)`, "font-size: 24px")
 }
 
+// copy from everything before this line if you want to confirm testing yourself!
+// from this line on, make the questions!
+
 function makeQuestions() {
-    let amt = 22
+    let amt = 22 // this is used to denote how many questions will there be on the test/quiz.
     for (let i = 0; i < amt; i++) {
         questions[i] = {prompt: "", questions: ["", "", "", ""], answer: 0}
         questions[i].prompt = prompt(`Question ${i+1}/ ${amt}, Prompt:`)
@@ -175,3 +178,5 @@ function makeQuestions() {
     }
     console.log(JSON.stringify(questions))
 }
+
+makeQuestions()
